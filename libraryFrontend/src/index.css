@@ -1,0 +1,168 @@
+:root {
+  --color-sidebar: #2D1B69;
+  --color-sidebar-hover: #3D2880;
+  --color-accent: #7C3AED;
+  --color-accent-light: #EDE9FE;
+  --color-bg: #F8F7FF;
+  --color-surface: #FFFFFF;
+  --color-border: rgba(0,0,0,0.07);
+  --color-text-primary: #1A1523;
+  --color-text-secondary: #6B7280;
+  --color-text-muted: #9CA3AF;
+  --color-danger: #7F1D1D;
+  --color-danger-bg: #FEF2F2;
+  --color-success-bg: #ECFDF5;
+  --color-success-text: #065F46;
+  --color-warning-bg: #FEF3C7;
+  --color-warning-text: #78350F;
+  --color-ready-bg: #DDD6FE;
+  --color-ready-text: #4C1D95;
+  --color-returned-bg: #F3F4F6;
+  --color-returned-text: #374151;
+  --color-overlay: rgba(15, 10, 30, 0.45);
+  --color-shadow-soft: 0 1px 3px rgba(0,0,0,0.05);
+  --color-shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --color-shadow-drawer: -4px 0 24px rgba(0,0,0,0.08);
+
+  /* Aliases used in inline styles / older component names */
+  --verso-danger: var(--color-danger);
+  --verso-muted: var(--color-text-muted);
+  --verso-border: var(--color-border);
+
+  /* Status badge colors */
+  --badge-active-bg: #ECFDF5;
+  --badge-active-text: #065F46;
+  --badge-overdue-bg: #FEF2F2;
+  --badge-overdue-text: #7F1D1D;
+  --badge-returned-bg: #F3F4F6;
+  --badge-returned-text: #374151;
+  --badge-waiting-bg: #FEF3C7;
+  --badge-waiting-text: #78350F;
+  --badge-ready-bg: #DDD6FE;
+  --badge-ready-text: #4C1D95;
+  --badge-paid-bg: #ECFDF5;
+  --badge-paid-text: #065F46;
+  --badge-unpaid-bg: #FEF2F2;
+  --badge-unpaid-text: #7F1D1D;
+  --badge-suspended-bg: #FEE2E2;
+  --badge-suspended-text: #991B1B;
+  --badge-fulfilled-bg: #ECFDF5;
+  --badge-fulfilled-text: #065F46;
+  --badge-expired-bg: #F3F4F6;
+  --badge-expired-text: #374151;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  min-height: 100%;
+}
+
+body {
+  font-family: 'Source Serif 4';
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.45;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Fraunces';
+  font-weight: 400;
+  color: var(--color-text-primary);
+}
+
+input, button, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  background: var(--color-accent-light);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(124,58,237,0.28);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+
+.font-mono-data {
+  font-family: 'JetBrains Mono';
+  font-size: 0.9em;
+}
+
+.page-shell {
+  padding: 24px;
+}
+
+.section-card {
+  background: var(--color-surface);
+  border: 0.5px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: var(--color-shadow-soft);
+}
+
+.section-title {
+  font-family: 'Fraunces';
+  font-weight: 400;
+}
+
+.muted-text {
+  color: var(--color-text-secondary);
+}
+
+.mono-text {
+  font-family: 'JetBrains Mono';
+}
+
+.spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(124, 58, 237, 0.2);
+  border-radius: 50%;
+  border-top-color: var(--color-accent);
+  animation: spin 0.8s linear infinite;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

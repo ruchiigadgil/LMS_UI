@@ -1,0 +1,356 @@
+/* src/components/BookDetailDrawer.module.css */
+.panel {
+  background: var(--color-surface);
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.07);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.panelHeader {
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-surface);
+  flex-shrink: 0;
+}
+
+.panelHeader span {
+  font-family: 'Fraunces';
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--color-text-primary);
+}
+
+.closeBtn {
+  font-family: 'JetBrains Mono';
+  font-size: 18px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.closeBtn:hover {
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+}
+
+.panelBody {
+  padding: 20px 24px 24px;
+  overflow-y: auto;
+  flex-grow: 1;
+  font-family: 'Source Serif 4';
+  font-weight: 300;
+}
+
+.coverWrapper {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  background: var(--color-bg);
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.cover {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.title {
+  font-family: 'Fraunces';
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.author {
+  font-family: 'Source Serif 4';
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--color-text-secondary);
+  margin-bottom: 12px;
+}
+
+.genre {
+  display: inline-block;
+  font-family: 'JetBrains Mono';
+  font-size: 11px;
+  text-transform: uppercase;
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 24px;
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.metaBox {
+  background: var(--color-bg);
+  border: 1px solid rgba(0,0,0,0.07);
+  padding: 12px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metaLabel {
+  font-family: 'JetBrains Mono';
+  font-size: 10px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.metaVal {
+  font-family: 'JetBrains Mono';
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.indicator {
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-family: 'Source Serif 4';
+  font-size: 13px;
+  font-weight: 300;
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.indicatorAvailable {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+  border: 1px solid rgba(6,95,70,0.12);
+}
+
+.indicatorOverdue {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border: 1px solid rgba(127,29,29,0.12);
+}
+
+.actionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.btnAction {
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-family: 'Fraunces';
+  font-size: 13px;
+  font-weight: 400;
+  text-align: center;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.btnIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.btnIssue {
+  background: var(--color-accent);
+  color: #FFFFFF;
+}
+
+.btnIssue:hover {
+  opacity: 0.94;
+}
+
+.btnReturn,
+.btnEdit {
+  background: transparent;
+  color: var(--color-text-primary);
+  border: 1px solid rgba(0,0,0,0.07);
+}
+
+.btnReturn:hover,
+.btnEdit:hover {
+  background: var(--color-accent-light);
+  border-color: var(--color-accent-light);
+}
+
+.btnDelete {
+  background: transparent;
+  color: var(--color-danger);
+  border: 1px solid rgba(127,29,29,0.14);
+}
+
+.btnDelete:hover {
+  background: var(--color-danger-bg);
+}
+
+.subView {
+  border-top: 1px solid rgba(0,0,0,0.07);
+  padding-top: 24px;
+  margin-top: 12px;
+  animation: slideDown 0.22s ease;
+}
+
+.subTitle {
+  font-family: 'Fraunces';
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  margin-bottom: 16px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-family: 'Source Serif 4';
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--color-text-secondary);
+}
+
+.input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid rgba(0,0,0,0.07);
+  border-radius: 6px;
+  background: var(--color-bg);
+  font-family: 'Source Serif 4';
+  font-size: 14px;
+  font-weight: 300;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+}
+
+.expandLink {
+  font-size: 13px;
+  color: var(--color-accent);
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 400;
+  margin-top: -6px;
+  display: inline-block;
+}
+
+.miniForm {
+  background: var(--color-bg);
+  border: 1px solid rgba(0,0,0,0.07);
+  border-radius: 6px;
+  padding: 16px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btnSubmit {
+  padding: 10px;
+  background: var(--color-accent);
+  color: #FFFFFF;
+  border-radius: 6px;
+  font-family: 'Fraunces';
+  font-size: 14px;
+  font-weight: 400;
+  text-align: center;
+  transition: opacity 0.15s ease;
+  margin-top: 10px;
+}
+
+.btnSubmit:hover {
+  opacity: 0.94;
+}
+
+.btnSubmit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.tooltip .tooltipText {
+  visibility: hidden;
+  width: 100%;
+  background: var(--color-text-primary);
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 6px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  font-family: 'Source Serif 4';
+  font-size: 12px;
+}
+
+.tooltip:hover .tooltipText {
+  visibility: visible;
+  opacity: 1;
+}
+
+.inlineLink {
+  color: var(--color-accent-light);
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.noteIcon {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

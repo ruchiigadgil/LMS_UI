@@ -1,0 +1,124 @@
+/* src/pages/member/MyLoansPage.module.css */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.tableCard {
+  background: var(--color-surface);
+  border-radius: 10px;
+  box-shadow: var(--color-shadow-soft);
+  border: 1px solid rgba(0,0,0,0.07);
+  overflow: hidden;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.th {
+  background: var(--color-bg);
+  padding: 10px 16px;
+  font-family: 'JetBrains Mono';
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+}
+
+.td {
+  padding: 12px 16px;
+  font-family: 'Source Serif 4';
+  font-size: 13px;
+  font-weight: 300;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  color: var(--color-text-primary);
+  vertical-align: middle;
+}
+
+.tr:nth-child(even) {
+  background: rgba(248, 247, 255, 0.55);
+}
+
+.tr:hover {
+  background: rgba(237,233,254,0.4);
+}
+
+.bookTitle {
+  font-weight: 400;
+  color: var(--color-text-primary);
+}
+
+.dateVal {
+  font-family: 'JetBrains Mono';
+  font-size: 13px;
+}
+
+.dueWarning {
+  color: var(--color-danger) !important;
+  font-weight: 600;
+}
+
+.renewalsVal {
+  font-family: 'JetBrains Mono';
+  font-size: 13px;
+}
+
+.btnRenew {
+  padding: 6px 12px;
+  background: var(--color-accent);
+  color: #FFFFFF;
+  border-radius: 6px;
+  font-family: 'Fraunces';
+  font-size: 13px;
+  font-weight: 400;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+}
+
+.btnRenew:hover {
+  opacity: 0.94;
+}
+
+.btnRenew:disabled {
+  background: #E5E7EB;
+  color: #9CA3AF;
+  border: 1px solid #D1D5DB;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.loadingWrapper, .errorWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+  text-align: center;
+  font-family: 'Source Serif 4';
+  font-weight: 300;
+}
+
+.noResults {
+  text-align: center;
+  padding: 40px;
+  color: var(--color-text-secondary);
+  font-family: 'Source Serif 4';
+  font-weight: 300;
+  font-size: 16px;
+}
+
+/* Tooltip container styling */
+.tooltipWrapper {
+  position: relative;
+  display: inline-block;
+}

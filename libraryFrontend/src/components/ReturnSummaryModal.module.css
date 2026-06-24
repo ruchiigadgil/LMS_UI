@@ -1,0 +1,153 @@
+/* src/components/ReturnSummaryModal.module.css */
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.label {
+  font-family: 'Source Serif 4';
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--color-text-secondary);
+}
+
+.select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid rgba(0,0,0,0.07);
+  border-radius: 6px;
+  background: var(--color-bg);
+  font-family: 'Source Serif 4';
+  font-weight: 300;
+  font-size: 14px;
+  outline: none;
+}
+
+.select:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+}
+
+.summary {
+  background: var(--color-bg);
+  border: 1px solid rgba(0,0,0,0.07);
+  border-radius: 6px;
+  padding: 18px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.key {
+  font-family: 'JetBrains Mono';
+  color: var(--color-text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.value {
+  font-family: 'JetBrains Mono';
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.infoNote {
+  font-family: 'Source Serif 4';
+  font-size: 12px;
+  color: var(--color-success-text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-success-bg);
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.fineOverdue {
+  color: var(--color-danger) !important;
+  font-weight: 600;
+  background: var(--color-danger-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.btnReturn {
+  width: 100%;
+  padding: 12px;
+  background: var(--color-accent);
+  color: #FFFFFF;
+  border-radius: 6px;
+  font-family: 'Fraunces';
+  font-size: 15px;
+  font-weight: 400;
+  text-align: center;
+  transition: opacity 0.15s ease;
+  margin-top: 10px;
+}
+
+.btnReturn:hover {
+  opacity: 0.9;
+}
+
+.btnReturn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+}
+
+.btnCancel {
+  padding: 8px 16px;
+  background: var(--color-surface);
+  border: 1px solid rgba(0,0,0,0.07);
+  color: var(--color-text-primary);
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.15s ease;
+}
+
+.btnCancel:hover {
+  background: var(--color-bg);
+}
+
+.btnSubmit {
+  padding: 8px 16px;
+  background: var(--color-accent);
+  color: #FFFFFF;
+  border: 1px solid var(--color-accent);
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: opacity 0.15s ease;
+}
+
+.noteIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.btnSubmit:hover {
+  opacity: 0.9;
+}
+
+.btnSubmit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
