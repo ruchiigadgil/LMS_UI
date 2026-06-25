@@ -246,3 +246,52 @@
     padding: 0 16px 16px;
   }
 }
+
+@media (max-width: 960px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+  }
+
+  .nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 12px;
+  }
+
+  .navLink {
+    border-left: none;
+    border-radius: 6px;
+    padding: 10px 12px;
+    flex: 1 1 45%;
+    min-width: 150px;
+  }
+
+  .activeLink {
+    border-left-color: transparent !important;
+  }
+
+  .footer {
+    padding-top: 12px;
+  }
+
+  .topbar {
+    height: auto;
+    min-height: 64px;
+    padding: 14px 16px;
+  }
+
+  .pageTitle {
+    font-size: 24px;
+  }
+
+  .content {
+    padding: 16px;
+  }
+}

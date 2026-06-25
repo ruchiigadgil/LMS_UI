@@ -48,8 +48,8 @@ export default function SignupPage() {
       <div className={styles.card}>
         <div className={styles.brand}>
           <img src="/logo.png" alt="VERSO logo" className={styles.logoImage} />
-          {/* <div className={styles.logoText}>VERSO</div>
-          <div className={styles.tagline}>Behind the Shelf</div> */}
+          <div className={styles.logoText}>VERSO</div>
+          <div className={styles.tagline}>Behind the Shelf</div>
         </div>
 
         <div className={styles.toggleContainer}>
@@ -95,7 +95,7 @@ export default function SignupPage() {
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>Phone Number</label>
+            <label className={styles.label}>Phone Number (Optional)</label>
             <input
               type="tel"
               className={styles.input}

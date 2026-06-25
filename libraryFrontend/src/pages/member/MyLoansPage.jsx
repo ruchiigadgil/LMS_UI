@@ -72,7 +72,7 @@ export default function MyLoansPage() {
         </div>
       ) : error ? (
         <div className={styles.errorWrapper}>
-          <p style={{ color: 'var(--color-danger)', fontWeight: 'bold' }}>{error}</p>
+          <p style={{ color: 'var(--verso-danger)', fontWeight: 'bold' }}>{error}</p>
         </div>
       ) : !loans || loans.length === 0 ? (
         <div className={styles.tableCard}>

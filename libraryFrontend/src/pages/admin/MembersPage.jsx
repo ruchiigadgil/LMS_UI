@@ -163,7 +163,7 @@ export default function MembersPage() {
         </div>
       ) : error ? (
         <div className={styles.errorWrapper}>
-          <p style={{ color: 'var(--color-danger)', fontWeight: 'bold' }}>{error}</p>
+          <p style={{ color: 'var(--verso-danger)', fontWeight: 'bold' }}>{error}</p>
           <button
             onClick={() => loadMembers(true)}
             style={{ marginTop: '12px', textDecoration: 'underline' }}

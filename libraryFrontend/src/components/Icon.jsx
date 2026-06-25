@@ -19,7 +19,6 @@ const iconPaths = {
   alert: 'M12 9v4M12 17h.01M10.29 3.86l-8.4 14.51A2 2 0 0 0 3.6 21h16.8a2 2 0 0 0 1.71 -2.63L13.71 3.86a2 2 0 0 0 -3.42 0z',
   chevronRight: 'M9 6l6 6l-6 6',
   chevronDown: 'M6 9l6 6l6 -6',
-  arrowLeft: 'M18 12l-4 4l4 -4M14 12H6M10 4H6a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h4',
 };
 
 export default function Icon({ name, size = 16, className = '' }) {

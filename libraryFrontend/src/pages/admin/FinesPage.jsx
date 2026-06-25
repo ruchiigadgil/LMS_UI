@@ -89,7 +89,7 @@ export default function FinesPage() {
         </div>
       ) : error ? (
         <div className={styles.errorWrapper}>
-          <p style={{ color: 'var(--color-danger)', fontWeight: 'bold' }}>{error}</p>
+          <p style={{ color: 'var(--verso-danger)', fontWeight: 'bold' }}>{error}</p>
           <button
             onClick={() => {
               setFines(null);
@@ -147,7 +147,7 @@ export default function FinesPage() {
                             {submittingId === fine.id ? 'Processing...' : 'Mark Paid'}
                           </button>
                         ) : (
-                          <span style={{ color: 'var(--color-text-muted)', fontSize: '13px', fontStyle: 'italic' }}>
+                          <span style={{ color: 'var(--verso-muted)', fontSize: '13px', fontStyle: 'italic' }}>
                             Settled
                           </span>
                         )}

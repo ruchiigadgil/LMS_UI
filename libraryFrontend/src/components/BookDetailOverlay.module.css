@@ -13,8 +13,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* ==========================================
@@ -25,7 +30,7 @@
   position: relative;
   background: var(--color-surface);
   border-radius: 16px;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
   width: 100%;
   max-width: 960px;
   animation: scaleUp 0.2s ease;
@@ -34,8 +39,15 @@
 }
 
 @keyframes scaleUp {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* ==========================================
@@ -47,7 +59,7 @@
   position: relative;
   background: var(--color-surface);
   border-radius: 16px;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
   width: 100%;
   max-width: 580px;
   animation: scaleUp 0.2s ease;
@@ -61,7 +73,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 14px 20px;
-  border-bottom: 1px solid rgba(0,0,0,0.07);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
 }
 
 .returnLink {
@@ -108,12 +120,12 @@
   aspect-ratio: 3 / 4;
   background: var(--color-bg);
   border-radius: 8px;
-  border: 1px solid rgba(0,0,0,0.07);
+  border: 1px solid rgba(0, 0, 0, 0.07);
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .issueCoverImg {
@@ -223,7 +235,7 @@
   height: 34px;
   border-radius: 50%;
   background: var(--color-bg);
-  border: 1px solid rgba(0,0,0,0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   font-family: 'JetBrains Mono', monospace;
   font-size: 20px;
   color: var(--color-text-secondary);
@@ -345,7 +357,7 @@
 
 .metaBox {
   background: var(--color-bg);
-  border: 1px solid rgba(0,0,0,0.07);
+  border: 1px solid rgba(0, 0, 0, 0.07);
   padding: 12px;
   border-radius: 8px;
   display: flex;
@@ -426,7 +438,7 @@
 .btnEdit {
   background: transparent;
   color: var(--color-text-primary);
-  border: 1px solid rgba(0,0,0,0.07);
+  border: 1px solid rgba(0, 0, 0, 0.07);
 }
 
 .btnReturn:hover,
@@ -438,7 +450,7 @@
 .btnDelete {
   background: transparent;
   color: var(--color-danger);
-  border: 1px solid rgba(127,29,29,0.14);
+  border: 1px solid rgba(127, 29, 29, 0.14);
 }
 
 .btnDelete:hover {
@@ -479,7 +491,7 @@
 
 .addMemberForm {
   background: var(--color-bg);
-  border: 1px solid rgba(0,0,0,0.07);
+  border: 1px solid rgba(0, 0, 0, 0.07);
   border-radius: 6px;
   padding: 16px;
   display: flex;
@@ -496,7 +508,7 @@
 
 .btnCancel {
   padding: 8px 18px;
-  border: 1px solid rgba(0,0,0,0.07);
+  border: 1px solid rgba(0, 0, 0, 0.07);
   border-radius: 6px;
   background: transparent;
   font-family: 'Source Serif 4', serif;
@@ -538,15 +550,22 @@
    ========================================== */
 
 .subView {
-  border-top: 1px solid rgba(0,0,0,0.07);
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
   padding-top: 24px;
   margin-top: 12px;
   animation: slideDown 0.22s ease;
 }
 
 @keyframes slideDown {
-  from { transform: translateY(-10px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .subTitle {
@@ -576,7 +595,7 @@
   position: relative;
   background: var(--color-surface);
   border-radius: 16px;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
   width: 100%;
   max-width: 580px;
   animation: scaleUp 0.2s ease;
@@ -618,7 +637,7 @@
 .input {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid rgba(0,0,0,0.07);
+  border: 1px solid rgba(0, 0, 0, 0.07);
   border-radius: 6px;
   background: var(--color-bg);
   font-family: 'Source Serif 4', serif;
@@ -629,7 +648,7 @@
 
 .input:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
 }
 
 .expandLink {
@@ -644,7 +663,7 @@
 
 .miniForm {
   background: var(--color-bg);
-  border: 1px solid rgba(0,0,0,0.07);
+  border: 1px solid rgba(0, 0, 0, 0.07);
   border-radius: 6px;
   padding: 16px;
   margin-top: 4px;

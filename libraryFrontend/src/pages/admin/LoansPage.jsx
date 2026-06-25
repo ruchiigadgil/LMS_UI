@@ -89,7 +89,7 @@ export default function LoansPage() {
         </div>
       ) : error ? (
         <div className={styles.errorWrapper}>
-          <p style={{ color: 'var(--color-danger)', fontWeight: 'bold' }}>{error}</p>
+          <p style={{ color: 'var(--verso-danger)', fontWeight: 'bold' }}>{error}</p>
           <button
             onClick={() => {
               if (activeTab === 'active') setActiveLoans(null);

@@ -19,17 +19,17 @@
   width: 90%;
   max-width: 440px;
   max-height: 85vh;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-direction: column;
   animation: scaleUp 0.22s ease;
   overflow: hidden;
-  border: 1px solid rgba(0,0,0,0.07);
+  border: 1px solid rgba(0, 0, 0, 0.07);
 }
 
 .header {
   padding: 18px 24px;
-  border-bottom: 1px solid rgba(0,0,0,0.07);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -72,7 +72,7 @@
 
 .footer {
   padding: 16px 24px;
-  border-top: 1px solid rgba(0,0,0,0.07);
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
   display: flex;
   justify-content: flex-end;
   gap: 12px;
@@ -80,11 +80,23 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scaleUp {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

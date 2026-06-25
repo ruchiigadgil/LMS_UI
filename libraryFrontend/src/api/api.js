@@ -135,7 +135,7 @@ function saveBookOverrides(overrides) {
 
 export async function getBooks(searchQuery = '') {
   try {
-    const res = await fetch(`${BASE_URL}/books/`, {
+    const res = await fetch(`${BASE_URL}/admin/books`, {
       method: 'GET',
       headers: getHeaders()
     });

@@ -37,7 +37,7 @@ export default function LoginPage() {
     try {
       const { user } = await login({ email, password, role });
       toast.success(`Welcome back, ${user.name}!`);
-
+      
       if (user.role === 'admin') {
         navigate('/admin/books');
       } else {
@@ -55,8 +55,8 @@ export default function LoginPage() {
       <div className={styles.card}>
         <div className={styles.brand}>
           <img src="/logo.png" alt="VERSO logo" className={styles.logoImage} />
-          {/* <div className={styles.logoText}>VERSO</div>
-          <div className={styles.tagline}>Behind the Shelf</div> */}
+          <div className={styles.logoText}>VERSO</div>
+          <div className={styles.tagline}>Behind the Shelf</div>
         </div>
 
         <div className={styles.toggleContainer}>

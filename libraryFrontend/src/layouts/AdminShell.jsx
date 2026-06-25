@@ -30,9 +30,9 @@ export default function AdminShell() {
 
   function handleLogout() {
     logout();
+    setUser(null);
     toast.info('Logged out successfully');
-    // Direct reload to /login to avoid the null-render glitch
-    window.location.replace('/login');
+    navigate('/login', { replace: true });
   }
 
   if (!user) return null;

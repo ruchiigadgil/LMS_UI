@@ -152,7 +152,7 @@ export default function ReturnSummaryModal({ isOpen, onClose, bookId = null, loa
           )}
 
           {bookId && activeLoans.length === 0 && (
-            <div style={{ padding: '20px 0', textAlign: 'center', color: 'var(--color-danger)' }}>
+            <div style={{ padding: '20px 0', textAlign: 'center', color: 'var(--verso-danger)' }}>
               No active loans found for this book.
             </div>
           )}
@@ -179,7 +179,7 @@ export default function ReturnSummaryModal({ isOpen, onClose, bookId = null, loa
                 <span className={styles.key}>Return Date</span>
                 <span className={styles.value}>{todayStr} (Today)</span>
               </div>
-              <hr style={{ border: 'none', borderTop: '1px solid var(--color-border)' }} />
+              <hr style={{ border: 'none', borderTop: '1px solid var(--verso-border)' }} />
               <div className={styles.row}>
                 <span className={styles.key}>Grace Period</span>
                 <span className={styles.value}>2 Days</span>
@@ -204,7 +204,7 @@ export default function ReturnSummaryModal({ isOpen, onClose, bookId = null, loa
             </div>
           ) : (
             !bookId && (
-              <div style={{ padding: '20px 0', textAlign: 'center', color: 'var(--color-danger)' }}>
+              <div style={{ padding: '20px 0', textAlign: 'center', color: 'var(--verso-danger)' }}>
                 Loan details could not be found.
               </div>
             )

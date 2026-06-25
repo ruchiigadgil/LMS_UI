@@ -4,9 +4,8 @@ import { useAdminHeader } from '../../layouts/AdminShell';
 import { getBooks, addBook } from '../../api/api';
 import { useToast } from '../../components/Toast';
 import BookCard from '../../components/BookCard';
-import BookDetailOverlay from '../../components/BookDetailOverlay';
+import BookDetailOverlay from "../../components/BookDetailOverlay";
 import Modal from '../../components/Modal';
-import Icon from '../../components/Icon';
 import styles from './BooksPage.module.css';
 
 export default function BooksPage() {
@@ -36,7 +35,7 @@ export default function BooksPage() {
   // Fetch books on mount
   useEffect(() => {
     if (books !== null) return;
-
+    
     setLoading(true);
     getBooks()
       .then(data => {
@@ -55,8 +54,7 @@ export default function BooksPage() {
       title: 'Books',
       action: (
         <button className={styles.addBtn} onClick={() => setIsAddModalOpen(true)}>
-          <Icon name="plus" className={styles.btnIcon} />
-          <span>Add Book</span>
+          <span>➕</span> Add Book
         </button>
       )
     });
@@ -85,7 +83,7 @@ export default function BooksPage() {
     try {
       const res = await addBook(addForm);
       toast.success('Book added successfully');
-
+      
       const newBook = {
         id: res.book_id,
         title: addForm.title,
@@ -134,7 +132,7 @@ export default function BooksPage() {
     <div className={styles.container}>
       {/* Search bar */}
       <div className={styles.searchBarWrapper}>
-        <Icon name="search" className={styles.searchIcon} />
+        <span className={styles.searchIcon}>🔍</span>
         <input
           type="text"
           className={styles.searchBar}
@@ -144,26 +142,53 @@ export default function BooksPage() {
         />
       </div>
 
-      <div className={styles.grid}>
-        {filteredBooks.map(book => (
-          <BookCard
-            key={book.id}
-            book={book}
-            onClick={() => setSelectedBook(book)}
-          />
-        ))}
-      </div>
-
-      {/* Book detail overlay (centered modal with dim backdrop) */}
-      {selectedBook && (
-        <BookDetailOverlay
-          book={selectedBook}
-          onClose={() => setSelectedBook(null)}
-          onUpdate={handleBookUpdated}
-          onDelete={handleBookDeleted}
-          isAdmin
-        />
+      {loading ? (
+        <div className={styles.loadingWrapper}>
+          <span
+            className="spinner"
+            style={{ width: "2rem", height: "2rem", borderWidth: "3px" }}
+          ></span>
+          <p style={{ marginTop: "12px" }}>Loading books...</p>
+        </div>
+      ) : error ? (
+        <div className={styles.errorWrapper}>
+          <p style={{ color: "var(--verso-danger)", fontWeight: "bold" }}>
+            {error}
+          </p>
+          <button
+            onClick={() => {
+              setBooks(null);
+              setLoading(true);
+            }}
+            style={{ marginTop: "12px", textDecoration: "underline" }}
+          >
+            Retry Loading
+          </button>
+        </div>
+      ) : filteredBooks.length === 0 ? (
+        <div className={styles.noResults}>
+          No books found matching "{searchQuery}"
+        </div>
+      ) : (
+        <div className={styles.grid}>
+          {filteredBooks.map((book) => (
+            <BookCard
+              key={book.id}
+              book={book}
+              onClick={() => setSelectedBook(book)}
+            />
+          ))}
+        </div>
       )}
+
+      {/* Book Detail Drawer */}
+      <BookDetailOverlay
+        book={selectedBook}
+        onClose={() => setSelectedBook(null)}
+        onUpdate={handleBookUpdated}
+        onDelete={handleBookDeleted}
+        isAdmin={true}
+      />
 
       {/* Add Book Modal */}
       <Modal
@@ -178,7 +203,9 @@ export default function BooksPage() {
               type="text"
               className={styles.input}
               value={addForm.title}
-              onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
+              onChange={(e) =>
+                setAddForm({ ...addForm, title: e.target.value })
+              }
               required
               disabled={submittingAdd}
             />
@@ -190,7 +217,9 @@ export default function BooksPage() {
               type="text"
               className={styles.input}
               value={addForm.author}
-              onChange={(e) => setAddForm({ ...addForm, author: e.target.value })}
+              onChange={(e) =>
+                setAddForm({ ...addForm, author: e.target.value })
+              }
               required
               disabled={submittingAdd}
             />
@@ -203,7 +232,9 @@ export default function BooksPage() {
                 type="text"
                 className={styles.input}
                 value={addForm.genre}
-                onChange={(e) => setAddForm({ ...addForm, genre: e.target.value })}
+                onChange={(e) =>
+                  setAddForm({ ...addForm, genre: e.target.value })
+                }
                 placeholder="e.g. Fiction"
                 disabled={submittingAdd}
               />
@@ -215,7 +246,9 @@ export default function BooksPage() {
                 type="text"
                 className={styles.input}
                 value={addForm.isbn}
-                onChange={(e) => setAddForm({ ...addForm, isbn: e.target.value })}
+                onChange={(e) =>
+                  setAddForm({ ...addForm, isbn: e.target.value })
+                }
                 placeholder="e.g. 978-3-16..."
                 disabled={submittingAdd}
               />
@@ -230,7 +263,12 @@ export default function BooksPage() {
                 min="1"
                 className={styles.input}
                 value={addForm.total_copies}
-                onChange={(e) => setAddForm({ ...addForm, total_copies: Number(e.target.value) })}
+                onChange={(e) =>
+                  setAddForm({
+                    ...addForm,
+                    total_copies: Number(e.target.value),
+                  })
+                }
                 required
                 disabled={submittingAdd}
               />
@@ -242,20 +280,26 @@ export default function BooksPage() {
                 type="text"
                 className={styles.input}
                 value={addForm.cover_image_url}
-                onChange={(e) => setAddForm({ ...addForm, cover_image_url: e.target.value })}
+                onChange={(e) =>
+                  setAddForm({ ...addForm, cover_image_url: e.target.value })
+                }
                 placeholder="e.g. /static/covers/isbn.jpg"
                 disabled={submittingAdd}
               />
             </div>
           </div>
 
-          <button type="submit" className={styles.btnSubmit} disabled={submittingAdd}>
+          <button
+            type="submit"
+            className={styles.btnSubmit}
+            disabled={submittingAdd}
+          >
             {submittingAdd ? (
               <>
                 <span className="spinner"></span> Adding Book...
               </>
             ) : (
-              'Add Book'
+              "Add Book"
             )}
           </button>
         </form>
