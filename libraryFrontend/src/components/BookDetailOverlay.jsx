@@ -1,4 +1,4 @@
-// src/components/BookDetailOverlay.jsx
+﻿// src/components/BookDetailOverlay.jsx
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SearchableDropdown from './SearchableDropdown';
@@ -29,7 +29,7 @@ export default function BookDetailOverlay({ book, onClose, onUpdate, onDelete, i
 
   const [miniName, setMiniName] = useState('');
   const [miniEmail, setMiniEmail] = useState('');
-  const [miniPhone, setMiniPhone] = useState('');
+  const [miniPhone, setMiniphone] = useState('');
 
   const [editForm, setEditForm] = useState({
     title: '',
@@ -86,6 +86,13 @@ export default function BookDetailOverlay({ book, onClose, onUpdate, onDelete, i
 
   const isAvailable = book.available_copies > 0;
 
+  // Cover URL helper
+  const coverUrl = book.cover_image_url
+    ? (book.cover_image_url.startsWith('http')
+        ? book.cover_image_url
+        : `http://localhost:5005${book.cover_image_url}`)
+    : '/placeholder-cover.svg';
+
   // --- Handlers ---
   async function handleIssueSubmit(e) {
     e.preventDefault();
@@ -107,12 +114,19 @@ export default function BookDetailOverlay({ book, onClose, onUpdate, onDelete, i
     setLoading(true);
     try {
       const res = await addMember({ name: miniName, email: miniEmail, phone: miniPhone });
-      const newMember = { id: res.member_id, name: miniName, email: miniEmail, phone: miniPhone, membership_status: 'active', active_loans: 0 };
+      const newMember = {
+        id: res.member_id,
+        name: miniName,
+        email: miniEmail,
+        phone: miniPhone,
+        membership_status: 'active',
+        active_loans: 0
+      };
       if (members) setMembers(prev => [...prev, newMember]);
       else setMembers([newMember]);
       setIssueMemberId(res.member_id);
       setShowMiniForm(false);
-      setMiniName(''); setMiniEmail(''); setMiniPhone('');
+      setMiniName(''); setMiniEmail(''); setMiniphone('');
       toast.success(`Registered and selected: ${newMember.name}`);
     } catch (err) {
       toast.error(err.message || 'Failed to register member');
@@ -125,7 +139,7 @@ export default function BookDetailOverlay({ book, onClose, onUpdate, onDelete, i
     setLoading(true);
     try {
       const result = await returnLoan(selectedReturnLoan.loan_id);
-      if (result.fine_amount > 0) toast.success(`Book returned. Fine of ₹${result.fine_amount} raised.`);
+      if (result.fine_amount > 0) toast.success(`Book returned. Fine of Rs.${result.fine_amount} raised.`);
       else toast.success('Book returned. No fine.');
       if (result.reservation_msg) toast.info(result.reservation_msg);
       else if (result.message && result.message.includes('Reservation')) toast.info(result.message);
@@ -142,7 +156,11 @@ export default function BookDetailOverlay({ book, onClose, onUpdate, onDelete, i
     try {
       await editBook(book.id, editForm);
       toast.success('Book details updated');
-      onUpdate({ ...book, ...editForm, available_copies: book.available_copies + (editForm.total_copies - book.total_copies) });
+      onUpdate({
+        ...book,
+        ...editForm,
+        available_copies: book.available_copies + (editForm.total_copies - book.total_copies)
+      });
       setActiveSubView(null); onClose();
     } catch (err) {
       toast.error(err.message || 'Failed to update book');
@@ -173,6 +191,213 @@ export default function BookDetailOverlay({ book, onClose, onUpdate, onDelete, i
     }
   }
 
+  // ==========================================
+  // ISSUE VIEW - uses same layout as main panel
+  // Left: Book card (cover + genre/ISBN)    Right: Issue form
+  // ==========================================
+  if (activeSubView === 'issue') {
+    return (
+      <div className={styles.overlay} onClick={onClose} aria-modal="true" role="dialog">
+        <div className={styles.issuePanel} onClick={e => e.stopPropagation()}>
+          <div className={styles.issueHeader}>
+            <button
+              className={styles.returnLink}
+              onClick={() => setActiveSubView(null)}
+            >
+              <Icon name="arrowLeft" className={styles.returnArrow} />
+              <span>Return to Book Details</span>
+            </button>
+            <button className={styles.closeBtn} onClick={onClose} aria-label="Close">&times;</button>
+          </div>
+
+          <div className={styles.issueBody}>
+            {/* LEFT: Book card - same as main panel */}
+            <div className={styles.left}>
+              <BookCard book={book} />
+            </div>
+
+            {/* RIGHT: Issue form - centered, narrow */}
+            <div className={styles.right}>
+              <form onSubmit={handleIssueSubmit} className={styles.issueForm}>
+                <h4 className={styles.issueFormTitle}>Issue Book</h4>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Select Member</label>
+                  <SearchableDropdown
+                    options={members || []}
+                    placeholder="Type member name or email..."
+                    onSelect={(id) => setIssueMemberId(id)}
+                    initialSelectedId={issueMemberId}
+                  />
+                </div>
+
+                {!showMiniForm ? (
+                  <div className={styles.addMemberPrompt}>
+                    <span>Member not found?</span>
+                    <button
+                      type="button"
+                      className={styles.btnAddMember}
+                      onClick={() => setShowMiniForm(true)}
+                    >
+                      Add member
+                    </button>
+                  </div>
+                ) : (
+                  <div className={styles.addMemberForm}>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>Name *</label>
+                      <input
+                        type="text"
+                        className={styles.input}
+                        value={miniName}
+                        onChange={e => setMiniName(e.target.value)}
+                        placeholder="Full name"
+                      />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>Email *</label>
+                      <input
+                        type="email"
+                        className={styles.input}
+                        value={miniEmail}
+                        onChange={e => setMiniEmail(e.target.value)}
+                        placeholder="email@example.com"
+                      />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>Phone</label>
+                      <input
+                        type="text"
+                        className={styles.input}
+                        value={miniPhone}
+                        onChange={e => setMiniphone(e.target.value)}
+                        placeholder="Mobile number"
+                      />
+                    </div>
+                    <div className={styles.addMemberActions}>
+                      <button
+                        type="button"
+                        className={styles.btnCancel}
+                        onClick={() => { setShowMiniForm(false); setMiniName(''); setMiniEmail(''); setMiniphone(''); }}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.btnRegister}
+                        onClick={handleMiniRegister}
+                        disabled={loading}
+                      >
+                        {loading ? 'Registering...' : 'Register Member'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <button type="submit" className={styles.btnSubmit} disabled={loading || !issueMemberId}>
+                  {loading ? 'Issuing...' : 'Confirm Issue'}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // RETURN VIEW - same top-level swap behavior as issue view
+  // ==========================================
+  if (activeSubView === 'return') {
+    return (
+      <div className={styles.overlay} onClick={onClose} aria-modal="true" role="dialog">
+        <div className={styles.returnPanel} onClick={e => e.stopPropagation()}>
+          <div className={styles.issueHeader}>
+            <button
+              className={styles.returnLink}
+              onClick={() => setActiveSubView(null)}
+            >
+              <Icon name="arrowLeft" className={styles.returnArrow} />
+              <span>Return to Book Details</span>
+            </button>
+            <button className={styles.closeBtn} onClick={onClose} aria-label="Close">&times;</button>
+          </div>
+
+          <div className={styles.returnBody}>
+            {/* LEFT: Book card */}
+            <div className={styles.left}>
+              <BookCard book={book} />
+            </div>
+
+            {/* RIGHT: Return form */}
+            <div className={styles.right}>
+              <div className={styles.subView}>
+                <h4 className={styles.subTitle}>Mark as Returned</h4>
+                {loading ? (
+                  <div>Loading active loans...</div>
+                ) : bookActiveLoans.length === 0 ? (
+                  <div style={{ color: 'var(--color-danger)', fontStyle: 'italic' }}>No active loans for this book.</div>
+                ) : (
+                  <form onSubmit={handleReturnConfirm} className={styles.form}>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>Select loan to return</label>
+                      <select
+                        className={styles.input}
+                        value={selectedReturnLoan ? selectedReturnLoan.loan_id : ''}
+                        onChange={e => {
+                          const match = bookActiveLoans.find(l => l.loan_id === Number(e.target.value));
+                          setSelectedReturnLoan(match || null);
+                        }}
+                      >
+                        {bookActiveLoans.map(l => (
+                          <option key={l.loan_id} value={l.loan_id}>
+                            {l.user_name} (Issued: {l.issue_date})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {selectedReturnLoan && (
+                      <div className={styles.returnDetails}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ color: 'var(--color-text-muted)' }}>Due Date:</span>
+                          <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 500 }}>{selectedReturnLoan.due_date}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ color: 'var(--color-text-muted)' }}>Return Date:</span>
+                          <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 500 }}>{todayStr} (Today)</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ color: 'var(--color-text-muted)' }}>Days Overdue:</span>
+                          <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 500 }}>{returnDaysOverdue} day(s)</span>
+                        </div>
+                        <hr style={{ border: 'none', borderTop: '1px solid var(--color-border)' }} />
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ color: 'var(--color-text-muted)' }}>Grace period:</span>
+                          <span style={{ color: 'var(--color-accent)', fontWeight: 'bold' }}>2 Days</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ color: 'var(--color-text-muted)' }}>Fines raised:</span>
+                          <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 'bold', color: returnFine > 0 ? 'var(--color-danger)' : 'green' }}>
+                            Rs.{returnFine.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    <button type="submit" className={styles.btnSubmit} disabled={loading || !selectedReturnLoan}>
+                      {loading ? 'Processing...' : 'Confirm Return'}
+                    </button>
+                  </form>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // MAIN OVERLAY â€" book detail view
+  // ==========================================
   return (
     <div className={styles.overlay} onClick={onClose} aria-modal="true" role="dialog">
       <div className={styles.panel} onClick={e => e.stopPropagation()}>
@@ -215,12 +440,15 @@ export default function BookDetailOverlay({ book, onClose, onUpdate, onDelete, i
               </div>
             </div>
 
-            {/* Action buttons — admin only */}
+            {/* Action buttons â€" admin only */}
             {isAdmin && (
               <>
                 <div className={styles.actionGrid}>
                   {isAvailable ? (
-                    <button className={`${styles.btnAction} ${styles.btnIssue}`} onClick={() => setActiveSubView('issue')}>
+                    <button
+                      className={`${styles.btnAction} ${styles.btnIssue}`}
+                      onClick={() => setActiveSubView('issue')}
+                    >
                       <Icon name="book" className={styles.btnIcon} />
                       <span>Issue Book</span>
                     </button>
@@ -230,129 +458,28 @@ export default function BookDetailOverlay({ book, onClose, onUpdate, onDelete, i
                       <span>Issue Book</span>
                     </button>
                   )}
-                  <button className={`${styles.btnAction} ${styles.btnReturn}`} onClick={() => setActiveSubView('return')}>
+                  <button
+                    className={`${styles.btnAction} ${styles.btnReturn}`}
+                    onClick={() => setActiveSubView('return')}
+                  >
                     <Icon name="return" className={styles.btnIcon} />
                     <span>Mark Returned</span>
                   </button>
-                  <button className={`${styles.btnAction} ${styles.btnEdit}`} onClick={() => setActiveSubView('edit')}>
+                  <button
+                    className={`${styles.btnAction} ${styles.btnEdit}`}
+                    onClick={() => setActiveSubView('edit')}
+                  >
                     <Icon name="edit" className={styles.btnIcon} />
                     <span>Edit Details</span>
                   </button>
-                  <button className={`${styles.btnAction} ${styles.btnDelete}`} onClick={() => setShowDeleteConfirm(true)}>
+                  <button
+                    className={`${styles.btnAction} ${styles.btnDelete}`}
+                    onClick={() => setShowDeleteConfirm(true)}
+                  >
                     <Icon name="trash" className={styles.btnIcon} />
                     <span>Delete Book</span>
                   </button>
                 </div>
-
-                {/* Sub-view: Issue Book */}
-                {activeSubView === 'issue' && (
-                  <div className={styles.subView}>
-                    <h4 className={styles.subTitle}>Issue Book</h4>
-                    <form onSubmit={handleIssueSubmit} className={styles.form}>
-                      <div className={styles.formGroup}>
-                        <label className={styles.label}>Select Member</label>
-                        <SearchableDropdown
-                          options={members || []}
-                          placeholder="Type member name or email..."
-                          onSelect={(id) => setIssueMemberId(id)}
-                          initialSelectedId={issueMemberId}
-                        />
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <span className={styles.expandLink} onClick={() => setShowMiniForm(!showMiniForm)}>
-                          {showMiniForm ? 'Cancel new registration' : 'Member not found? Register here'}
-                        </span>
-                      </div>
-                      {showMiniForm && (
-                        <div className={styles.miniForm}>
-                          <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--color-accent)', marginBottom: '4px' }}>
-                            Register Member Inline
-                          </div>
-                          <div className={styles.formGroup}>
-                            <label className={styles.label}>Name *</label>
-                            <input type="text" className={styles.input} value={miniName} onChange={e => setMiniName(e.target.value)} />
-                          </div>
-                          <div className={styles.formGroup}>
-                            <label className={styles.label}>Email *</label>
-                            <input type="email" className={styles.input} value={miniEmail} onChange={e => setMiniEmail(e.target.value)} />
-                          </div>
-                          <div className={styles.formGroup}>
-                            <label className={styles.label}>Phone</label>
-                            <input type="text" className={styles.input} value={miniPhone} onChange={e => setMiniPhone(e.target.value)} />
-                          </div>
-                          <button type="button" className={styles.btnSubmit} onClick={handleMiniRegister} disabled={loading}>
-                            {loading ? 'Registering...' : 'Register & Continue'}
-                          </button>
-                        </div>
-                      )}
-                      <button type="submit" className={styles.btnSubmit} disabled={loading || !issueMemberId}>
-                        {loading ? 'Issuing...' : 'Confirm & Issue'}
-                      </button>
-                    </form>
-                  </div>
-                )}
-
-                {/* Sub-view: Mark Returned */}
-                {activeSubView === 'return' && (
-                  <div className={styles.subView}>
-                    <h4 className={styles.subTitle}>Mark as Returned</h4>
-                    {loading ? (
-                      <div>Loading active loans...</div>
-                    ) : bookActiveLoans.length === 0 ? (
-                      <div style={{ color: 'var(--color-danger)', fontStyle: 'italic' }}>No active loans for this book.</div>
-                    ) : (
-                      <form onSubmit={handleReturnConfirm} className={styles.form}>
-                        <div className={styles.formGroup}>
-                          <label className={styles.label}>Select loan to return</label>
-                          <select
-                            className={styles.input}
-                            value={selectedReturnLoan ? selectedReturnLoan.loan_id : ''}
-                            onChange={e => {
-                              const match = bookActiveLoans.find(l => l.loan_id === Number(e.target.value));
-                              setSelectedReturnLoan(match || null);
-                            }}
-                          >
-                            {bookActiveLoans.map(l => (
-                              <option key={l.loan_id} value={l.loan_id}>
-                                {l.user_name} (Issued: {l.issue_date})
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        {selectedReturnLoan && (
-                          <div style={{ backgroundColor: 'var(--color-bg)', border: '1px solid var(--color-border)', padding: '14px', borderRadius: '6px', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                              <span style={{ color: 'var(--color-text-muted)' }}>Due Date:</span>
-                              <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 500 }}>{selectedReturnLoan.due_date}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                              <span style={{ color: 'var(--color-text-muted)' }}>Return Date:</span>
-                              <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 500 }}>{todayStr} (Today)</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                              <span style={{ color: 'var(--color-text-muted)' }}>Days Overdue:</span>
-                              <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 500 }}>{returnDaysOverdue} day(s)</span>
-                            </div>
-                            <hr style={{ border: 'none', borderTop: '1px solid var(--color-border)' }} />
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span style={{ color: 'var(--color-text-muted)' }}>Grace period:</span>
-                              <span style={{ color: 'var(--color-accent)', fontWeight: 'bold' }}>2 Days</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span style={{ color: 'var(--color-text-muted)' }}>Fines raised:</span>
-                              <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 'bold', color: returnFine > 0 ? 'var(--color-danger)' : 'green' }}>
-                                ₹{returnFine.toFixed(2)}
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                        <button type="submit" className={styles.btnSubmit} disabled={loading || !selectedReturnLoan}>
-                          {loading ? 'Processing...' : 'Confirm Return'}
-                        </button>
-                      </form>
-                    )}
-                  </div>
-                )}
 
                 {/* Sub-view: Edit */}
                 {activeSubView === 'edit' && (
@@ -372,18 +499,33 @@ export default function BookDetailOverlay({ book, onClose, onUpdate, onDelete, i
                             className={styles.input}
                             min={f.field === 'total_copies' ? '1' : undefined}
                             value={editForm[f.field]}
-                            onChange={e => setEditForm({ ...editForm, [f.field]: f.field === 'total_copies' ? Number(e.target.value) : e.target.value })}
+                            onChange={e => setEditForm({
+                              ...editForm,
+                              [f.field]: f.field === 'total_copies' ? Number(e.target.value) : e.target.value
+                            })}
                             required={f.required}
                           />
                         </div>
                       ))}
                       <div className={styles.formGroup}>
                         <label className={styles.label}>Total Copies *</label>
-                        <input type="number" min="1" className={styles.input} value={editForm.total_copies} onChange={e => setEditForm({ ...editForm, total_copies: Number(e.target.value) })} required />
+                        <input
+                          type="number" min="1"
+                          className={styles.input}
+                          value={editForm.total_copies}
+                          onChange={e => setEditForm({ ...editForm, total_copies: Number(e.target.value) })}
+                          required
+                        />
                       </div>
                       <div className={styles.formGroup}>
                         <label className={styles.label}>Cover Image URL</label>
-                        <input type="text" className={styles.input} value={editForm.cover_image_url} onChange={e => setEditForm({ ...editForm, cover_image_url: e.target.value })} placeholder="e.g. /static/covers/123.jpg" />
+                        <input
+                          type="text"
+                          className={styles.input}
+                          value={editForm.cover_image_url}
+                          onChange={e => setEditForm({ ...editForm, cover_image_url: e.target.value })}
+                          placeholder="e.g. /static/covers/123.jpg"
+                        />
                       </div>
                       <button type="submit" className={styles.btnSubmit} disabled={loading}>
                         {loading ? 'Saving...' : 'Save Book Info'}
@@ -407,3 +549,4 @@ export default function BookDetailOverlay({ book, onClose, onUpdate, onDelete, i
     </div>
   );
 }
+
