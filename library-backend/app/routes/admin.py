@@ -88,7 +88,7 @@ def issue_loan():
     available = book.total_copies - active_loans
 
     if available <= 0:
-        return jsonify({"error": "No copies available. Add member to waitlist instead."})
+        return jsonify({"error": "No copies available. Add member to waitlist instead."}),400
     
     existing = Loan.query.filter_by(user_id=user_id, book_id=book_id).filter(
         Loan.status.in_(["active", "overdue"])
@@ -224,8 +224,9 @@ def add_reservation():
 
     # Calculate queue position
     position = Reservation.query.filter_by(
-        book_id=book_id,
-        status="waiting"
+    book_id=book_id
+    ).filter(
+    Reservation.status.in_(["waiting", "ready"])
     ).count()
 
 
@@ -335,3 +336,33 @@ def get_active_loans():
         })
 
     return jsonify(result), 200
+
+
+@admin_bp.route("/reservations/<int:book_id>", methods=["GET"])
+def get_reservations(book_id):
+    book = Book.query.get(book_id)
+    if not book:
+        return jsonify({"error": "Book not found"}), 404
+
+    reservations = Reservation.query.filter_by(
+        book_id=book_id
+    ).filter(
+        Reservation.status.in_(["waiting", "ready"])
+    ).order_by(Reservation.requested_at.asc()).all()
+
+    result = []
+    for i, r in enumerate(reservations, start=1):
+        result.append({
+            "reservation_id": r.id,
+            "user_id": r.user_id,
+            "user_name": r.user.name,
+            "status": r.status,
+            "requested_at": r.requested_at.isoformat(),
+            "queue_position": i
+        })
+
+    return jsonify({
+        "book_id": book_id,
+        "total_in_queue": len(result),
+        "queue": result
+    }), 200
