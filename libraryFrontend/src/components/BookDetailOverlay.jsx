@@ -1,18 +1,20 @@
 // src/components/BookDetailOverlay.jsx
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import SearchableDropdown from './SearchableDropdown';
 import ConfirmDialog from './ConfirmDialog';
 import { MembersContext } from './MembersContext';
 import { useToast } from './Toast';
 import Icon from './Icon';
+import SearchableDropdown from './SearchableDropdown';
 import {
   issueBook,
-  addMember,
   editBook,
   deleteBook,
   getActiveLoans,
-  returnLoan
+  returnLoan,
+  getBooks,
+  getMembers,
+  addMember
 } from '../api/api';
 import BookCard from './BookCard';
 import styles from './BookDetailOverlay.module.css';
@@ -22,36 +24,75 @@ export default function BookDetailOverlay({ book, onClose, onUpdate, onDelete, i
   const toast = useToast();
   const { members, setMembers, load: loadMembers } = useContext(MembersContext);
 
-  const [activeSubView, setActiveSubView] = useState(null); // 'issue' | 'return' | 'edit'
-  const [issueMemberId, setIssueMemberId] = useState(null);
-  const [showMiniForm, setShowMiniForm] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // Sub-view: null = normal view, 'issue' | 'return' | 'edit'
+  const [activeSubView, setActiveSubView] = useState(null);
 
-  const [miniName, setMiniName] = useState('');
-  const [miniEmail, setMiniEmail] = useState('');
-  const [miniPhone, setMiniPhone] = useState('');
+  // ---- Issue form state ----
+  const [issueMemberId, setIssueMemberId] = useState('');
+  const [issueSuccessMsg, setIssueSuccessMsg] = useState('');
+  const [issueErrorMsg, setIssueErrorMsg] = useState('');
+  const [allMembers, setAllMembers] = useState([]);
+  const [addMemberOpen, setAddMemberOpen] = useState(false);
+  const [newMember, setNewMember] = useState({ name: '', email: '', phone: '' });
+  const [addMemberSuccess, setAddMemberSuccess] = useState('');
+  const [addMemberError, setAddMemberError] = useState('');
 
-  const [editForm, setEditForm] = useState({
-    title: '',
-    author: '',
-    genre: '',
-    isbn: '',
-    total_copies: 1,
-    cover_image_url: ''
-  });
-
+  // ---- Return form state ----
   const [bookActiveLoans, setBookActiveLoans] = useState([]);
   const [selectedReturnLoan, setSelectedReturnLoan] = useState(null);
+  const [returnSuccessMsg, setReturnSuccessMsg] = useState('');
+  const [reservationBanner, setReservationBanner] = useState('');
 
+  // ---- Edit form state ----
+  const [editForm, setEditForm] = useState({
+    title: '', author: '', genre: '', isbn: '',
+    total_copies: 1, cover_image_url: ''
+  });
+
+  // Delete confirm
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Shared loading state
+  const [loading, setLoading] = useState(false);
 
   const todayStr = new Date().toLocaleDateString('en-IN', {
     day: '2-digit', month: 'short', year: 'numeric'
   });
 
-  // Prefill forms and load dropdown data on mount
+  // ---- Load members when issue view opens ----
   useEffect(() => {
-    if (book) {
+    if (!book) return;
+
+    if (activeSubView === 'issue') {
+      setIssueMemberId('');
+      setIssueSuccessMsg('');
+      setIssueErrorMsg('');
+      setReturnSuccessMsg('');
+      setReservationBanner('');
+      setAddMemberOpen(false);
+      setNewMember({ name: '', email: '', phone: '' });
+      setAddMemberSuccess('');
+      setAddMemberError('');
+      // Fetch members for searchable dropdown
+      getMembers().then(setAllMembers).catch(() => setAllMembers([]));
+    }
+
+    if (activeSubView === 'return') {
+      setSelectedReturnLoan(null);
+      setReturnSuccessMsg('');
+      setReservationBanner('');
+      setLoading(true);
+      getActiveLoans()
+        .then(loans => {
+          const filtered = loans.filter(l => l.book_id === book.id);
+          setBookActiveLoans(filtered);
+          if (filtered.length > 0) setSelectedReturnLoan(filtered[0]);
+        })
+        .catch(err => toast.error('Failed to load active loans for this book'))
+        .finally(() => setLoading(false));
+    }
+
+    if (activeSubView === 'edit') {
       setEditForm({
         title: book.title || '',
         author: book.author || '',
@@ -60,62 +101,71 @@ export default function BookDetailOverlay({ book, onClose, onUpdate, onDelete, i
         total_copies: book.total_copies || 1,
         cover_image_url: book.cover_image_url || ''
       });
-      setActiveSubView(null);
-      setIssueMemberId(null);
-      setShowMiniForm(false);
-      if (isAdmin) loadMembers();
     }
-  }, [book, isAdmin]);
+  }, [activeSubView, book]);
 
-  // Fetch active loans when return sub-view opens
+  // Reset sub-view when book changes
   useEffect(() => {
-    if (activeSubView === 'return' && book) {
-      setLoading(true);
-      getActiveLoans()
-        .then(loans => {
-          const filtered = loans.filter(l => l.book_id === book.id);
-          setBookActiveLoans(filtered);
-          setSelectedReturnLoan(filtered.length > 0 ? filtered[0] : null);
-        })
-        .catch(err => toast.error('Failed to load active loans for this book'))
-        .finally(() => setLoading(false));
+    if (book) {
+      setActiveSubView(null);
+      setReturnSuccessMsg('');
+      setReservationBanner('');
     }
-  }, [activeSubView, book, toast]);
+  }, [book]);
 
   if (!book) return null;
 
   const isAvailable = book.available_copies > 0;
 
-  // --- Handlers ---
+  // ============================================================
+  // HANDLERS
+  // ============================================================
+
   async function handleIssueSubmit(e) {
     e.preventDefault();
     if (!issueMemberId) { toast.error('Please select a member'); return; }
     setLoading(true);
+    setIssueSuccessMsg('');
+    setIssueErrorMsg('');
     try {
-      await issueBook({ user_id: issueMemberId, book_id: book.id });
-      toast.success('Book issued successfully!');
-      onUpdate({ ...book, available_copies: book.available_copies - 1 });
-      setActiveSubView(null); setIssueMemberId(null); onClose();
+      await issueBook({ user_id: Number(issueMemberId), book_id: book.id });
+      setIssueSuccessMsg('Book issued successfully');
+      setIssueMemberId('');
+      setTimeout(async () => {
+        try {
+          const allBooks = await getBooks();
+          const updated = allBooks.find(b => b.id === book.id);
+          if (updated) onUpdate(updated);
+          setActiveSubView(null);
+        } catch {
+          setActiveSubView(null);
+        }
+      }, 1500);
     } catch (err) {
-      toast.error(err.message || 'Failed to issue book');
+      setIssueErrorMsg(err.message || 'Failed to issue book');
     } finally { setLoading(false); }
   }
 
-  async function handleMiniRegister(e) {
+  async function handleAddMember(e) {
     e.preventDefault();
-    if (!miniName || !miniEmail) { toast.error('Name and Email are required'); return; }
+    if (!newMember.name || !newMember.email) {
+      setAddMemberError('Name and email are required');
+      return;
+    }
     setLoading(true);
+    setAddMemberError('');
+    setAddMemberSuccess('');
     try {
-      const res = await addMember({ name: miniName, email: miniEmail, phone: miniPhone });
-      const newMember = { id: res.member_id, name: miniName, email: miniEmail, phone: miniPhone, membership_status: 'active', active_loans: 0 };
-      if (members) setMembers(prev => [...prev, newMember]);
-      else setMembers([newMember]);
-      setIssueMemberId(res.member_id);
-      setShowMiniForm(false);
-      setMiniName(''); setMiniEmail(''); setMiniPhone('');
-      toast.success(`Registered and selected: ${newMember.name}`);
+      await addMember(newMember);
+      setAddMemberSuccess('Member added successfully');
+      setNewMember({ name: '', email: '', phone: '' });
+      setAddMemberOpen(false);
+      // Refresh member list
+      const refreshed = await getMembers();
+      setAllMembers(refreshed);
+      toast.success('Member added');
     } catch (err) {
-      toast.error(err.message || 'Failed to register member');
+      setAddMemberError(err.message || 'Failed to add member');
     } finally { setLoading(false); }
   }
 
@@ -123,16 +173,35 @@ export default function BookDetailOverlay({ book, onClose, onUpdate, onDelete, i
     e.preventDefault();
     if (!selectedReturnLoan) return;
     setLoading(true);
+    setReturnSuccessMsg('');
+    setReservationBanner('');
     try {
       const result = await returnLoan(selectedReturnLoan.loan_id);
-      if (result.fine_amount > 0) toast.success(`Book returned. Fine of ₹${result.fine_amount} raised.`);
-      else toast.success('Book returned. No fine.');
-      if (result.reservation_msg) toast.info(result.reservation_msg);
-      else if (result.message && result.message.includes('Reservation')) toast.info(result.message);
-      onUpdate({ ...book, available_copies: book.available_copies + 1 });
-      setActiveSubView(null); setSelectedReturnLoan(null); onClose();
+      let successText = 'Book returned successfully';
+      if (result.fine_amount > 0) successText = `Book returned. Fine of ₹${result.fine_amount} raised.`;
+      else if (result.message && result.message.includes('No fine')) successText = 'Book returned. No fine.';
+      setReturnSuccessMsg(successText);
+
+      if (result.reservation_msg) {
+        setReservationBanner(result.reservation_msg);
+      } else if (result.message && result.message.includes('Reservation')) {
+        setReservationBanner(result.message);
+      }
+
+      if (onUpdate) onUpdate({ ...book, available_copies: book.available_copies + 1 });
+
+      setTimeout(async () => {
+        try {
+          const allBooks = await getBooks();
+          const updated = allBooks.find(b => b.id === book.id);
+          if (updated) onUpdate(updated);
+        } catch { /* optimistic update already applied */ }
+        setActiveSubView(null);
+        setReturnSuccessMsg('');
+        setReservationBanner('');
+      }, 2000);
     } catch (err) {
-      toast.error(err.message || 'Return failed');
+      setReturnSuccessMsg(err.message || 'Return failed');
     } finally { setLoading(false); }
   }
 
@@ -142,8 +211,8 @@ export default function BookDetailOverlay({ book, onClose, onUpdate, onDelete, i
     try {
       await editBook(book.id, editForm);
       toast.success('Book details updated');
-      onUpdate({ ...book, ...editForm, available_copies: book.available_copies + (editForm.total_copies - book.total_copies) });
-      setActiveSubView(null); onClose();
+      if (onUpdate) onUpdate({ ...book, ...editForm });
+      setActiveSubView(null);
     } catch (err) {
       toast.error(err.message || 'Failed to update book');
     } finally { setLoading(false); }
@@ -155,13 +224,12 @@ export default function BookDetailOverlay({ book, onClose, onUpdate, onDelete, i
       await deleteBook(book.id);
       toast.success('Book deleted');
       onDelete(book.id);
-      setShowDeleteConfirm(false); onClose();
     } catch (err) {
       toast.error(err.message || 'Failed to delete book');
     } finally { setLoading(false); }
   }
 
-  // Return details calculation
+  // Calculate fine for return form
   let returnDaysOverdue = 0, returnFine = 0;
   if (selectedReturnLoan) {
     const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -169,9 +237,39 @@ export default function BookDetailOverlay({ book, onClose, onUpdate, onDelete, i
     const diff = today - dueDate;
     if (diff > 0) {
       returnDaysOverdue = Math.ceil(diff / (1000 * 60 * 60 * 24));
-      if (returnDaysOverdue > 2) returnFine = (returnDaysOverdue - 2) * 10;
+      if (returnDaysOverdue > 2) {
+        returnFine = Math.min((returnDaysOverdue - 2) * 10, 500);
+      }
     }
   }
+
+  // ============================================================
+  // HELPERS
+  // ============================================================
+
+  function goBack() {
+    setActiveSubView(null);
+    setReturnSuccessMsg('');
+    setIssueSuccessMsg('');
+    setIssueErrorMsg('');
+    setAddMemberOpen(false);
+    setAddMemberSuccess('');
+    setAddMemberError('');
+  }
+
+  // ============================================================
+  // RENDER HELPERS
+  // ============================================================
+
+  const memberOptions = allMembers.map(m => ({
+    value: m.id,
+    label: m.name || `Member #${m.id}`,
+    sublabel: `${m.email} — ID: ${m.id}`
+  }));
+
+  // ============================================================
+  // RENDER
+  // ============================================================
 
   return (
     <div className={styles.overlay} onClick={onClose} aria-modal="true" role="dialog">
@@ -179,45 +277,49 @@ export default function BookDetailOverlay({ book, onClose, onUpdate, onDelete, i
         <button className={styles.closeBtn} onClick={onClose} aria-label="Close">&times;</button>
 
         <div className={styles.body}>
-          {/* Left: Book Card */}
+
+          {/* ======================================================== */}
+          {/* LEFT COLUMN — always book cover (top) + details (bottom) */}
+          {/* ======================================================== */}
           <div className={styles.left}>
             <BookCard book={book} />
-          </div>
-
-          {/* Right: Details + Actions */}
-          <div className={styles.right}>
-            <span className={styles.panelTitle}>Book Specifications</span>
-
-            <h3 className={styles.title}>{book.title}</h3>
-            <div className={styles.author}>by {book.author || 'Unknown'}</div>
-            {book.genre && <span className={styles.genreTag}>{book.genre}</span>}
-
-            <div className={styles.meta}>
-              <div className={styles.metaBox}>
-                <span className={styles.metaLabel}>ISBN</span>
-                <span className={styles.metaValue}>{book.isbn || 'N/A'}</span>
-              </div>
-              <div className={styles.metaBox}>
-                <span className={styles.metaLabel}>Total Copies</span>
-                <span className={styles.metaValue}>{book.total_copies}</span>
-              </div>
-              <div className={styles.metaBox}>
-                <span className={styles.metaLabel}>Available</span>
-                <span className={`${styles.metaValue} ${isAvailable ? styles.metaAvailable : styles.metaUnavailable}`}>
-                  {book.available_copies}
-                </span>
-              </div>
-              <div className={styles.metaBox}>
-                <span className={styles.metaLabel}>Status</span>
-                <span className={`${styles.metaValue} ${isAvailable ? styles.metaAvailable : styles.metaUnavailable}`}>
-                  {isAvailable ? 'In Stock' : 'Out of Stock'}
-                </span>
+            <div className={styles.leftDetails}>
+              <h3 className={styles.leftTitle}>{book.title}</h3>
+              <div className={styles.leftAuthor}>by {book.author || 'Unknown'}</div>
+              {book.genre && <span className={styles.leftGenre}>{book.genre}</span>}
+              <div className={styles.leftMeta}>
+                <div className={styles.leftMetaRow}>
+                  <span className={styles.leftMetaLabel}>ISBN</span>
+                  <span className={styles.leftMetaVal}>{book.isbn || 'N/A'}</span>
+                </div>
+                <div className={styles.leftMetaRow}>
+                  <span className={styles.leftMetaLabel}>Copies</span>
+                  <span className={styles.leftMetaVal}>{book.total_copies}</span>
+                </div>
+                <div className={styles.leftMetaRow}>
+                  <span className={styles.leftMetaLabel}>Available</span>
+                  <span className={`${styles.leftMetaVal} ${isAvailable ? styles.metaAvailable : styles.metaUnavailable}`}>
+                    {book.available_copies}
+                  </span>
+                </div>
+                <div className={styles.leftMetaRow}>
+                  <span className={styles.leftMetaLabel}>Status</span>
+                  <span className={`${styles.leftMetaVal} ${isAvailable ? styles.metaAvailable : styles.metaUnavailable}`}>
+                    {isAvailable ? 'In Stock' : 'Out of Stock'}
+                  </span>
+                </div>
               </div>
             </div>
+          </div>
 
-            {/* Action buttons — admin only */}
-            {isAdmin && (
+          {/* ======================================================== */}
+          {/* RIGHT COLUMN — normal view or form                     */}
+          {/* ======================================================== */}
+          <div className={styles.right}>
+            {/* ---- Normal view: specs + action buttons ---- */}
+            {!activeSubView && isAdmin && (
               <>
+                <span className={styles.panelTitle}>Specifications</span>
                 <div className={styles.actionGrid}>
                   {isAvailable ? (
                     <button className={`${styles.btnAction} ${styles.btnIssue}`} onClick={() => setActiveSubView('issue')}>
@@ -243,166 +345,248 @@ export default function BookDetailOverlay({ book, onClose, onUpdate, onDelete, i
                     <span>Delete Book</span>
                   </button>
                 </div>
-
-                {/* Sub-view: Issue Book */}
-                {activeSubView === 'issue' && (
-                  <div className={styles.subView}>
-                    <h4 className={styles.subTitle}>Issue Book</h4>
-                    <form onSubmit={handleIssueSubmit} className={styles.form}>
-                      <div className={styles.formGroup}>
-                        <label className={styles.label}>Select Member</label>
-                        <SearchableDropdown
-                          options={members || []}
-                          placeholder="Type member name or email..."
-                          onSelect={(id) => setIssueMemberId(id)}
-                          initialSelectedId={issueMemberId}
-                        />
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <span className={styles.expandLink} onClick={() => setShowMiniForm(!showMiniForm)}>
-                          {showMiniForm ? 'Cancel new registration' : 'Member not found? Register here'}
-                        </span>
-                      </div>
-                      {showMiniForm && (
-                        <div className={styles.miniForm}>
-                          <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--color-accent)', marginBottom: '4px' }}>
-                            Register Member Inline
-                          </div>
-                          <div className={styles.formGroup}>
-                            <label className={styles.label}>Name *</label>
-                            <input type="text" className={styles.input} value={miniName} onChange={e => setMiniName(e.target.value)} />
-                          </div>
-                          <div className={styles.formGroup}>
-                            <label className={styles.label}>Email *</label>
-                            <input type="email" className={styles.input} value={miniEmail} onChange={e => setMiniEmail(e.target.value)} />
-                          </div>
-                          <div className={styles.formGroup}>
-                            <label className={styles.label}>Phone</label>
-                            <input type="text" className={styles.input} value={miniPhone} onChange={e => setMiniPhone(e.target.value)} />
-                          </div>
-                          <button type="button" className={styles.btnSubmit} onClick={handleMiniRegister} disabled={loading}>
-                            {loading ? 'Registering...' : 'Register & Continue'}
-                          </button>
-                        </div>
-                      )}
-                      <button type="submit" className={styles.btnSubmit} disabled={loading || !issueMemberId}>
-                        {loading ? 'Issuing...' : 'Confirm & Issue'}
-                      </button>
-                    </form>
-                  </div>
-                )}
-
-                {/* Sub-view: Mark Returned */}
-                {activeSubView === 'return' && (
-                  <div className={styles.subView}>
-                    <h4 className={styles.subTitle}>Mark as Returned</h4>
-                    {loading ? (
-                      <div>Loading active loans...</div>
-                    ) : bookActiveLoans.length === 0 ? (
-                      <div style={{ color: 'var(--color-danger)', fontStyle: 'italic' }}>No active loans for this book.</div>
-                    ) : (
-                      <form onSubmit={handleReturnConfirm} className={styles.form}>
-                        <div className={styles.formGroup}>
-                          <label className={styles.label}>Select loan to return</label>
-                          <select
-                            className={styles.input}
-                            value={selectedReturnLoan ? selectedReturnLoan.loan_id : ''}
-                            onChange={e => {
-                              const match = bookActiveLoans.find(l => l.loan_id === Number(e.target.value));
-                              setSelectedReturnLoan(match || null);
-                            }}
-                          >
-                            {bookActiveLoans.map(l => (
-                              <option key={l.loan_id} value={l.loan_id}>
-                                {l.user_name} (Issued: {l.issue_date})
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        {selectedReturnLoan && (
-                          <div style={{ backgroundColor: 'var(--color-bg)', border: '1px solid var(--color-border)', padding: '14px', borderRadius: '6px', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                              <span style={{ color: 'var(--color-text-muted)' }}>Due Date:</span>
-                              <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 500 }}>{selectedReturnLoan.due_date}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                              <span style={{ color: 'var(--color-text-muted)' }}>Return Date:</span>
-                              <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 500 }}>{todayStr} (Today)</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                              <span style={{ color: 'var(--color-text-muted)' }}>Days Overdue:</span>
-                              <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 500 }}>{returnDaysOverdue} day(s)</span>
-                            </div>
-                            <hr style={{ border: 'none', borderTop: '1px solid var(--color-border)' }} />
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span style={{ color: 'var(--color-text-muted)' }}>Grace period:</span>
-                              <span style={{ color: 'var(--color-accent)', fontWeight: 'bold' }}>2 Days</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span style={{ color: 'var(--color-text-muted)' }}>Fines raised:</span>
-                              <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 'bold', color: returnFine > 0 ? 'var(--color-danger)' : 'green' }}>
-                                ₹{returnFine.toFixed(2)}
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                        <button type="submit" className={styles.btnSubmit} disabled={loading || !selectedReturnLoan}>
-                          {loading ? 'Processing...' : 'Confirm Return'}
-                        </button>
-                      </form>
-                    )}
-                  </div>
-                )}
-
-                {/* Sub-view: Edit */}
-                {activeSubView === 'edit' && (
-                  <div className={styles.subView}>
-                    <h4 className={styles.subTitle}>Edit Book Details</h4>
-                    <form onSubmit={handleEditSubmit} className={styles.form}>
-                      {[
-                        { field: 'title', label: 'Book Title *', required: true },
-                        { field: 'author', label: 'Author *', required: true },
-                        { field: 'genre', label: 'Genre' },
-                        { field: 'isbn', label: 'ISBN' },
-                      ].map(f => (
-                        <div className={styles.formGroup} key={f.field}>
-                          <label className={styles.label}>{f.label}</label>
-                          <input
-                            type={f.field === 'total_copies' ? 'number' : 'text'}
-                            className={styles.input}
-                            min={f.field === 'total_copies' ? '1' : undefined}
-                            value={editForm[f.field]}
-                            onChange={e => setEditForm({ ...editForm, [f.field]: f.field === 'total_copies' ? Number(e.target.value) : e.target.value })}
-                            required={f.required}
-                          />
-                        </div>
-                      ))}
-                      <div className={styles.formGroup}>
-                        <label className={styles.label}>Total Copies *</label>
-                        <input type="number" min="1" className={styles.input} value={editForm.total_copies} onChange={e => setEditForm({ ...editForm, total_copies: Number(e.target.value) })} required />
-                      </div>
-                      <div className={styles.formGroup}>
-                        <label className={styles.label}>Cover Image URL</label>
-                        <input type="text" className={styles.input} value={editForm.cover_image_url} onChange={e => setEditForm({ ...editForm, cover_image_url: e.target.value })} placeholder="e.g. /static/covers/123.jpg" />
-                      </div>
-                      <button type="submit" className={styles.btnSubmit} disabled={loading}>
-                        {loading ? 'Saving...' : 'Save Book Info'}
-                      </button>
-                    </form>
-                  </div>
-                )}
-
-                {/* Confirm delete */}
-                <ConfirmDialog
-                  isOpen={showDeleteConfirm}
-                  onCancel={() => setShowDeleteConfirm(false)}
-                  onConfirm={handleDeleteConfirm}
-                  message={`Are you sure you want to permanently delete "${book.title}"?`}
-                />
               </>
+            )}
+
+            {/* ---- Normal view: non-admin sees only specs ---- */}
+            {!activeSubView && !isAdmin && (
+              <>
+                <span className={styles.panelTitle}>Specifications</span>
+                <div className={styles.metaGrid}>
+                  <div className={styles.metaBox}>
+                    <span className={styles.metaLabel}>ISBN</span>
+                    <span className={styles.metaValue}>{book.isbn || 'N/A'}</span>
+                  </div>
+                  <div className={styles.metaBox}>
+                    <span className={styles.metaLabel}>Total Copies</span>
+                    <span className={styles.metaValue}>{book.total_copies}</span>
+                  </div>
+                  <div className={styles.metaBox}>
+                    <span className={styles.metaLabel}>Available</span>
+                    <span className={`${styles.metaValue} ${isAvailable ? styles.metaAvailable : styles.metaUnavailable}`}>
+                      {book.available_copies}
+                    </span>
+                  </div>
+                  <div className={styles.metaBox}>
+                    <span className={styles.metaLabel}>Status</span>
+                    <span className={`${styles.metaValue} ${isAvailable ? styles.metaAvailable : styles.metaUnavailable}`}>
+                      {isAvailable ? 'In Stock' : 'Out of Stock'}
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* ---- Issue Book Form ---- */}
+            {activeSubView === 'issue' && isAdmin && (
+              <div className={styles.formContainer}>
+                <div className={styles.subViewHeader}>
+                  <button className={styles.backBtn} onClick={goBack} aria-label="Back">&#8592;</button>
+                  <span className={styles.subViewTitle}>Issue Book</span>
+                </div>
+
+                {issueSuccessMsg && (
+                  <div className={styles.successBanner}>{issueSuccessMsg}</div>
+                )}
+                {issueErrorMsg && (
+                  <div className={styles.errorBanner}>{issueErrorMsg}</div>
+                )}
+
+                <form onSubmit={handleIssueSubmit} className={styles.form}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Member</label>
+                    <SearchableDropdown
+                      options={memberOptions}
+                      placeholder="Search or type member name / email"
+                      value={issueMemberId ? parseInt(issueMemberId) : ''}
+                      onSelect={(opt) => {
+                        setIssueMemberId(String(opt.value));
+                      }}
+                    />
+                  </div>
+                  <button type="submit" className={styles.btnSubmit} disabled={loading || !issueMemberId}>
+                    {loading ? 'Issuing...' : 'Confirm Issue'}
+                  </button>
+                </form>
+
+                {!addMemberOpen ? (
+                  <button className={styles.addMemberLink} onClick={() => setAddMemberOpen(true)}>
+                    Member not found? Add member
+                  </button>
+                ) : (
+                  <form onSubmit={handleAddMember} className={styles.addMemberForm}>
+                    {addMemberSuccess && (
+                      <div className={styles.successBanner}>{addMemberSuccess}</div>
+                    )}
+                    {addMemberError && (
+                      <div className={styles.errorBanner}>{addMemberError}</div>
+                    )}
+                    <div className={styles.formGroup}>
+                      <input
+                        type="text"
+                        className={styles.input}
+                        placeholder="Full name *"
+                        value={newMember.name}
+                        onChange={e => setNewMember({ ...newMember, name: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <input
+                        type="email"
+                        className={styles.input}
+                        placeholder="Email address *"
+                        value={newMember.email}
+                        onChange={e => setNewMember({ ...newMember, email: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <input
+                        type="text"
+                        className={styles.input}
+                        placeholder="Phone (optional)"
+                        value={newMember.phone}
+                        onChange={e => setNewMember({ ...newMember, phone: e.target.value })}
+                      />
+                    </div>
+                    <button type="submit" className={styles.btnAddMember} disabled={loading}>
+                      {loading ? 'Adding...' : 'Add Member'}
+                    </button>
+                  </form>
+                )}
+              </div>
+            )}
+
+            {/* ---- Mark Returned Form ---- */}
+            {activeSubView === 'return' && isAdmin && (
+              <div className={styles.formContainer}>
+                <div className={styles.subViewHeader}>
+                  <button className={styles.backBtn} onClick={goBack} aria-label="Back">&#8592;</button>
+                  <span className={styles.subViewTitle}>Mark as Returned</span>
+                </div>
+
+                {returnSuccessMsg && (
+                  <div className={styles.successBanner}>{returnSuccessMsg}</div>
+                )}
+                {reservationBanner && (
+                  <div className={styles.reservationBanner}>Queue update: {reservationBanner}</div>
+                )}
+
+                {loading ? (
+                  <div className={styles.loadingText}>Loading active loans...</div>
+                ) : bookActiveLoans.length === 0 ? (
+                  <div style={{ color: 'var(--color-danger)', fontStyle: 'italic' }}>No active loans for this book.</div>
+                ) : (
+                  <form onSubmit={handleReturnConfirm} className={styles.form}>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>Select loan to return</label>
+                      <select
+                        className={styles.input}
+                        value={selectedReturnLoan ? selectedReturnLoan.loan_id : ''}
+                        onChange={e => {
+                          const match = bookActiveLoans.find(l => l.loan_id === Number(e.target.value));
+                          setSelectedReturnLoan(match || null);
+                        }}
+                      >
+                        {bookActiveLoans.map(l => (
+                          <option key={l.loan_id} value={l.loan_id}>
+                            {l.user_name} — Issued: {l.issue_date}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {selectedReturnLoan && (
+                      <div className={styles.returnSummary}>
+                        <div className={styles.summaryRow}>
+                          <span className={styles.summaryKey}>Due Date:</span>
+                          <span className={styles.summaryVal}>{selectedReturnLoan.due_date}</span>
+                        </div>
+                        <div className={styles.summaryRow}>
+                          <span className={styles.summaryKey}>Return Date:</span>
+                          <span className={styles.summaryVal}>{todayStr} (Today)</span>
+                        </div>
+                        <div className={styles.summaryRow}>
+                          <span className={styles.summaryKey}>Days Overdue:</span>
+                          <span className={styles.summaryVal}>{returnDaysOverdue} day(s)</span>
+                        </div>
+                        <hr style={{ border: 'none', borderTop: '1px solid var(--color-border)' }} />
+                        <div className={styles.summaryRow}>
+                          <span className={styles.summaryKey}>Grace Period:</span>
+                          <span className={`${styles.summaryVal} ${styles.graceText}`}>2 Days</span>
+                        </div>
+                        <div className={styles.summaryRow}>
+                          <span className={styles.summaryKey}>Fines Raised:</span>
+                          <span className={styles.summaryVal} style={{
+                            fontFamily: 'JetBrains Mono', fontWeight: 'bold',
+                            color: returnFine > 0 ? 'var(--color-danger)' : '#059669'
+                          }}>
+                            ₹{returnFine.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    <button type="submit" className={styles.btnSubmit} disabled={loading || !selectedReturnLoan}>
+                      {loading ? 'Processing...' : 'Confirm Return'}
+                    </button>
+                  </form>
+                )}
+              </div>
+            )}
+
+            {/* ---- Edit Details Form ---- */}
+            {activeSubView === 'edit' && isAdmin && (
+              <div className={styles.formContainer}>
+                <div className={styles.subViewHeader}>
+                  <button className={styles.backBtn} onClick={goBack} aria-label="Back">&#8592;</button>
+                  <span className={styles.subViewTitle}>Edit Book Details</span>
+                </div>
+                <form onSubmit={handleEditSubmit} className={styles.form}>
+                  {[
+                    { field: 'title', label: 'Book Title *', required: true },
+                    { field: 'author', label: 'Author *', required: true },
+                    { field: 'genre', label: 'Genre' },
+                    { field: 'isbn', label: 'ISBN' },
+                  ].map(f => (
+                    <div className={styles.formGroup} key={f.field}>
+                      <label className={styles.label}>{f.label}</label>
+                      <input
+                        type="text"
+                        className={styles.input}
+                        value={editForm[f.field]}
+                        onChange={e => setEditForm({ ...editForm, [f.field]: e.target.value })}
+                        required={f.required}
+                      />
+                    </div>
+                  ))}
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Total Copies *</label>
+                    <input type="number" min="1" className={styles.input} value={editForm.total_copies}
+                      onChange={e => setEditForm({ ...editForm, total_copies: Number(e.target.value) })} required />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Cover Image URL</label>
+                    <input type="text" className={styles.input} value={editForm.cover_image_url}
+                      onChange={e => setEditForm({ ...editForm, cover_image_url: e.target.value })} placeholder="e.g. /static/covers/123.jpg" />
+                  </div>
+                  <button type="submit" className={styles.btnSubmit} disabled={loading}>
+                    {loading ? 'Saving...' : 'Save Book Info'}
+                  </button>
+                </form>
+              </div>
             )}
           </div>
         </div>
+
+        {/* Delete confirm dialog */}
+        <ConfirmDialog
+          isOpen={showDeleteConfirm}
+          onCancel={() => setShowDeleteConfirm(false)}
+          onConfirm={handleDeleteConfirm}
+          message={`Are you sure you want to permanently delete "${book.title}"?`}
+        />
       </div>
     </div>
   );
