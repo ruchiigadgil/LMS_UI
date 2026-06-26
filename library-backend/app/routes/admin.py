@@ -8,7 +8,7 @@ from app.models.book import Book
 from app.models.book_inventory_transaction import BookInventoryTransaction, ChangeType
 from app.models.loan import Loan
 from app.models.user import User
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from app.services.fine_calculator import calculate_fine
 from app.models.fine import Fine
 from app.models.reservation import Reservation
@@ -495,4 +495,44 @@ def get_reservations(book_id):
         "book_id": book_id,
         "total_in_queue": len(result),
         "queue": result
+    }), 200
+
+
+@admin_bp.route("/fines", methods=["GET"])
+def get_fines():
+    fines = Fine.query.all()
+
+    result = []
+    for fine in fines:
+        result.append({
+            "id": fine.id,
+            "loan_id": fine.loan_id,
+            "user_id": fine.user_id,
+            "user_name": fine.user.name,
+            "book_title": fine.loan.book.title,
+            "amount": float(fine.amount),
+            "paid": fine.paid,
+            "raised_at": fine.loan.return_date.isoformat() if fine.loan.return_date else None,
+            "paid_at": fine.paid_at.isoformat() if fine.paid_at else None
+        })
+
+    return jsonify(result), 200
+
+
+@admin_bp.route("/fines/<int:fine_id>/pay", methods=["POST"])
+def mark_fine_paid(fine_id):
+    fine = Fine.query.get(fine_id)
+    if not fine:
+        return jsonify({"error": "Fine not found"}), 404
+
+    if fine.paid:
+        return jsonify({"error": "Fine is already paid"}), 400
+
+    fine.paid = True
+    fine.paid_at = datetime.now()
+    db.session.commit()
+
+    return jsonify({
+        "message": "Fine marked as paid",
+        "fine_id": fine.id
     }), 200

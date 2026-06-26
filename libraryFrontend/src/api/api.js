@@ -518,23 +518,37 @@ function addMockFine({ loan_id, user_id, amount, book_title, user_name }) {
 }
 
 export async function getFines() {
-  console.log('GET /api/admin/fines - STUBBED on backend, loading locally');
-  await new Promise(r => setTimeout(r, 300));
-  return getMockFines();
+  try {
+    const res = await fetch(`${BASE_URL}/admin/fines`, {
+      method: 'GET',
+      headers: getHeaders()
+    });
+    return handleResponse(res);
+  } catch (error) {
+    console.log('getFines backend error, falling back to local:', error);
+    return getMockFines();
+  }
 }
 
 export async function payFine(fineId) {
-  console.log(`PUT /api/admin/fines/${fineId}/pay - STUBBED on backend, saving locally`);
-  await new Promise(r => setTimeout(r, 300));
-  const fines = getMockFines();
-  const fine = fines.find(f => f.id === Number(fineId));
-  if (fine) {
-    fine.paid = true;
-    fine.paid_at = new Date().toISOString();
-    localStorage.setItem('verso_fines', JSON.stringify(fines));
-    return { message: 'Fine paid successfully', fine_id: fineId };
+  try {
+    const res = await fetch(`${BASE_URL}/admin/fines/${fineId}/pay`, {
+      method: 'POST',
+      headers: getHeaders()
+    });
+    return handleResponse(res);
+  } catch (error) {
+    console.log('payFine backend error, falling back to local:', error);
+    const fines = getMockFines();
+    const fine = fines.find(f => f.id === Number(fineId));
+    if (fine) {
+      fine.paid = true;
+      fine.paid_at = new Date().toISOString();
+      localStorage.setItem('verso_fines', JSON.stringify(fines));
+      return { message: 'Fine paid successfully', fine_id: fineId };
+    }
+    throw new Error('Fine not found');
   }
-  throw new Error('Fine not found');
 }
 
 
