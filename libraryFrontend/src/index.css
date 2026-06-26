@@ -36,17 +36,17 @@ html, body, #root {
 }
 
 body {
-  font-family: 'Source Serif 4';
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--color-bg);
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Fraunces';
-  font-weight: 400;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 600;
   color: var(--color-text-primary);
 }
 
@@ -112,8 +112,8 @@ img {
 }
 
 .section-title {
-  font-family: 'Fraunces';
-  font-weight: 400;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
 }
 
 .muted-text {

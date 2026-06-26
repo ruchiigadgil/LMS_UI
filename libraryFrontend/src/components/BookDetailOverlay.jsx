@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import SearchableDropdown from "./SearchableDropdown";
-import ConfirmDialog from "./ConfirmDialog";
+import Modal from "./Modal";
 import { MembersContext } from "./MembersContext";
 import { useToast } from "./Toast";
 import Icon from "./Icon";
@@ -13,6 +13,7 @@ import {
   deleteBook,
   getActiveLoans,
   returnLoan,
+  addToWaitlist,
 } from "../api/api";
 import BookCard from "./BookCard";
 import styles from "./BookDetailOverlay.module.css";
@@ -50,6 +51,10 @@ export default function BookDetailOverlay({
   const [selectedReturnLoan, setSelectedReturnLoan] = useState(null);
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteReason, setDeleteReason] = useState("");
+  const [deleteQuantity, setDeleteQuantity] = useState(1);
+
+  const [reserveMemberId, setReserveMemberId] = useState(null);
 
   const todayStr = new Date().toLocaleDateString("en-IN", {
     day: "2-digit",
@@ -207,13 +212,47 @@ export default function BookDetailOverlay({
     }
   }
 
-  async function handleDeleteConfirm() {
+  async function handleReserveSubmit(e) {
+    e.preventDefault();
+    if (!reserveMemberId) {
+      toast.error("Please select a member");
+      return;
+    }
     setLoading(true);
     try {
-      await deleteBook(book.id);
-      toast.success("Book deleted");
-      onDelete(book.id);
+      const result = await addToWaitlist({ user_id: reserveMemberId, book_id: book.id });
+      toast.success(`Member added to waitlist. Position: ${result.queue_position}`);
+      setActiveSubView(null);
+      setReserveMemberId(null);
+      onClose();
+    } catch (err) {
+      toast.error(err.message || "Failed to add reservation");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleDeleteConfirm() {
+    if (!deleteReason.trim()) {
+      toast.error("Please provide a reason for deletion");
+      return;
+    }
+    setLoading(true);
+    try {
+      const result = await deleteBook(book.id, {
+        reason: deleteReason,
+        quantity: -deleteQuantity
+      });
+      if (result.deleted) {
+        toast.success("Book deleted completely");
+        onDelete(book.id);
+      } else {
+        toast.success(result.message);
+        onUpdate({ ...book, total_copies: result.new_total, available_copies: Math.max(0, book.available_copies - deleteQuantity) });
+      }
       setShowDeleteConfirm(false);
+      setDeleteReason("");
+      setDeleteQuantity(1);
       onClose();
     } catch (err) {
       toast.error(err.message || "Failed to delete book");
@@ -269,7 +308,7 @@ export default function BookDetailOverlay({
           <div className={styles.issueBody}>
             {/* LEFT: Book card - same as main panel */}
             <div className={styles.left}>
-              <BookCard book={book} />
+              <BookCard book={book} disableClick />
             </div>
 
             {/* RIGHT: Issue form - centered, narrow */}
@@ -404,7 +443,7 @@ export default function BookDetailOverlay({
           <div className={styles.returnBody}>
             {/* LEFT: Book card */}
             <div className={styles.left}>
-              <BookCard book={book} />
+              <BookCard book={book} disableClick />
             </div>
 
             {/* RIGHT: Return form */}
@@ -571,6 +610,209 @@ export default function BookDetailOverlay({
   }
 
   // ==========================================
+  // EDIT VIEW - same layout as issue/return view
+  // ==========================================
+  if (activeSubView === "edit") {
+    return (
+      <div
+        className={styles.overlay}
+        onClick={onClose}
+        aria-modal="true"
+        role="dialog"
+      >
+        <div className={styles.editPanel} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.issueHeader}>
+            <button
+              className={styles.returnLink}
+              onClick={() => setActiveSubView(null)}
+            >
+              <Icon name="arrowLeft" className={styles.returnArrow} />
+              <span>Return to Book Details</span>
+            </button>
+            <button
+              className={styles.closeBtn}
+              onClick={onClose}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+          </div>
+
+          <div className={styles.editBody}>
+            {/* LEFT: Book card */}
+            <div className={styles.left}>
+              <BookCard book={book} disableClick />
+            </div>
+
+            {/* RIGHT: Edit form */}
+            <div className={styles.right}>
+              <h4 className={styles.issueFormTitle}>Edit Book Details</h4>
+              <form onSubmit={handleEditSubmit} className={styles.editForm}>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Book Title *</label>
+                  <input
+                    type="text"
+                    className={styles.input}
+                    value={editForm.title}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, title: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Author *</label>
+                  <input
+                    type="text"
+                    className={styles.input}
+                    value={editForm.author}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, author: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Genre</label>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      value={editForm.genre}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, genre: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>ISBN</label>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      value={editForm.isbn}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, isbn: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Total Copies *</label>
+                    <input
+                      type="number"
+                      min="1"
+                      className={styles.input}
+                      value={editForm.total_copies}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          total_copies: Number(e.target.value),
+                        })
+                      }
+                      required
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Cover URL</label>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      value={editForm.cover_image_url}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          cover_image_url: e.target.value,
+                        })
+                      }
+                      placeholder="/static/covers/..."
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  className={styles.btnSubmit}
+                  disabled={loading}
+                >
+                  {loading ? "Saving..." : "Save Changes"}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // RESERVE VIEW - add member to waitlist
+  // ==========================================
+  if (activeSubView === "reserve") {
+    return (
+      <div
+        className={styles.overlay}
+        onClick={onClose}
+        aria-modal="true"
+        role="dialog"
+      >
+        <div className={styles.reservePanel} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.issueHeader}>
+            <button
+              className={styles.returnLink}
+              onClick={() => setActiveSubView(null)}
+            >
+              <Icon name="arrowLeft" className={styles.returnArrow} />
+              <span>Return to Book Details</span>
+            </button>
+            <button
+              className={styles.closeBtn}
+              onClick={onClose}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+          </div>
+
+          <div className={styles.reserveBody}>
+            {/* LEFT: Book card */}
+            <div className={styles.left}>
+              <BookCard book={book} disableClick />
+            </div>
+
+            {/* RIGHT: Reserve form */}
+            <div className={styles.right}>
+              <form onSubmit={handleReserveSubmit} className={styles.issueForm}>
+                <h4 className={styles.issueFormTitle}>Add to Waitlist</h4>
+                <div className={styles.stockOutNotice}>
+                  <Icon name="alertCircle" className={styles.noticeIcon} />
+                  <span>All copies are currently issued. Add member to reservation queue.</span>
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Select Member</label>
+                  <SearchableDropdown
+                    options={members || []}
+                    placeholder="Type member name or email..."
+                    onSelect={(id) => setReserveMemberId(id)}
+                    initialSelectedId={reserveMemberId}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className={styles.btnReserveSubmit}
+                  disabled={loading || !reserveMemberId}
+                >
+                  {loading ? "Adding..." : "Add to Waitlist"}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
   // MAIN OVERLAY â€" book detail view
   // ==========================================
   return (
@@ -592,7 +834,7 @@ export default function BookDetailOverlay({
         <div className={styles.body}>
           {/* Left: Book Card */}
           <div className={styles.left}>
-            <BookCard book={book} />
+            <BookCard book={book} disableClick />
           </div>
 
           {/* Right: Details + Actions */}
@@ -646,11 +888,11 @@ export default function BookDetailOverlay({
                     </button>
                   ) : (
                     <button
-                      className={`${styles.btnAction} ${styles.btnIssue}`}
-                      disabled
+                      className={`${styles.btnAction} ${styles.btnReserve}`}
+                      onClick={() => setActiveSubView("reserve")}
                     >
-                      <Icon name="book" className={styles.btnIcon} />
-                      <span>Issue Book</span>
+                      <Icon name="bookmark" className={styles.btnIcon} />
+                      <span>Add Reservation</span>
                     </button>
                   )}
                   <button
@@ -676,92 +918,87 @@ export default function BookDetailOverlay({
                   </button>
                 </div>
 
-                {/* Sub-view: Edit */}
-                {activeSubView === "edit" && (
-                  <div className={styles.subView}>
-                    <h4 className={styles.subTitle}>Edit Book Details</h4>
-                    <form onSubmit={handleEditSubmit} className={styles.form}>
-                      {[
-                        {
-                          field: "title",
-                          label: "Book Title *",
-                          required: true,
-                        },
-                        { field: "author", label: "Author *", required: true },
-                        { field: "genre", label: "Genre" },
-                        { field: "isbn", label: "ISBN" },
-                      ].map((f) => (
-                        <div className={styles.formGroup} key={f.field}>
-                          <label className={styles.label}>{f.label}</label>
-                          <input
-                            type={
-                              f.field === "total_copies" ? "number" : "text"
-                            }
-                            className={styles.input}
-                            min={f.field === "total_copies" ? "1" : undefined}
-                            value={editForm[f.field]}
-                            onChange={(e) =>
-                              setEditForm({
-                                ...editForm,
-                                [f.field]:
-                                  f.field === "total_copies"
-                                    ? Number(e.target.value)
-                                    : e.target.value,
-                              })
-                            }
-                            required={f.required}
-                          />
-                        </div>
-                      ))}
+                {/* Delete Book Modal */}
+                <Modal
+                  isOpen={showDeleteConfirm}
+                  onClose={() => {
+                    setShowDeleteConfirm(false);
+                    setDeleteReason("");
+                    setDeleteQuantity(1);
+                  }}
+                  title="Remove Book Copies"
+                >
+                  <div className={styles.deleteModal}>
+                    <p className={styles.deleteWarning}>
+                      You are about to remove copies of <strong>"{book.title}"</strong>
+                    </p>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>Quantity to Remove *</label>
+                      <input
+                        type="number"
+                        min="1"
+                        max={book.total_copies}
+                        className={styles.input}
+                        value={deleteQuantity}
+                        onChange={(e) => setDeleteQuantity(Math.min(Number(e.target.value), book.total_copies))}
+                      />
+                      <span className={styles.hint}>
+                        Current total: {book.total_copies} copies
+                        {deleteQuantity >= book.total_copies && (
+                          <span style={{ color: "var(--color-danger)", marginLeft: 8 }}>
+                            (This will delete the book entirely)
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>Reason for Removal *</label>
+                      <select
+                        className={styles.input}
+                        value={deleteReason}
+                        onChange={(e) => setDeleteReason(e.target.value)}
+                      >
+                        <option value="">Select a reason...</option>
+                        <option value="Damaged beyond repair">Damaged beyond repair</option>
+                        <option value="Lost">Lost</option>
+                        <option value="Outdated content">Outdated content</option>
+                        <option value="Duplicate entry">Duplicate entry</option>
+                        <option value="Inventory correction">Inventory correction</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    {deleteReason === "Other" && (
                       <div className={styles.formGroup}>
-                        <label className={styles.label}>Total Copies *</label>
-                        <input
-                          type="number"
-                          min="1"
-                          className={styles.input}
-                          value={editForm.total_copies}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              total_copies: Number(e.target.value),
-                            })
-                          }
-                          required
-                        />
-                      </div>
-                      <div className={styles.formGroup}>
-                        <label className={styles.label}>Cover Image URL</label>
+                        <label className={styles.label}>Specify Reason *</label>
                         <input
                           type="text"
                           className={styles.input}
-                          value={editForm.cover_image_url}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              cover_image_url: e.target.value,
-                            })
-                          }
-                          placeholder="e.g. /static/covers/123.jpg"
+                          placeholder="Enter custom reason..."
+                          onChange={(e) => setDeleteReason(e.target.value)}
                         />
                       </div>
+                    )}
+                    <div className={styles.deleteActions}>
                       <button
-                        type="submit"
-                        className={styles.btnSubmit}
-                        disabled={loading}
+                        className={styles.btnCancel}
+                        onClick={() => {
+                          setShowDeleteConfirm(false);
+                          setDeleteReason("");
+                          setDeleteQuantity(1);
+                        }}
                       >
-                        {loading ? "Saving..." : "Save Book Info"}
+                        Cancel
                       </button>
-                    </form>
+                      <button
+                        className={styles.btnDanger}
+                        onClick={handleDeleteConfirm}
+                        disabled={loading || !deleteReason.trim()}
+                      >
+                        {loading ? "Removing..." : `Remove ${deleteQuantity} Copy${deleteQuantity > 1 ? "ies" : ""}`}
+                      </button>
+                    </div>
                   </div>
-                )}
-
-                {/* Confirm delete */}
-                <ConfirmDialog
-                  isOpen={showDeleteConfirm}
-                  onCancel={() => setShowDeleteConfirm(false)}
-                  onConfirm={handleDeleteConfirm}
-                  message={`Are you sure you want to permanently delete "${book.title}"?`}
-                />
+                </Modal>
               </>
             )}
           </div>

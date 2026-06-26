@@ -32,7 +32,7 @@
   min-height: 38px;
   padding: 10px 20px;
   color: rgba(255,255,255,0.7);
-  font-family: 'Fraunces';
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 400;
   letter-spacing: 0.04em;
@@ -88,7 +88,7 @@
 }
 
 .brandLogo {
-  width: 190px;
+  width: 228px;
   height: auto;
   object-fit: contain;
 }
@@ -116,7 +116,7 @@
 }
 
 .userName {
-  font-family: 'Source Serif 4';
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   color: var(--color-text-primary);
 }
@@ -138,7 +138,7 @@
   background: transparent;
   color: var(--color-text-primary);
   border: 1px solid rgba(0,0,0,0.08);
-  font-family: 'Fraunces';
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
@@ -162,7 +162,7 @@
 }
 
 .pageTitle {
-  font-family: 'Fraunces';
+  font-family: 'Inter', sans-serif;
   font-size: 28px;
   font-weight: 400;
   color: var(--color-text-primary);

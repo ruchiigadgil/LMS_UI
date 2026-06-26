@@ -21,7 +21,7 @@
 }
 
 .panelHeader span {
-  font-family: 'Fraunces';
+  font-family: 'Inter', sans-serif;
   font-size: 16px;
   font-weight: 400;
   color: var(--color-text-primary);
@@ -50,7 +50,7 @@
   padding: 20px 24px 24px;
   overflow-y: auto;
   flex-grow: 1;
-  font-family: 'Source Serif 4';
+  font-family: 'Inter', sans-serif;
   font-weight: 300;
 }
 
@@ -74,7 +74,7 @@
 }
 
 .title {
-  font-family: 'Fraunces';
+  font-family: 'Inter', sans-serif;
   font-size: 20px;
   font-weight: 400;
   color: var(--color-text-primary);
@@ -83,7 +83,7 @@
 }
 
 .author {
-  font-family: 'Source Serif 4';
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 300;
   color: var(--color-text-secondary);
@@ -137,7 +137,7 @@
 .indicator {
   padding: 10px 14px;
   border-radius: 6px;
-  font-family: 'Source Serif 4';
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 300;
   margin-bottom: 28px;
@@ -166,7 +166,7 @@
 .btnAction {
   padding: 10px 12px;
   border-radius: 6px;
-  font-family: 'Fraunces';
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 400;
   text-align: center;
@@ -222,7 +222,7 @@
 }
 
 .subTitle {
-  font-family: 'Fraunces';
+  font-family: 'Inter', sans-serif;
   font-size: 18px;
   font-weight: 400;
   color: var(--color-text-primary);
@@ -242,7 +242,7 @@
 }
 
 .label {
-  font-family: 'Source Serif 4';
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 300;
   color: var(--color-text-secondary);
@@ -254,7 +254,7 @@
   border: 1px solid rgba(0, 0, 0, 0.07);
   border-radius: 6px;
   background: var(--color-bg);
-  font-family: 'Source Serif 4';
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 300;
   outline: none;
@@ -291,7 +291,7 @@
   background: var(--color-accent);
   color: #FFFFFF;
   border-radius: 6px;
-  font-family: 'Fraunces';
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 400;
   text-align: center;
@@ -328,7 +328,7 @@
   left: 0;
   opacity: 0;
   transition: opacity 0.15s ease;
-  font-family: 'Source Serif 4';
+  font-family: 'Inter', sans-serif;
   font-size: 12px;
 }
 

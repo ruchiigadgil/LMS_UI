@@ -28,7 +28,7 @@
 .header h3 {
   margin: 0;
   font-size: 16px;
-  font-family: 'Fraunces';
+  font-family: 'Inter', sans-serif;
   font-weight: 400;
   color: var(--color-text-primary);
 }
@@ -56,7 +56,7 @@
   padding: 20px 24px 24px;
   overflow-y: auto;
   flex-grow: 1;
-  font-family: 'Source Serif 4';
+  font-family: 'Inter', sans-serif;
   font-weight: 300;
 }
 

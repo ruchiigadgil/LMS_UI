@@ -17,100 +17,42 @@ async function handleResponse(response) {
   return response.json();
 }
 
-// Helper to attach authorization headers
+// Helper to attach headers
 function getHeaders() {
-  const token = localStorage.getItem('verso_token');
-  const headers = {
+  return {
     'Content-Type': 'application/json',
   };
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-  return headers;
 }
 
 /* ==========================================
-   AUTH ENDPOINTS (Mocked Client-Side)
+   AUTH ENDPOINTS (Database-backed)
    ========================================== */
 
-// Initialize default users in localStorage if they don't exist
-if (!localStorage.getItem('verso_users')) {
-  localStorage.setItem('verso_users', JSON.stringify([
-    {
-      id: 999,
-      name: 'Admin Librarian',
-      email: 'admin@verso.com',
-      phone: '1234567890',
-      password: 'admin',
-      role: 'admin',
-      membership_status: 'active'
-    },
-    {
-      id: 1001,
-      name: 'Jane Doe',
-      email: 'member@verso.com',
-      phone: '9876543210',
-      password: 'password',
-      role: 'member',
-      membership_status: 'active'
-    }
-  ]));
-}
-
 export async function login({ email, password, role }) {
-  // Simulate delay
-  await new Promise(r => setTimeout(r, 600));
+  const res = await fetch(`${BASE_URL}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, role })
+  });
 
-  const users = JSON.parse(localStorage.getItem('verso_users') || '[]');
-  const user = users.find(u => u.email === email && u.role === role);
+  const data = await handleResponse(res);
 
-  if (!user || user.password !== password) {
-    throw new Error('Invalid email, password, or role');
-  }
+  localStorage.setItem('verso_user', JSON.stringify(data.user));
 
-  // Generate a dummy JWT token
-  const token = `dummy-jwt-token-for-${user.id}-${Date.now()}`;
-  localStorage.setItem('verso_token', token);
-  localStorage.setItem('verso_user', JSON.stringify({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    membership_status: user.membership_status
-  }));
-
-  return { token, user };
+  return { user: data.user };
 }
 
-export async function register({ name, email, phone, password, role, adminPasskey }) {
-  await new Promise(r => setTimeout(r, 600));
+export async function register({ name, email, phone, password }) {
+  const res = await fetch(`${BASE_URL}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, phone, password, role: 'member' })
+  });
 
-  if (role === 'admin' && adminPasskey !== 'admin123') {
-    throw new Error('Invalid admin passkey. Use admin123 for stub registration.');
-  }
-
-  const users = JSON.parse(localStorage.getItem('verso_users') || '[]');
-  if (users.some(u => u.email === email)) {
-    throw new Error('User with this email already exists');
-  }
-
-  const newUser = {
-    id: Date.now(),
-    name,
-    email,
-    phone: phone || '',
-    password,
-    role,
-    membership_status: role === 'admin' ? 'active' : 'active' // Starts active for testing
-  };
-
-  users.push(newUser);
-  localStorage.setItem('verso_users', JSON.stringify(users));
-  return newUser;
+  return handleResponse(res);
 }
 
 export function logout() {
-  localStorage.removeItem('verso_token');
   localStorage.removeItem('verso_user');
 }
 
@@ -179,32 +121,21 @@ export async function addBook(bookData) {
 }
 
 export async function editBook(bookId, bookData) {
-  // Backend PUT route is a stub, so we save to local storage overrides
-  console.log(`PUT /api/admin/books/${bookId} - STUBBED on backend, saving locally`);
-  await new Promise(r => setTimeout(r, 300));
-  
-  const overrides = getBookOverrides();
-  overrides.edited[bookId] = {
-    ...overrides.edited[bookId],
-    ...bookData
-  };
-  saveBookOverrides(overrides);
-
-  return { message: 'Book updated successfully (locally)', book_id: bookId };
+  const res = await fetch(`${BASE_URL}/admin/books/${bookId}`, {
+    method: 'PUT',
+    headers: getHeaders(),
+    body: JSON.stringify(bookData)
+  });
+  return handleResponse(res);
 }
 
-export async function deleteBook(bookId) {
-  // Backend DELETE route is a stub, so we save to local storage overrides
-  console.log(`DELETE /api/admin/books/${bookId} - STUBBED on backend, saving locally`);
-  await new Promise(r => setTimeout(r, 300));
-
-  const overrides = getBookOverrides();
-  if (!overrides.deleted.includes(bookId)) {
-    overrides.deleted.push(bookId);
-  }
-  saveBookOverrides(overrides);
-
-  return { message: 'Book deleted successfully (locally)' };
+export async function deleteBook(bookId, { reason, quantity } = {}) {
+  const res = await fetch(`${BASE_URL}/admin/books/${bookId}`, {
+    method: 'DELETE',
+    headers: getHeaders(),
+    body: JSON.stringify({ reason, quantity })
+  });
+  return handleResponse(res);
 }
 
 
@@ -518,26 +449,22 @@ export async function addToWaitlist({ user_id, book_id }) {
 }
 
 export async function getReservationsByBook(bookId) {
-  console.log(`GET /api/admin/reservations/${bookId} - STUBBED on backend, loading locally`);
-  await new Promise(r => setTimeout(r, 300));
-  
-  const reservations = JSON.parse(localStorage.getItem('verso_reservations') || '[]');
-  const filtered = reservations.filter(r => r.book_id === Number(bookId));
-  
-  const members = await getMembers();
-
-  return filtered.map((res, index) => {
-    const member = members.find(m => m.id === res.user_id) || {};
-    return {
-      position: index + 1,
-      id: res.id,
-      user_id: res.user_id,
-      member_name: member.name || 'Unknown',
-      email: member.email || '',
-      added_at: res.requested_at,
-      status: res.status
-    };
+  const res = await fetch(`${BASE_URL}/admin/reservations/${bookId}`, {
+    method: 'GET',
+    headers: getHeaders()
   });
+  const data = await handleResponse(res);
+
+  // Map backend response to frontend expected format
+  return data.queue.map(r => ({
+    position: r.queue_position,
+    id: r.reservation_id,
+    user_id: r.user_id,
+    member_name: r.user_name,
+    email: r.email || '',
+    added_at: r.requested_at,
+    status: r.status
+  }));
 }
 
 

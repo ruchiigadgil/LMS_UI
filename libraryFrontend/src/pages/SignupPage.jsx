@@ -9,12 +9,10 @@ export default function SignupPage() {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const [role, setRole] = useState('member'); // 'member' | 'admin'
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [adminPasskey, setAdminPasskey] = useState('');
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
@@ -26,14 +24,7 @@ export default function SignupPage() {
 
     setLoading(true);
     try {
-      await register({
-        name,
-        email,
-        phone,
-        password,
-        role,
-        adminPasskey: role === 'admin' ? adminPasskey : undefined
-      });
+      await register({ name, email, phone, password });
       toast.success('Registration successful! Please sign in.');
       navigate('/login');
     } catch (err) {
@@ -52,20 +43,7 @@ export default function SignupPage() {
           <div className={styles.tagline}>Behind the Shelf</div>
         </div>
 
-        <div className={styles.toggleContainer}>
-          <div
-            className={`${styles.toggleTab} ${role === 'member' ? styles.toggleTabActive : ''}`}
-            onClick={() => setRole('member')}
-          >
-            Member
-          </div>
-          <div
-            className={`${styles.toggleTab} ${role === 'admin' ? styles.toggleTabActive : ''}`}
-            onClick={() => setRole('admin')}
-          >
-            Admin
-          </div>
-        </div>
+        <h2 className={styles.heading}>Member Registration</h2>
 
         <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
@@ -118,21 +96,6 @@ export default function SignupPage() {
               required
             />
           </div>
-
-          {role === 'admin' && (
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Admin Passkey *</label>
-              <input
-                type="password"
-                className={styles.input}
-                placeholder="Use admin123"
-                value={adminPasskey}
-                onChange={(e) => setAdminPasskey(e.target.value)}
-                disabled={loading}
-                required
-              />
-            </div>
-          )}
 
           <button type="submit" className={styles.submitBtn} disabled={loading}>
             {loading ? (

@@ -1,5 +1,5 @@
 // src/layouts/AdminShell.jsx
-import React, { useState, createContext, useContext, useEffect } from 'react';
+import React, { useState, createContext, useContext, useEffect, useRef } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { getCurrentUser, logout } from '../api/api';
 import { useToast } from '../components/Toast';
@@ -13,9 +13,11 @@ export default function AdminShell() {
   const navigate = useNavigate();
   const toast = useToast();
   const [headerState, setHeaderState] = useState({ title: 'VERSO', action: null });
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => getCurrentUser());
+  const isLoggingOut = useRef(false);
 
   useEffect(() => {
+    if (isLoggingOut.current) return;
     const currentUser = getCurrentUser();
     if (!currentUser) {
       toast.error('Please sign in first');
@@ -29,8 +31,8 @@ export default function AdminShell() {
   }, [navigate, toast]);
 
   function handleLogout() {
+    isLoggingOut.current = true;
     logout();
-    setUser(null);
     toast.info('Logged out successfully');
     navigate('/login', { replace: true });
   }

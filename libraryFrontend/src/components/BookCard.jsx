@@ -2,17 +2,22 @@
 import React from 'react';
 import styles from './BookCard.module.css';
 
-export default function BookCard({ book, onClick }) {
+export default function BookCard({ book, onClick, disableClick = false }) {
   const coverUrl = book.cover_image_url
-    ? (book.cover_image_url.startsWith('http') 
-        ? book.cover_image_url 
+    ? (book.cover_image_url.startsWith('http')
+        ? book.cover_image_url
         : `http://localhost:5005${book.cover_image_url}`)
     : '/placeholder-cover.svg';
 
   const isAvailable = book.available_copies > 0;
 
   return (
-    <div className={styles.card} onClick={onClick} role="button" tabIndex={0}>
+    <div
+      className={`${styles.card} ${disableClick ? styles.noClick : ''}`}
+      onClick={disableClick ? undefined : onClick}
+      role={disableClick ? undefined : "button"}
+      tabIndex={disableClick ? undefined : 0}
+    >
       <div className={styles.coverWrapper}>
         <img
           src={coverUrl}

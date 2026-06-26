@@ -37,13 +37,20 @@ def add_book():
     if not data.get("title") or not data.get("author") or not data.get("total_copies"):
         return jsonify({"error": "title, author and total_copies are required"}), 400
 
+    # Check for duplicate ISBN
+    isbn = data.get("isbn")
+    if isbn:
+        existing_book = Book.query.filter_by(isbn=isbn).first()
+        if existing_book:
+            return jsonify({"error": f"A book with ISBN '{isbn}' already exists: {existing_book.title}"}), 409
+
     book = Book(
         title=data["title"],
         author=data["author"],
         genre=data.get("genre"),
-        isbn=data.get("isbn"),
+        isbn=isbn,
         total_copies=data["total_copies"],
-        cover_image_url=fetch_and_save_cover(data.get("isbn")) if data.get("isbn") else data.get("cover_image_url")
+        cover_image_url=fetch_and_save_cover(isbn) if isbn else data.get("cover_image_url")
     )
     db.session.add(book)
     db.session.flush()  # so book.id is available before commit
@@ -61,6 +68,127 @@ def add_book():
         "message": "Book added successfully",
         "book_id": book.id
     }), 201
+
+
+@admin_bp.route("/books/<int:book_id>", methods=["PUT"])
+def edit_book(book_id):
+    data = request.get_json()
+
+    book = Book.query.get(book_id)
+    if not book:
+        return jsonify({"error": "Book not found"}), 404
+
+    # Check for duplicate ISBN if ISBN is being changed
+    new_isbn = data.get("isbn")
+    if new_isbn and new_isbn != book.isbn:
+        existing_book = Book.query.filter_by(isbn=new_isbn).first()
+        if existing_book:
+            return jsonify({"error": f"A book with ISBN '{new_isbn}' already exists: {existing_book.title}"}), 409
+
+    # Track inventory change if total_copies changed
+    old_total = book.total_copies
+    new_total = data.get("total_copies", old_total)
+
+    if new_total != old_total:
+        delta = new_total - old_total
+        change_type = ChangeType.acquisition if delta > 0 else ChangeType.decommission
+        transaction = BookInventoryTransaction(
+            book_id=book_id,
+            change_type=change_type,
+            quantity_delta=delta,
+            note=f"Inventory adjustment via edit (from {old_total} to {new_total})"
+        )
+        db.session.add(transaction)
+
+    # Update fields
+    if "title" in data:
+        book.title = data["title"]
+    if "author" in data:
+        book.author = data["author"]
+    if "genre" in data:
+        book.genre = data["genre"]
+    if "isbn" in data:
+        book.isbn = data["isbn"]
+    if "total_copies" in data:
+        book.total_copies = data["total_copies"]
+    if "cover_image_url" in data:
+        book.cover_image_url = data["cover_image_url"]
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Book updated successfully",
+        "book": book.to_dict()
+    }), 200
+
+
+@admin_bp.route("/books/<int:book_id>", methods=["DELETE"])
+def delete_book(book_id):
+    data = request.get_json() or {}
+
+    reason = data.get("reason", "No reason provided")
+    quantity = data.get("quantity")  # negative for removal
+
+    book = Book.query.get(book_id)
+    if not book:
+        return jsonify({"error": "Book not found"}), 404
+
+    # Check for active loans - cannot remove more copies than available
+    active_loans = Loan.query.filter(
+        Loan.book_id == book_id,
+        Loan.status.in_(["active", "overdue"])
+    ).count()
+
+    # Determine quantity to remove
+    if quantity is not None:
+        remove_count = abs(int(quantity))
+    else:
+        remove_count = book.total_copies
+
+    # Check if we can remove this many
+    available_to_remove = book.total_copies - active_loans
+    if remove_count > available_to_remove:
+        return jsonify({
+            "error": f"Cannot remove {remove_count} copies. {active_loans} are currently loaned out. Max removable: {available_to_remove}"
+        }), 400
+
+    if remove_count > book.total_copies:
+        return jsonify({"error": f"Cannot remove {remove_count} copies. Only {book.total_copies} exist."}), 400
+
+    # Map reason to ChangeType enum
+    reason_lower = reason.lower()
+    if "damage" in reason_lower:
+        change_type = ChangeType.damaged
+    elif "lost" in reason_lower:
+        change_type = ChangeType.lost
+    else:
+        change_type = ChangeType.decommission
+
+    # Update total_copies
+    new_total = book.total_copies - remove_count
+    book.total_copies = new_total
+
+    # Log the inventory transaction
+    transaction = BookInventoryTransaction(
+        book_id=book_id,
+        change_type=change_type,
+        quantity_delta=-remove_count,
+        note=reason
+    )
+    db.session.add(transaction)
+
+    # If total_copies is now 0, also clear reservations for this book
+    if new_total == 0:
+        Reservation.query.filter_by(book_id=book_id, status="waiting").delete()
+
+    db.session.commit()
+
+    return jsonify({
+        "message": f"Removed {remove_count} copies. {new_total} remaining.",
+        "book_id": book_id,
+        "new_total": new_total,
+        "deleted": new_total == 0
+    }), 200
 
 
 
@@ -242,15 +370,16 @@ def add_reservation():
 
 @admin_bp.route("/books", methods=["GET"])
 def get_books():
-    books = Book.query.all()
-    
+    # Only return books with total_copies > 0
+    books = Book.query.filter(Book.total_copies > 0).all()
+
     result = []
     for book in books:
         active_loans = Loan.query.filter(
             Loan.book_id == book.id,
             Loan.status.in_(["active", "overdue"])
         ).count()
-        
+
         result.append({
             "id": book.id,
             "title": book.title,
@@ -261,7 +390,7 @@ def get_books():
             "available_copies": book.total_copies - active_loans,
             "cover_image_url": book.cover_image_url
         })
-    
+
     return jsonify(result), 200
 
 
@@ -356,6 +485,7 @@ def get_reservations(book_id):
             "reservation_id": r.id,
             "user_id": r.user_id,
             "user_name": r.user.name,
+            "email": r.user.email,
             "status": r.status,
             "requested_at": r.requested_at.isoformat(),
             "queue_position": i

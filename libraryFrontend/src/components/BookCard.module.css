@@ -16,6 +16,15 @@
   box-shadow: 0 6px 16px rgba(124, 58, 237, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
+.card.noClick {
+  cursor: default;
+}
+
+.card.noClick:hover {
+  transform: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
 .coverWrapper {
   width: 100%;
   aspect-ratio: 2/3;
@@ -37,36 +46,34 @@
 }
 
 .info {
-  padding: 2px 4px 3px;
+  padding: 8px 10px;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 2px;
   flex: 1;
-  justify-content: center;
 }
 
 .title {
-  font-family: 'Fraunces';
-  font-size: 12px;
-  font-weight: 400;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--color-text-primary);
-  line-height: 1.2;
+  line-height: 1.3;
   margin: 0;
 }
 
 .author {
-  font-family: 'Source Serif 4';
+  font-family: 'Inter', sans-serif;
   font-size: 11px;
-  font-weight: 300;
+  font-weight: 400;
   color: var(--color-text-secondary);
-  margin-top: 1px;
 }
 
 .meta {
-  font-family: 'JetBrains Mono';
+  font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   color: var(--color-text-muted);
-  margin-top: 3px;
+  margin-top: 4px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;

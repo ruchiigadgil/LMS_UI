@@ -6,9 +6,10 @@ import requests
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from app import create_app
-from app.extensions import db
+from app.extensions import db, bcrypt
 from app.models.book import Book
 from app.models.book_inventory_transaction import BookInventoryTransaction
+from app.models.user import User
 
 BOOKS = [
     {
@@ -115,6 +116,23 @@ def seed():
     app = create_app()
 
     with app.app_context():
+        # Create default admin if not exists
+        admin = User.query.filter_by(email="admin@verso.com").first()
+        if not admin:
+            admin = User(
+                name="Admin Librarian",
+                email="admin@verso.com",
+                phone="1234567890",
+                password_hash=bcrypt.generate_password_hash("admin").decode("utf-8"),
+                role="admin",
+                membership_status="active"
+            )
+            db.session.add(admin)
+            db.session.commit()
+            print("Default admin created: admin@verso.com / admin")
+        else:
+            print("Admin already exists: admin@verso.com")
+
         # Create covers directory if it doesn't exist
         os.makedirs(COVERS_DIR, exist_ok=True)
 
