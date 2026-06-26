@@ -1,6 +1,6 @@
 // src/App.jsx
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 
 // Layouts
 import AdminShell from './layouts/AdminShell';
@@ -21,6 +21,7 @@ import FinesPage from './pages/admin/FinesPage';
 import BrowseBooksPage from './pages/member/BrowseBooksPage';
 import MyLoansPage from './pages/member/MyLoansPage';
 import MyFinesPage from './pages/member/MyFinesPage';
+import HoldsPage from './pages/member/HoldsPage';
 
 export default function App() {
   return (
@@ -29,6 +30,9 @@ export default function App() {
         {/* Auth routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+
+        {/* Test route - top level */}
+        <Route path="/test-holds" element={<HoldsPage />} />
 
         {/* Admin portal */}
         <Route path="/admin" element={<AdminShell />}>
@@ -41,18 +45,16 @@ export default function App() {
         </Route>
 
         {/* Member portal */}
-        {/* Note: Browse Books is served at /books per specifications */}
-        <Route path="/books" element={<MemberShell />}>
-          <Route index element={<BrowseBooksPage />} />
-        </Route>
-        <Route path="/member" element={<MemberShell />}>
-          <Route index element={<Navigate to="/books" replace />} />
-          <Route path="loans" element={<MyLoansPage />} />
-          <Route path="fines" element={<MyFinesPage />} />
+        <Route path="/" element={<MemberShell />}>
+          <Route path="books" element={<BrowseBooksPage />} />
+          <Route path="member" element={<Outlet />}>
+            <Route path="loans" element={<MyLoansPage />} />
+            <Route path="holds" element={<HoldsPage />} />
+            <Route path="fines" element={<MyFinesPage />} />
+          </Route>
         </Route>
 
-        {/* Default Redirects */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* Default Redirect */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

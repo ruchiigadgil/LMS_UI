@@ -1,30 +1,8 @@
-/* src/pages/member/MyFinesPage.module.css */
+/* src/pages/member/HoldsPage.module.css */
 .container {
   display: flex;
   flex-direction: column;
-  gap: 32px;
-}
-
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.sectionTitle {
-  font-family: 'Inter', sans-serif;
-  font-size: 18px;
-  font-weight: 500;
-  color: var(--color-text-primary);
-  margin: 0;
-}
-
-.sectionSubtitle {
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 300;
-  color: var(--color-text-muted);
-  margin: 0;
+  gap: 24px;
 }
 
 .tableCard {
@@ -75,83 +53,57 @@
   background: rgba(237,233,254,0.4);
 }
 
-.overdueRow {
-  background: rgba(254, 242, 242, 0.6) !important;
-}
-
-.overdueRow:hover {
-  background: rgba(254, 226, 226, 0.7) !important;
-}
-
 .bookTitle {
   font-weight: 400;
   color: var(--color-text-primary);
 }
 
-.amountVal {
-  font-family: 'JetBrains Mono';
-  font-weight: 700;
-}
-
-.amountUnpaid {
-  color: var(--color-danger);
-}
-
-.amountPaid {
+.authorName {
+  font-weight: 300;
   color: var(--color-text-secondary);
-  text-decoration: line-through;
 }
 
 .dateVal {
   font-family: 'JetBrains Mono';
-  font-size: 12px;
+  font-size: 13px;
+}
+
+.queueBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.queueNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  padding: 4px 10px;
+  background: var(--color-bg);
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 6px;
+  font-family: 'JetBrains Mono';
+  font-size: 14px;
+  font-weight: 600;
   color: var(--color-text-secondary);
 }
 
-.overdueDateVal {
-  color: var(--color-danger);
-  font-weight: 500;
-}
-
-.daysOverdue {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
-  font-family: 'JetBrains Mono';
-  font-size: 12px;
-  font-weight: 600;
-  border-radius: 4px;
-}
-
-.estimatedFine {
-  font-family: 'JetBrains Mono';
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-danger);
-}
-
-.btnPay {
-  padding: 8px 16px;
-  background: var(--color-danger);
-  color: #FFFFFF;
+.queueFirst {
+  background: linear-gradient(135deg, var(--color-accent), #8B5CF6);
   border: none;
-  border-radius: 6px;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+}
+
+.queueLabel {
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 500;
-  cursor: pointer;
-  transition: opacity 0.15s ease;
-}
-
-.btnPay:hover:not(:disabled) {
-  opacity: 0.9;
-}
-
-.btnPay:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  color: var(--color-accent);
+  background: var(--color-accent-light);
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
 .loadingWrapper, .errorWrapper {

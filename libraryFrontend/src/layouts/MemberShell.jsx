@@ -14,9 +14,12 @@ export default function MemberShell() {
   const [headerState, setHeaderState] = useState({ title: 'VERSO', action: null });
   const [user, setUser] = useState(() => getCurrentUser());
   const isLoggingOut = useRef(false);
+  const hasCheckedAuth = useRef(false);
 
   useEffect(() => {
-    if (isLoggingOut.current) return;
+    if (hasCheckedAuth.current || isLoggingOut.current) return;
+    hasCheckedAuth.current = true;
+
     const currentUser = getCurrentUser();
     if (!currentUser) {
       toast.error('Please sign in first');
@@ -24,7 +27,7 @@ export default function MemberShell() {
     } else {
       setUser(currentUser);
     }
-  }, [navigate, toast]);
+  }, []);
 
   function handleLogout() {
     isLoggingOut.current = true;
@@ -40,26 +43,33 @@ export default function MemberShell() {
       <div className={styles.container}>
         <aside className={styles.sidebar}>
           <nav className={styles.nav}>
-            <NavLink 
-              to="/books" 
+            <NavLink
+              to="/books"
               className={({ isActive }) => `${styles.navLink} ${isActive ? styles.activeLink : ''}`}
             >
               <Icon name="books" className={styles.navIcon} />
               <span>Browse Books</span>
             </NavLink>
-            <NavLink 
-              to="/member/loans" 
+            <NavLink
+              to="/member/loans"
               className={({ isActive }) => `${styles.navLink} ${isActive ? styles.activeLink : ''}`}
             >
               <Icon name="clipboardList" className={styles.navIcon} />
               <span>My Loans</span>
             </NavLink>
-            <NavLink 
-              to="/member/fines" 
+            <NavLink
+              to="/member/fines"
               className={({ isActive }) => `${styles.navLink} ${isActive ? styles.activeLink : ''}`}
             >
               <Icon name="receipt" className={styles.navIcon} />
               <span>My Fines</span>
+            </NavLink>
+            <NavLink
+              to="/member/holds"
+              className={({ isActive }) => `${styles.navLink} ${isActive ? styles.activeLink : ''}`}
+            >
+              <Icon name="receipt" className={styles.navIcon} />
+              <span>Reservations</span>
             </NavLink>
           </nav>
         </aside>
@@ -86,7 +96,7 @@ export default function MemberShell() {
             <h1 className={styles.pageTitle}>{headerState.title}</h1>
             <div className={styles.actionArea}>{headerState.action}</div>
           </header>
-          
+
           <main className={styles.content}>
             <Outlet />
           </main>

@@ -13,7 +13,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  border-right: 1px solid rgba(255,255,255,0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
   padding: 24px 0;
 }
@@ -31,7 +31,7 @@
   gap: 10px;
   min-height: 38px;
   padding: 10px 20px;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 400;
@@ -43,12 +43,12 @@
 
 .navLink:hover {
   background: var(--color-sidebar-hover);
-  color: rgba(255,255,255,0.9);
+  color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
 }
 
 .activeLink {
-  background: rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.12);
   color: #FFFFFF !important;
   border-left-color: var(--color-accent-light);
 }
@@ -74,7 +74,7 @@
   position: relative;
   background: var(--color-surface);
   padding: 20px 24px;
-  border-bottom: 1px solid rgba(0,0,0,0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -96,7 +96,7 @@
 .brandLine {
   width: min(100%, 1240px);
   height: 1px;
-  background: rgba(0,0,0,0.08);
+  background: rgba(0, 0, 0, 0.08);
 }
 
 .userDock {
@@ -137,7 +137,7 @@
   border-radius: 6px;
   background: transparent;
   color: var(--color-text-primary);
-  border: 1px solid rgba(0,0,0,0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   transition: background 0.15s ease, border-color 0.15s ease;
@@ -191,7 +191,7 @@
     width: 100%;
     min-height: auto;
     border-right: none;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .nav {
@@ -255,7 +255,7 @@
   .sidebar {
     width: 100%;
     border-right: none;
-    border-bottom: 1px solid rgba(0,0,0,0.07);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
   }
 
   .nav {

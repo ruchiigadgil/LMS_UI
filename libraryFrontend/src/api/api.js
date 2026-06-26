@@ -37,7 +37,8 @@ export async function login({ email, password, role }) {
 
   const data = await handleResponse(res);
 
-  localStorage.setItem('verso_user', JSON.stringify(data.user));
+  // Use sessionStorage for user session to allow simultaneous logins in different windows
+  sessionStorage.setItem('verso_user', JSON.stringify(data.user));
 
   return { user: data.user };
 }
@@ -53,11 +54,11 @@ export async function register({ name, email, phone, password }) {
 }
 
 export function logout() {
-  localStorage.removeItem('verso_user');
+  sessionStorage.removeItem('verso_user');
 }
 
 export function getCurrentUser() {
-  const userStr = localStorage.getItem('verso_user');
+  const userStr = sessionStorage.getItem('verso_user');
   return userStr ? JSON.parse(userStr) : null;
 }
 
@@ -592,4 +593,17 @@ export async function getMemberFines(userId) {
   await new Promise(r => setTimeout(r, 300));
   const fines = getMockFines();
   return fines.filter(f => f.user_id === Number(userId));
+}
+
+export async function getMemberReservations(userId) {
+  try {
+    const res = await fetch(`${BASE_URL}/member/reservations/${userId}`, {
+      method: 'GET',
+      headers: getHeaders()
+    });
+    return handleResponse(res);
+  } catch (error) {
+    console.log('getMemberReservations error, returning empty array:', error);
+    return [];
+  }
 }
