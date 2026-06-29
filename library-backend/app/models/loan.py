@@ -9,7 +9,7 @@ class Loan(db.Model):
     # --- Foreign Keys ---
     user_id = db.Column(
         db.Integer,
-        db.ForeignKey("users.id"),    # references the id column in the users table
+        db.ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False
     )
 

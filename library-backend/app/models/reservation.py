@@ -8,13 +8,13 @@ class Reservation(db.Model):
 
     book_id = db.Column(
         db.Integer,
-        db.ForeignKey("books.id"),
+        db.ForeignKey("books.id", ondelete="CASCADE"),
         nullable=False
     )
 
     user_id = db.Column(
         db.Integer,
-        db.ForeignKey("users.id"),
+        db.ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False
     )
 

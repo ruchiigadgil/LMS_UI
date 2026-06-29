@@ -59,10 +59,11 @@ class User(db.Model):
     # --- Relationships ---
     # these let you do user.loans, user.fines etc. in Python
     # back_populates connects both sides — loan.user also works
-    loans        = db.relationship("Loan",        back_populates="user")
-    fines        = db.relationship("Fine",        back_populates="user")
-    payments     = db.relationship("Payment",     back_populates="user")
-    reservations = db.relationship("Reservation", back_populates="user")
+    # cascade="all, delete-orphan" ensures child records are deleted when user is deleted
+    loans        = db.relationship("Loan",        back_populates="user", cascade="all, delete-orphan")
+    fines        = db.relationship("Fine",        back_populates="user", cascade="all, delete-orphan")
+    payments     = db.relationship("Payment",     back_populates="user", cascade="all, delete-orphan")
+    reservations = db.relationship("Reservation", back_populates="user", cascade="all, delete-orphan")
 
     # --- Serializer ---
     def to_dict(self):

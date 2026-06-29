@@ -62,6 +62,24 @@ export function getCurrentUser() {
   return userStr ? JSON.parse(userStr) : null;
 }
 
+export async function checkEmail(email) {
+  const res = await fetch(`${BASE_URL}/auth/check-email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  return handleResponse(res);
+}
+
+export async function resetPassword({ email, new_password }) {
+  const res = await fetch(`${BASE_URL}/auth/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, new_password })
+  });
+  return handleResponse(res);
+}
+
 
 /* ==========================================
    BOOKS ENDPOINTS

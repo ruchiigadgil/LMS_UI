@@ -71,3 +71,47 @@ def login():
         "message": "Login successful",
         "user": user.to_dict()
     }), 200
+
+
+@auth_bp.route("/check-email", methods=["POST"])
+def check_email():
+    data = request.get_json()
+    email = data.get("email")
+
+    if not email:
+        return jsonify({"error": "Email is required"}), 400
+
+    user = User.query.filter_by(email=email).first()
+
+    if not user:
+        return jsonify({"error": "No account found with this email"}), 404
+
+    return jsonify({
+        "message": "Email verified",
+        "email": email
+    }), 200
+
+
+@auth_bp.route("/reset-password", methods=["POST"])
+def reset_password():
+    data = request.get_json()
+    email = data.get("email")
+    new_password = data.get("new_password")
+
+    if not email or not new_password:
+        return jsonify({"error": "Email and new password are required"}), 400
+
+    if len(new_password) < 6:
+        return jsonify({"error": "Password must be at least 6 characters"}), 400
+
+    user = User.query.filter_by(email=email).first()
+
+    if not user:
+        return jsonify({"error": "No account found with this email"}), 404
+
+    user.password_hash = bcrypt.generate_password_hash(new_password).decode("utf-8")
+    db.session.commit()
+
+    return jsonify({
+        "message": "Password reset successfully"
+    }), 200

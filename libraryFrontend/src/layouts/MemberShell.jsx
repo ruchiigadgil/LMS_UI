@@ -1,17 +1,26 @@
 // src/layouts/MemberShell.jsx
-import React, { useState, createContext, useContext, useEffect, useRef } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { getCurrentUser, logout } from '../api/api';
-import { useToast } from '../components/Toast';
-import Icon from '../components/Icon';
-import styles from './MemberShell.module.css';
+import React, {
+  useState,
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+} from "react";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { getCurrentUser, logout } from "../api/api";
+import { useToast } from "../components/Toast";
+import Icon from "../components/Icon";
+import styles from "./MemberShell.module.css";
 
 export const MemberHeaderContext = createContext(null);
 
 export default function MemberShell() {
   const navigate = useNavigate();
   const toast = useToast();
-  const [headerState, setHeaderState] = useState({ title: 'VERSO', action: null });
+  const [headerState, setHeaderState] = useState({
+    title: "VERSO",
+    action: null,
+  });
   const [user, setUser] = useState(() => getCurrentUser());
   const isLoggingOut = useRef(false);
   const hasCheckedAuth = useRef(false);
@@ -22,8 +31,8 @@ export default function MemberShell() {
 
     const currentUser = getCurrentUser();
     if (!currentUser) {
-      toast.error('Please sign in first');
-      navigate('/login');
+      toast.error("Please sign in first");
+      navigate("/login");
     } else {
       setUser(currentUser);
     }
@@ -32,8 +41,8 @@ export default function MemberShell() {
   function handleLogout() {
     isLoggingOut.current = true;
     logout();
-    toast.info('Logged out successfully');
-    navigate('/login', { replace: true });
+    toast.info("Logged out successfully");
+    navigate("/login", { replace: true });
   }
 
   if (!user) return null;
@@ -45,28 +54,36 @@ export default function MemberShell() {
           <nav className={styles.nav}>
             <NavLink
               to="/books"
-              className={({ isActive }) => `${styles.navLink} ${isActive ? styles.activeLink : ''}`}
+              className={({ isActive }) =>
+                `${styles.navLink} ${isActive ? styles.activeLink : ""}`
+              }
             >
               <Icon name="books" className={styles.navIcon} />
               <span>Browse Books</span>
             </NavLink>
             <NavLink
               to="/member/loans"
-              className={({ isActive }) => `${styles.navLink} ${isActive ? styles.activeLink : ''}`}
+              className={({ isActive }) =>
+                `${styles.navLink} ${isActive ? styles.activeLink : ""}`
+              }
             >
               <Icon name="clipboardList" className={styles.navIcon} />
               <span>My Loans</span>
             </NavLink>
             <NavLink
               to="/member/fines"
-              className={({ isActive }) => `${styles.navLink} ${isActive ? styles.activeLink : ''}`}
+              className={({ isActive }) =>
+                `${styles.navLink} ${isActive ? styles.activeLink : ""}`
+              }
             >
               <Icon name="receipt" className={styles.navIcon} />
               <span>My Fines</span>
             </NavLink>
             <NavLink
               to="/member/holds"
-              className={({ isActive }) => `${styles.navLink} ${isActive ? styles.activeLink : ''}`}
+              className={({ isActive }) =>
+                `${styles.navLink} ${isActive ? styles.activeLink : ""}`
+              }
             >
               <Icon name="receipt" className={styles.navIcon} />
               <span>Reservations</span>
@@ -109,7 +126,7 @@ export default function MemberShell() {
 export function useMemberHeader() {
   const context = useContext(MemberHeaderContext);
   if (!context) {
-    throw new Error('useMemberHeader must be used inside MemberShell');
+    throw new Error("useMemberHeader must be used inside MemberShell");
   }
   return context.setHeaderState;
 }

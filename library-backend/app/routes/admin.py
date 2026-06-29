@@ -444,6 +444,39 @@ def add_member():
         "member_id": member.id
     }), 201
 
+@admin_bp.route("/members/<int:member_id>", methods=["DELETE"])
+def delete_member(member_id):
+    member = User.query.get(member_id)
+    if not member:
+        return jsonify({"error": "Member not found"}), 404
+
+    if member.role != "member":
+        return jsonify({"error": "Cannot delete non-member users via this endpoint"}), 400
+
+    active_loans = Loan.query.filter_by(user_id=member_id).filter(
+        Loan.status.in_(["active", "overdue"])
+    ).count()
+
+    if active_loans > 0:
+        return jsonify({
+            "error": f"Cannot delete member with {active_loans} active loan(s). Return all books first."
+        }), 400
+
+    unpaid_fines = Fine.query.filter_by(user_id=member_id, paid=False).count()
+    if unpaid_fines > 0:
+        return jsonify({
+            "error": f"Cannot delete member with {unpaid_fines} unpaid fine(s). Clear fines first."
+        }), 400
+
+    db.session.delete(member)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Member deleted successfully",
+        "member_id": member_id
+    }), 200
+
+
 @admin_bp.route("/loans/active", methods=["GET"])
 def get_active_loans():
     loans = Loan.query.filter(

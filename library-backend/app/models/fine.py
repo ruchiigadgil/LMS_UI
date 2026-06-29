@@ -8,14 +8,14 @@ class Fine(db.Model):
 
     loan_id = db.Column(
         db.Integer,
-        db.ForeignKey("loans.id"),    # which overdue loan generated this fine
+        db.ForeignKey("loans.id", ondelete="CASCADE"),
         nullable=False
     )
 
     user_id = db.Column(
         db.Integer,
-        db.ForeignKey("users.id"),    # denormalized — stored here directly so you can do
-        nullable=False                # Fine.query.filter_by(user_id=x) without joining loans
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False
     )                                 # also means fine still resolves to a person if loan is archived
 
     amount = db.Column(
