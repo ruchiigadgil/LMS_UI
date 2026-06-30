@@ -1,8 +1,11 @@
 # app/routes/admin.py
 import os
 import requests
+import uuid
+from PIL import Image
+from werkzeug.utils import secure_filename
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from app.extensions import db
 from app.models.book import Book
 from app.models.book_inventory_transaction import BookInventoryTransaction, ChangeType
@@ -14,6 +17,69 @@ from app.models.fine import Fine
 from app.models.reservation import Reservation
 
 admin_bp = Blueprint("admin", __name__)
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
+
+
+@admin_bp.route("/upload-cover", methods=["POST"])
+def upload_cover():
+    if 'cover' not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+
+    file = request.files['cover']
+    if file.filename == '':
+        return jsonify({"error": "No file selected"}), 400
+
+    if not allowed_file(file.filename):
+        return jsonify({"error": "Invalid file type. Allowed: png, jpg, jpeg, webp"}), 400
+
+    try:
+        img = Image.open(file)
+        width, height = img.size
+
+        min_w = current_app.config['COVER_MIN_WIDTH']
+        max_w = current_app.config['COVER_MAX_WIDTH']
+        min_h = current_app.config['COVER_MIN_HEIGHT']
+        max_h = current_app.config['COVER_MAX_HEIGHT']
+
+        if width < min_w or width > max_w:
+            return jsonify({
+                "error": f"Image width must be between {min_w}px and {max_w}px. Got {width}px."
+            }), 400
+
+        if height < min_h or height > max_h:
+            return jsonify({
+                "error": f"Image height must be between {min_h}px and {max_h}px. Got {height}px."
+            }), 400
+
+        aspect_ratio = height / width
+        if aspect_ratio < 1.2 or aspect_ratio > 1.8:
+            return jsonify({
+                "error": f"Image aspect ratio should be between 1.2 and 1.8 (portrait). Got {aspect_ratio:.2f}."
+            }), 400
+
+        upload_folder = current_app.config['UPLOAD_FOLDER']
+        os.makedirs(upload_folder, exist_ok=True)
+
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        unique_filename = f"{uuid.uuid4().hex}.{ext}"
+        filepath = os.path.join(upload_folder, unique_filename)
+
+        file.seek(0)
+        file.save(filepath)
+
+        cover_url = f"/static/covers/{unique_filename}"
+        return jsonify({
+            "message": "Cover uploaded successfully",
+            "cover_image_url": cover_url,
+            "dimensions": {"width": width, "height": height}
+        }), 201
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to process image: {str(e)}"}), 400
 
 def fetch_and_save_cover(isbn):
     url = f"https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg"
@@ -37,12 +103,40 @@ def add_book():
     if not data.get("title") or not data.get("author") or not data.get("total_copies"):
         return jsonify({"error": "title, author and total_copies are required"}), 400
 
-    # Check for duplicate ISBN
+    # Use uploaded cover if provided, otherwise try to fetch from OpenLibrary by ISBN
     isbn = data.get("isbn")
+    cover_url = data.get("cover_image_url")
+    if not cover_url and isbn:
+        cover_url = fetch_and_save_cover(isbn)
+
+    # Check for duplicate ISBN
     if isbn:
         existing_book = Book.query.filter_by(isbn=isbn).first()
         if existing_book:
-            return jsonify({"error": f"A book with ISBN '{isbn}' already exists: {existing_book.title}"}), 409
+            # If book was soft-deleted (total_copies = 0), restore it
+            if existing_book.total_copies == 0:
+                existing_book.title = data["title"]
+                existing_book.author = data["author"]
+                existing_book.genre = data.get("genre")
+                existing_book.total_copies = data["total_copies"]
+                if cover_url:
+                    existing_book.cover_image_url = cover_url
+
+                transaction = BookInventoryTransaction(
+                    book_id=existing_book.id,
+                    change_type=ChangeType.acquisition,
+                    quantity_delta=data["total_copies"],
+                    note=data.get("note", "Book restored/re-added")
+                )
+                db.session.add(transaction)
+                db.session.commit()
+
+                return jsonify({
+                    "message": "Book restored successfully",
+                    "book_id": existing_book.id
+                }), 201
+            else:
+                return jsonify({"error": f"A book with ISBN '{isbn}' already exists: {existing_book.title}"}), 409
 
     book = Book(
         title=data["title"],
@@ -50,10 +144,10 @@ def add_book():
         genre=data.get("genre"),
         isbn=isbn,
         total_copies=data["total_copies"],
-        cover_image_url=fetch_and_save_cover(isbn) if isbn else data.get("cover_image_url")
+        cover_image_url=cover_url
     )
     db.session.add(book)
-    db.session.flush()  # so book.id is available before commit
+    db.session.flush()
 
     transaction = BookInventoryTransaction(
         book_id=book.id,
@@ -183,10 +277,14 @@ def delete_book(book_id):
 
     db.session.commit()
 
+    # Calculate new available copies
+    new_available = new_total - active_loans
+
     return jsonify({
         "message": f"Removed {remove_count} copies. {new_total} remaining.",
         "book_id": book_id,
         "new_total": new_total,
+        "new_available": new_available,
         "deleted": new_total == 0
     }), 200
 

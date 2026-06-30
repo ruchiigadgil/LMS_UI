@@ -1,16 +1,20 @@
-from flask import Flask
+from flask import Flask, send_from_directory
+import os
 from .extensions import db, migrate, cors, bcrypt, jwt
 from config import Config
 
 def create_app():
-    app=Flask(__name__)
+    app=Flask(__name__, static_folder='static', static_url_path='/static')
     app.config.from_object(Config)
 
     db.init_app(app)
     migrate.init_app(app,db)
     jwt.init_app(app)
     bcrypt.init_app(app)
-    cors.init_app(app,resources={r"/api/*":{"origins":"http://localhost:5173"}})
+    cors.init_app(app, resources={
+        r"/api/*": {"origins": "http://localhost:5173"},
+        r"/static/*": {"origins": "http://localhost:5173"}
+    })
 
     from .routes.auth import auth_bp
     from .routes.books import books_bp

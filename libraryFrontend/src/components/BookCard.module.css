@@ -34,6 +34,26 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.07);
 }
 
+.stockBadge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: #fff;
+  color: #1a1a1a;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 5px 10px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.stockBadge.outOfStock {
+  color: #dc2626;
+  font-weight: 700;
+}
+
 .cover {
   width: 100%;
   height: 100%;

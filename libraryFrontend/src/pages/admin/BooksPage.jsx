@@ -1,7 +1,7 @@
 // src/pages/admin/BooksPage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAdminHeader } from '../../layouts/AdminShell';
-import { getBooks, addBook } from '../../api/api';
+import { getBooks, addBook, uploadCover } from '../../api/api';
 import { useToast } from '../../components/Toast';
 import BookCard from '../../components/BookCard';
 import BookDetailOverlay from "../../components/BookDetailOverlay";
@@ -11,6 +11,7 @@ import styles from './BooksPage.module.css';
 export default function BooksPage() {
   const setHeader = useAdminHeader();
   const toast = useToast();
+  const fileInputRef = useRef(null);
 
   const [books, setBooks] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -21,6 +22,8 @@ export default function BooksPage() {
   const [selectedBook, setSelectedBook] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [submittingAdd, setSubmittingAdd] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [coverPreview, setCoverPreview] = useState(null);
 
   // Add Book Form state
   const [addForm, setAddForm] = useState({
@@ -72,6 +75,42 @@ export default function BooksPage() {
   });
 
   // --- Handlers ---
+  async function handleCoverUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      toast.error('Invalid file type. Use PNG, JPG, or WebP.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File too large. Maximum size is 5MB.');
+      return;
+    }
+
+    setUploadingCover(true);
+    try {
+      const res = await uploadCover(file);
+      setAddForm(prev => ({ ...prev, cover_image_url: res.cover_image_url }));
+      setCoverPreview(URL.createObjectURL(file));
+      toast.success(`Cover uploaded (${res.dimensions.width}x${res.dimensions.height}px)`);
+    } catch (err) {
+      toast.error(err.message || 'Failed to upload cover');
+    } finally {
+      setUploadingCover(false);
+    }
+  }
+
+  function handleRemoveCover() {
+    setAddForm(prev => ({ ...prev, cover_image_url: '' }));
+    setCoverPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }
+
   async function handleAddSubmit(e) {
     e.preventDefault();
     if (!addForm.title || !addForm.author || !addForm.total_copies) {
@@ -83,7 +122,7 @@ export default function BooksPage() {
     try {
       const res = await addBook(addForm);
       toast.success('Book added successfully');
-      
+
       const newBook = {
         id: res.book_id,
         title: addForm.title,
@@ -107,6 +146,10 @@ export default function BooksPage() {
         total_copies: 1,
         cover_image_url: ''
       });
+      setCoverPreview(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       setIsAddModalOpen(false);
     } catch (err) {
       toast.error(err.message || 'Failed to add book');
@@ -142,6 +185,8 @@ export default function BooksPage() {
         />
       </div>
 
+      <p className={styles.hintText}>Click on a book to view book actions</p>
+
       {loading ? (
         <div className={styles.loadingWrapper}>
           <span
@@ -176,6 +221,7 @@ export default function BooksPage() {
               key={book.id}
               book={book}
               onClick={() => setSelectedBook(book)}
+              isAdmin={true}
             />
           ))}
         </div>
@@ -255,36 +301,71 @@ export default function BooksPage() {
             </div>
           </div>
 
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Total Copies *</label>
-              <input
-                type="number"
-                min="1"
-                className={styles.input}
-                value={addForm.total_copies}
-                onChange={(e) =>
-                  setAddForm({
-                    ...addForm,
-                    total_copies: Number(e.target.value),
-                  })
-                }
-                required
-                disabled={submittingAdd}
-              />
-            </div>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Total Copies *</label>
+            <input
+              type="number"
+              min="1"
+              className={styles.input}
+              value={addForm.total_copies}
+              onChange={(e) =>
+                setAddForm({
+                  ...addForm,
+                  total_copies: Number(e.target.value),
+                })
+              }
+              required
+              disabled={submittingAdd}
+            />
+          </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Cover Image URL</label>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Cover Image</label>
+            <div className={styles.coverUploadArea}>
+              {coverPreview || addForm.cover_image_url ? (
+                <div className={styles.coverPreviewWrapper}>
+                  <img
+                    src={coverPreview || `http://localhost:5005${addForm.cover_image_url}`}
+                    alt="Cover preview"
+                    className={styles.coverPreview}
+                  />
+                  <button
+                    type="button"
+                    className={styles.removeCoverBtn}
+                    onClick={handleRemoveCover}
+                    disabled={submittingAdd || uploadingCover}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div
+                  className={styles.uploadDropzone}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {uploadingCover ? (
+                    <>
+                      <span className="spinner"></span>
+                      <span>Uploading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className={styles.uploadIcon}>📷</span>
+                      <span>Click to upload cover</span>
+                      <span className={styles.uploadHint}>
+                        PNG, JPG, WebP (300-1200 x 400-1800px)
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
               <input
-                type="text"
-                className={styles.input}
-                value={addForm.cover_image_url}
-                onChange={(e) =>
-                  setAddForm({ ...addForm, cover_image_url: e.target.value })
-                }
-                placeholder="e.g. /static/covers/isbn.jpg"
-                disabled={submittingAdd}
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/jpg,image/webp"
+                onChange={handleCoverUpload}
+                style={{ display: 'none' }}
+                disabled={submittingAdd || uploadingCover}
               />
             </div>
           </div>

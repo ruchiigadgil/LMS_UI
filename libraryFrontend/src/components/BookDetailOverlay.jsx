@@ -248,7 +248,11 @@ export default function BookDetailOverlay({
         onDelete(book.id);
       } else {
         toast.success(result.message);
-        onUpdate({ ...book, total_copies: result.new_total, available_copies: Math.max(0, book.available_copies - deleteQuantity) });
+        onUpdate({
+          ...book,
+          total_copies: result.new_total,
+          available_copies: result.new_available
+        });
       }
       setShowDeleteConfirm(false);
       setDeleteReason("");

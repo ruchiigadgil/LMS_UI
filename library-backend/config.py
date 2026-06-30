@@ -16,3 +16,11 @@ class Config:
     MAX_RENEWALS=2
     MAX_BOOKS_PER_MEMBER=5
 
+    UPLOAD_FOLDER=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'app', 'static', 'covers')
+    MAX_CONTENT_LENGTH=5 * 1024 * 1024
+    ALLOWED_EXTENSIONS={'png', 'jpg', 'jpeg', 'webp'}
+    COVER_MIN_WIDTH=300
+    COVER_MAX_WIDTH=1200
+    COVER_MIN_HEIGHT=400
+    COVER_MAX_HEIGHT=1800
+

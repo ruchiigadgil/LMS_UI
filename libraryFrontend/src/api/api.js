@@ -139,6 +139,17 @@ export async function addBook(bookData) {
   return handleResponse(res);
 }
 
+export async function uploadCover(file) {
+  const formData = new FormData();
+  formData.append('cover', file);
+
+  const res = await fetch(`${BASE_URL}/admin/upload-cover`, {
+    method: 'POST',
+    body: formData
+  });
+  return handleResponse(res);
+}
+
 export async function editBook(bookId, bookData) {
   const res = await fetch(`${BASE_URL}/admin/books/${bookId}`, {
     method: 'PUT',

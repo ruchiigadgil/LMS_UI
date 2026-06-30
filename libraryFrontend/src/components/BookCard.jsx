@@ -2,7 +2,7 @@
 import React from 'react';
 import styles from './BookCard.module.css';
 
-export default function BookCard({ book, onClick, disableClick = false }) {
+export default function BookCard({ book, onClick, disableClick = false, isAdmin = false }) {
   const coverUrl = book.cover_image_url
     ? (book.cover_image_url.startsWith('http')
         ? book.cover_image_url
@@ -10,6 +10,7 @@ export default function BookCard({ book, onClick, disableClick = false }) {
     : '/placeholder-cover.svg';
 
   const isAvailable = book.available_copies > 0;
+  const isOutOfStock = book.available_copies === 0;
 
   return (
     <div
@@ -27,6 +28,13 @@ export default function BookCard({ book, onClick, disableClick = false }) {
             e.target.src = '/placeholder-cover.svg';
           }}
         />
+        {isAdmin && (
+          <div className={`${styles.stockBadge} ${isOutOfStock ? styles.outOfStock : ''}`}>
+            {isOutOfStock
+              ? 'Out of Stock'
+              : `${book.available_copies}/${book.total_copies}`}
+          </div>
+        )}
       </div>
 
       <div className={styles.info}>
