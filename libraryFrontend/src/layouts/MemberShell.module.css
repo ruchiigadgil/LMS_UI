@@ -1,187 +1,191 @@
 .container {
   display: flex;
   min-height: 100vh;
-  background: var(--color-bg);
+  background: url('/Background.png') no-repeat center center fixed;
+  background-size: cover;
 }
 
 .sidebar {
   position: fixed;
   inset: 0 auto 0 0;
-  width: 200px;
-  background: var(--color-sidebar);
+  width: 220px;
+  background: linear-gradient(180deg, #5D4037 0%, #4E342E 100%);
   color: #FFFFFF;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  border-right: 1px solid rgba(255,255,255,0.08);
   flex-shrink: 0;
-  padding: 24px 0;
+  padding: 0;
 }
 
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  margin-top: 12px;
+  gap: 0;
+  padding: 20px 0;
 }
 
 .navLink {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 38px;
-  padding: 10px 20px;
-  color: rgba(255,255,255,0.7);
+  gap: 14px;
+  min-height: 48px;
+  padding: 12px 24px;
+  color: rgba(255,255,255,0.85);
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 400;
-  letter-spacing: 0.04em;
   text-decoration: none;
-  border-left: 3px solid transparent;
-  transition: background 0.15s ease, color 0.15s ease;
+  border-left: 4px solid transparent;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .navLink:hover {
-  background: var(--color-sidebar-hover);
-  color: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.08);
+  color: #FFFFFF;
   text-decoration: none;
 }
 
 .activeLink {
   background: rgba(255,255,255,0.12);
   color: #FFFFFF !important;
-  border-left-color: var(--color-accent-light);
+  border-left-color: #A1887F;
 }
 
 .navIcon {
   flex: 0 0 auto;
-  width: 16px;
-  height: 16px;
-  margin-right: 2px;
-  vertical-align: -2px;
+  width: 20px;
+  height: 20px;
 }
 
 .mainArea {
-  margin-left: 200px;
+  margin-left: 220px;
   flex: 1 1 auto;
   min-width: 0;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.mainArea::-webkit-scrollbar {
+  width: 0;
+  display: none;
+}
+
+.mainArea {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .brandBar {
-  position: relative;
-  background: var(--color-surface);
-  padding: 20px 24px;
-  border-bottom: 1px solid rgba(0,0,0,0.08);
+  padding: 24px 40px;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
-.brandCenter {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
+.brandText {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  font-size: 42px;
+  font-weight: 400;
+  color: #3E2723;
+  letter-spacing: 0.02em;
+  margin: 0;
 }
 
-.brandLogo {
-  width: 228px;
-  height: auto;
-  object-fit: contain;
-}
-
-.brandLine {
-  width: min(100%, 1240px);
-  height: 1px;
-  background: rgba(0,0,0,0.08);
-}
-
-.userDock {
+.userMenu {
   position: absolute;
-  right: 24px;
-  top: 20px;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-
-.userMeta {
-  text-align: right;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  gap: 16px;
 }
 
 .userName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  color: var(--color-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  color: #5D4037;
 }
 
-.userRole {
-  font-family: 'JetBrains Mono';
-  font-size: 10px;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.userIcon {
+  width: 18px;
+  height: 18px;
+  color: #6D4C41;
 }
 
 .logoutBtn {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 12px;
+  padding: 8px 16px;
+  border: 1px solid rgba(93, 64, 55, 0.3);
   border-radius: 6px;
   background: transparent;
-  color: var(--color-text-primary);
-  border: 1px solid rgba(0,0,0,0.08);
+  color: #5D4037;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .logoutBtn:hover {
-  background: var(--color-accent-light);
-  border-color: var(--color-accent-light);
+  background: #5D4037;
+  color: #fff;
+  border-color: #5D4037;
 }
 
-.buttonIcon {
+.logoutIcon {
   width: 16px;
   height: 16px;
 }
 
-.pageBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 24px;
-}
-
-.pageTitle {
-  font-family: 'Inter', sans-serif;
-  font-size: 28px;
-  font-weight: 400;
-  color: var(--color-text-primary);
-}
-
-.actionArea {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
 .content {
-  padding: 0 24px 24px;
+  padding: 0 40px 40px;
+  padding-bottom: 220px;
   flex: 1 1 auto;
   min-width: 0;
   overflow: visible;
 }
 
-@media (max-width: 960px) {
+.coffeeCorner {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 300px;
+  height: auto;
+  pointer-events: none;
+  z-index: 100;
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .mainArea {
+    margin-left: 200px;
+  }
+
+  .content {
+    padding: 0 24px 24px;
+    padding-bottom: 200px;
+  }
+
+  .coffeeCorner {
+    width: 240px;
+  }
+}
+
+@media (max-width: 768px) {
   .container {
     flex-direction: column;
   }
@@ -190,25 +194,25 @@
     position: static;
     width: 100%;
     min-height: auto;
-    border-right: none;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
   }
 
   .nav {
     flex-direction: row;
     flex-wrap: wrap;
-    padding: 0 12px;
-    gap: 6px;
+    padding: 12px;
+    gap: 8px;
   }
 
   .navLink {
-    flex: 1 1 calc(50% - 6px);
-    border-left: 3px solid transparent;
-    border-radius: 6px;
+    flex: 1 1 calc(50% - 8px);
+    border-left: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    justify-content: center;
   }
 
   .activeLink {
-    border-left-color: var(--color-accent-light);
+    border-left-color: transparent;
   }
 
   .mainArea {
@@ -216,82 +220,40 @@
   }
 
   .brandBar {
-    padding: 16px;
+    padding: 20px;
     flex-direction: column;
-    align-items: stretch;
+    gap: 12px;
   }
 
-  .brandLogo {
-    width: 150px;
+  .brandText {
+    font-size: 32px;
   }
 
-  .userDock {
+  .userMenu {
     position: static;
-    width: 100%;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-
-  .pageBar {
-    padding: 16px;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .pageTitle {
-    font-size: 24px;
+    transform: none;
   }
 
   .content {
     padding: 0 16px 16px;
+    padding-bottom: 160px;
+  }
+
+  .coffeeCorner {
+    width: 180px;
   }
 }
 
-@media (max-width: 960px) {
-  .container {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid rgba(0,0,0,0.07);
-  }
-
-  .nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 4px;
-    padding: 12px;
-  }
-
-  .navLink {
-    border-left: none;
-    border-radius: 6px;
-    padding: 10px 12px;
-    flex: 1 1 45%;
-    min-width: 150px;
-  }
-
-  .activeLink {
-    border-left-color: transparent !important;
-  }
-
-  .footer {
-    padding-top: 12px;
-  }
-
-  .topbar {
-    height: auto;
-    min-height: 64px;
-    padding: 14px 16px;
-  }
-
-  .pageTitle {
-    font-size: 24px;
+@media (max-width: 480px) {
+  .coffeeCorner {
+    width: 140px;
   }
 
   .content {
-    padding: 16px;
+    padding-bottom: 120px;
+  }
+
+  .brandText {
+    font-size: 28px;
   }
 }

@@ -1,15 +1,15 @@
 // src/pages/member/BrowseBooksPage.jsx
-import React, { useState, useEffect } from 'react';
-import { useMemberHeader } from '../../layouts/MemberShell';
+import React, { useState, useEffect, useMemo } from 'react';
 import { getBooks } from '../../api/api';
 import { useToast } from '../../components/Toast';
-import BookCard from '../../components/BookCard';
-import Drawer from '../../components/Drawer';
+import BookShelf from '../../components/BookShelf';
+import BookPreviewModal from '../../components/BookPreviewModal';
 import Icon from '../../components/Icon';
 import styles from './BrowseBooksPage.module.css';
 
+const BOOKS_PER_SHELF = 4;
+
 export default function BrowseBooksPage() {
-  const setHeader = useMemberHeader();
   const toast = useToast();
 
   const [books, setBooks] = useState(null);
@@ -18,9 +18,6 @@ export default function BrowseBooksPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBook, setSelectedBook] = useState(null);
 
-  useEffect(() => {
-    setHeader({ title: 'Browse Books', action: null });
-  }, [setHeader]);
 
   useEffect(() => {
     getBooks()
@@ -42,11 +39,13 @@ export default function BrowseBooksPage() {
     );
   });
 
-  const selectedCoverUrl = selectedBook?.cover_image_url
-    ? (selectedBook.cover_image_url.startsWith('http')
-        ? selectedBook.cover_image_url
-        : `http://localhost:5005${selectedBook.cover_image_url}`)
-    : '/placeholder-cover.svg';
+  const shelves = useMemo(() => {
+    const result = [];
+    for (let i = 0; i < filteredBooks.length; i += BOOKS_PER_SHELF) {
+      result.push(filteredBooks.slice(i, i + BOOKS_PER_SHELF));
+    }
+    return result;
+  }, [filteredBooks]);
 
   return (
     <div className={styles.container}>
@@ -55,10 +54,14 @@ export default function BrowseBooksPage() {
         <input
           type="text"
           className={styles.searchBar}
-          placeholder="Search by title, author, genre, or ISBN..."
+          placeholder="Search by title, genre..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
+      </div>
+
+      <div className={styles.titleBar}>
+        <h2 className={styles.pageTitle}>Your Bookshelf</h2>
       </div>
 
       {loading ? (
@@ -75,78 +78,22 @@ export default function BrowseBooksPage() {
           No books found matching "{searchQuery}"
         </div>
       ) : (
-        <div className={styles.grid}>
-          {filteredBooks.map(book => (
-            <BookCard
-              key={book.id}
-              book={book}
-              onClick={() => setSelectedBook(book)}
+        <div className={styles.shelvesArea}>
+          {shelves.map((shelfBooks, index) => (
+            <BookShelf
+              key={index}
+              books={shelfBooks}
+              onBookClick={setSelectedBook}
             />
           ))}
         </div>
       )}
 
-      {/* Simple View-Only Drawer for Members */}
-      <Drawer
+      <BookPreviewModal
+        book={selectedBook}
         isOpen={selectedBook !== null}
         onClose={() => setSelectedBook(null)}
-        title="Book Specifications"
-      >
-        {selectedBook && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{
-              width: 'calc(100% + 48px)',
-              margin: '-24px -24px 10px -24px',
-              aspectRatio: '16/9',
-              background: 'var(--verso-bg)',
-              overflow: 'hidden',
-              borderBottom: '1px solid var(--verso-border)'
-            }}>
-              <img
-                src={selectedCoverUrl}
-                alt={selectedBook.title}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                onError={(e) => e.target.src = '/placeholder-cover.svg'}
-              />
-            </div>
-            
-            <h3 style={{ fontFamily: 'Fraunces', fontSize: '22px', color: 'var(--verso-primary)', lineHeight: 1.3 }}>
-              {selectedBook.title}
-            </h3>
-            <div style={{ fontFamily: 'Source Serif 4', fontSize: '15px', color: 'var(--verso-muted)' }}>
-              by {selectedBook.author}
-            </div>
-            {selectedBook.genre && (
-              <span style={{
-                alignSelf: 'flex-start',
-                fontFamily: 'JetBrains Mono',
-                fontSize: '11px',
-                backgroundColor: 'var(--verso-accent-light)',
-                color: 'var(--verso-accent)',
-                padding: '4px 8px',
-                borderRadius: '4px'
-              }}>
-                {selectedBook.genre}
-              </span>
-            )}
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '16px' }}>
-              <div style={{ backgroundColor: 'var(--verso-bg)', padding: '12px', borderRadius: '6px', border: '1px solid var(--verso-border)' }}>
-                <div style={{ fontSize: '12px', color: 'var(--verso-muted)' }}>ISBN</div>
-                <div style={{ fontFamily: 'JetBrains Mono', fontSize: '14px', fontWeight: 500 }}>
-                  {selectedBook.isbn || 'N/A'}
-                </div>
-              </div>
-              <div style={{ backgroundColor: 'var(--verso-bg)', padding: '12px', borderRadius: '6px', border: '1px solid var(--verso-border)' }}>
-                <div style={{ fontSize: '12px', color: 'var(--verso-muted)' }}>Stock Status</div>
-                <div style={{ fontFamily: 'Source Serif 4', fontSize: '14px', fontWeight: 'bold', color: selectedBook.available_copies > 0 ? 'green' : 'red' }}>
-                  {selectedBook.available_copies > 0 ? `${selectedBook.available_copies} Available` : 'Out of Stock'}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </Drawer>
+      />
     </div>
   );
 }

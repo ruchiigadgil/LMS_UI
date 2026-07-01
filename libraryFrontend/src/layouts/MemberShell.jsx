@@ -93,30 +93,30 @@ export default function MemberShell() {
 
         <div className={styles.mainArea}>
           <header className={styles.brandBar}>
-            <div className={styles.brandCenter}>
-              <img src="/logo.png" alt="VERSO" className={styles.brandLogo} />
-              <div className={styles.brandLine} />
-            </div>
-            <div className={styles.userDock}>
-              <div className={styles.userMeta}>
-                <span className={styles.userName}>{user.name}</span>
-                <span className={styles.userRole}>{user.role}</span>
-              </div>
+            <h1 className={styles.brandText}>Verso</h1>
+            <div className={styles.userMenu}>
+              <span className={styles.userName}>
+                <Icon name="user" className={styles.userIcon} />
+                {user.name || user.username || 'User'}
+              </span>
               <button className={styles.logoutBtn} onClick={handleLogout}>
-                <Icon name="logout" className={styles.buttonIcon} />
-                <span>Log Out</span>
+                <Icon name="logout" className={styles.logoutIcon} />
+                Logout
               </button>
             </div>
-          </header>
-
-          <header className={styles.pageBar}>
-            <h1 className={styles.pageTitle}>{headerState.title}</h1>
-            <div className={styles.actionArea}>{headerState.action}</div>
           </header>
 
           <main className={styles.content}>
             <Outlet />
           </main>
+
+          {/* Coffee corner decoration */}
+          <img
+            src="/Right_Corner_Coffee.png"
+            alt=""
+            className={styles.coffeeCorner}
+            aria-hidden="true"
+          />
         </div>
       </div>
     </MemberHeaderContext.Provider>
