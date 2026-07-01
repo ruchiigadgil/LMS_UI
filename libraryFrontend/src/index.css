@@ -1,4 +1,12 @@
+/* ============================================
+   GLOBAL DESIGN SYSTEM
+   Supports both Admin (purple) and Member (warm brown) themes
+   ============================================ */
+
 :root {
+  /* ═══════════════════════════════════════════
+     ADMIN THEME (Original Purple Theme)
+     ═══════════════════════════════════════════ */
   --color-sidebar: #2D1B69;
   --color-sidebar-hover: #3D2880;
   --color-accent: #7C3AED;
@@ -24,7 +32,7 @@
   --color-shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   --color-shadow-drawer: -4px 0 24px rgba(0,0,0,0.08);
 
-  /* Badge colors */
+  /* Badge colors (Admin) */
   --badge-active-bg: #ECFDF5;
   --badge-active-text: #065F46;
   --badge-overdue-bg: #FEF2F2;
@@ -45,7 +53,109 @@
   --badge-fulfilled-text: #065F46;
   --badge-expired-bg: #F3F4F6;
   --badge-expired-text: #6B7280;
+
+  /* ═══════════════════════════════════════════
+     VERSO MEMBER THEME (Warm Brown)
+     ═══════════════════════════════════════════ */
+
+  /* Primary Colors */
+  --verso-brown-900: #3E2723;
+  --verso-brown-800: #4E342E;
+  --verso-brown-700: #5D4037;
+  --verso-brown-600: #6D4C41;
+  --verso-brown-500: #795548;
+  --verso-brown-400: #8D6E63;
+  --verso-brown-300: #A1887F;
+  --verso-brown-200: #BCAAA4;
+  --verso-brown-100: #D7CCC8;
+  --verso-brown-50: #EFEBE9;
+
+  /* Cream/Warm Neutrals */
+  --verso-cream-100: #FDF8F3;
+  --verso-cream-200: #F5EDE6;
+  --verso-cream-300: #EDE0D4;
+
+  /* Semantic Colors */
+  --verso-danger: #C62828;
+  --verso-danger-light: rgba(198, 40, 40, 0.1);
+  --verso-success: #2E7D32;
+  --verso-success-light: rgba(46, 125, 50, 0.1);
+  --verso-warning: #F57C00;
+  --verso-warning-light: rgba(245, 124, 0, 0.1);
+  --verso-info: #1565C0;
+  --verso-info-light: rgba(21, 101, 192, 0.1);
+
+  /* Text Colors */
+  --verso-text-primary: var(--verso-brown-900);
+  --verso-text-secondary: var(--verso-brown-600);
+  --verso-text-muted: var(--verso-brown-400);
+  --verso-text-light: var(--verso-brown-300);
+
+  /* Background Colors */
+  --verso-bg-primary: var(--verso-cream-100);
+  --verso-bg-secondary: var(--verso-cream-200);
+  --verso-bg-tertiary: var(--verso-cream-300);
+  --verso-bg-card: rgba(255, 255, 255, 0.92);
+  --verso-bg-hover: rgba(141, 110, 99, 0.08);
+
+  /* Border Colors */
+  --verso-border-light: rgba(141, 110, 99, 0.12);
+  --verso-border-medium: rgba(141, 110, 99, 0.2);
+  --verso-border-dark: rgba(141, 110, 99, 0.35);
+
+  /* Shadows */
+  --verso-shadow-sm: 0 1px 3px rgba(62, 39, 35, 0.06);
+  --verso-shadow-md: 0 2px 8px rgba(62, 39, 35, 0.08);
+  --verso-shadow-lg: 0 4px 16px rgba(62, 39, 35, 0.12);
+  --verso-shadow-xl: 0 8px 32px rgba(62, 39, 35, 0.16);
+
+  /* Spacing Scale */
+  --verso-space-1: 4px;
+  --verso-space-2: 8px;
+  --verso-space-3: 12px;
+  --verso-space-4: 16px;
+  --verso-space-5: 20px;
+  --verso-space-6: 24px;
+  --verso-space-8: 32px;
+  --verso-space-10: 40px;
+  --verso-space-12: 48px;
+
+  /* Border Radius */
+  --verso-radius-sm: 4px;
+  --verso-radius-md: 8px;
+  --verso-radius-lg: 12px;
+  --verso-radius-xl: 16px;
+  --verso-radius-full: 9999px;
+
+  /* Typography */
+  --verso-font-display: 'Playfair Display', Georgia, serif;
+  --verso-font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --verso-font-mono: 'JetBrains Mono', monospace;
+
+  /* Font Sizes */
+  --verso-text-xs: 11px;
+  --verso-text-sm: 13px;
+  --verso-text-base: 14px;
+  --verso-text-md: 15px;
+  --verso-text-lg: 18px;
+  --verso-text-xl: 22px;
+  --verso-text-2xl: 28px;
+  --verso-text-3xl: 36px;
+
+  /* Line Heights */
+  --verso-leading-tight: 1.25;
+  --verso-leading-normal: 1.5;
+  --verso-leading-relaxed: 1.75;
+
+  /* Transitions */
+  --verso-transition-fast: 0.15s ease;
+  --verso-transition-normal: 0.2s ease;
+  --verso-transition-slow: 0.3s ease;
 }
+
+/* ═══════════════════════════════════════════
+   BASE RESET & DEFAULTS
+   ═══════════════════════════════════════════ */
 
 * {
   box-sizing: border-box;
@@ -129,6 +239,10 @@ img {
   background: var(--color-accent);
 }
 
+/* ═══════════════════════════════════════════
+   ADMIN UTILITY CLASSES
+   ═══════════════════════════════════════════ */
+
 .font-mono-data {
   font-family: 'JetBrains Mono';
   font-size: 0.9em;
@@ -172,4 +286,54 @@ img {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════
+   VERSO MEMBER UTILITY CLASSES
+   ═══════════════════════════════════════════ */
+
+.font-display {
+  font-family: var(--verso-font-display);
+}
+
+.verso-card {
+  background: var(--verso-bg-card);
+  border: 1px solid var(--verso-border-light);
+  border-radius: var(--verso-radius-lg);
+  box-shadow: var(--verso-shadow-md);
+}
+
+.verso-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--verso-space-2);
+  padding: var(--verso-space-2) var(--verso-space-4);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  font-weight: 500;
+  border-radius: var(--verso-radius-md);
+  transition: all var(--verso-transition-normal);
+  cursor: pointer;
+}
+
+.verso-btn-primary {
+  background: var(--verso-brown-700);
+  color: white;
+  border: none;
+}
+
+.verso-btn-primary:hover {
+  background: var(--verso-brown-800);
+}
+
+.verso-btn-secondary {
+  background: transparent;
+  color: var(--verso-brown-700);
+  border: 1px solid var(--verso-brown-700);
+}
+
+.verso-btn-secondary:hover {
+  background: var(--verso-brown-700);
+  color: white;
 }

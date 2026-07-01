@@ -7,6 +7,7 @@ import ConfirmDialog from './ConfirmDialog';
 import { MembersContext } from './MembersContext';
 import { useToast } from './Toast';
 import Icon from './Icon';
+import { formatDate } from '../utils/formatDate';
 import {
   issueBook,
   addMember,
@@ -244,6 +245,7 @@ export default function BookDetailDrawer({ book, isOpen, onClose, onUpdate, onDe
   }
 
   // Calculate return details for inline return display
+  const todayStr = formatDate(new Date().toISOString());
   let returnDaysOverdue = 0;
   let returnFine = 0;
   if (selectedReturnLoan) {
@@ -439,7 +441,7 @@ export default function BookDetailDrawer({ book, isOpen, onClose, onUpdate, onDe
                 >
                   {bookActiveLoans.map(l => (
                     <option key={l.loan_id} value={l.loan_id}>
-                      {l.user_name} (Issued: {l.issue_date})
+                      {l.user_name} (Issued: {formatDate(l.issue_date)})
                     </option>
                   ))}
                 </select>
@@ -449,7 +451,7 @@ export default function BookDetailDrawer({ book, isOpen, onClose, onUpdate, onDe
                 <div style={{ backgroundColor: 'var(--verso-bg)', border: '1px solid var(--verso-border)', padding: '14px', borderRadius: '6px', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ color: 'var(--verso-muted)' }}>Due Date:</span>
-                    <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 500 }}>{selectedReturnLoan.due_date}</span>
+                    <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 500 }}>{formatDate(selectedReturnLoan.due_date)}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ color: 'var(--verso-muted)' }}>Return Date:</span>

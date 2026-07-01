@@ -6,16 +6,18 @@ import React, {
   useEffect,
   useRef,
 } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { getCurrentUser, logout } from "../api/api";
 import { useToast } from "../components/Toast";
 import Icon from "../components/Icon";
+import NotificationPanel from "../components/NotificationPanel";
 import styles from "./MemberShell.module.css";
 
 export const MemberHeaderContext = createContext(null);
 
 export default function MemberShell() {
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useToast();
   const [headerState, setHeaderState] = useState({
     title: "VERSO",
@@ -24,6 +26,8 @@ export default function MemberShell() {
   const [user, setUser] = useState(() => getCurrentUser());
   const isLoggingOut = useRef(false);
   const hasCheckedAuth = useRef(false);
+
+  const isDashboard = location.pathname === "/books";
 
   useEffect(() => {
     if (hasCheckedAuth.current || isLoggingOut.current) return;
@@ -106,9 +110,14 @@ export default function MemberShell() {
             </div>
           </header>
 
-          <main className={styles.content}>
-            <Outlet />
-          </main>
+          <div className={styles.contentWrapper}>
+            <main className={styles.content}>
+              <Outlet />
+            </main>
+
+            {/* Notification Panel - only on dashboard */}
+            {isDashboard && <NotificationPanel />}
+          </div>
 
           {/* Coffee corner decoration */}
           <img

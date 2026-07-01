@@ -1,62 +1,62 @@
 /* src/components/StatusBadge.module.css */
 .badge {
-  font-family: 'JetBrains Mono';
-  font-size: 10px;
-  font-weight: 500;
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-xs);
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 3px 8px;
-  border-radius: 9999px;
+  letter-spacing: 0.03em;
+  padding: var(--verso-space-1) var(--verso-space-3);
+  border-radius: var(--verso-radius-full);
   display: inline-block;
   white-space: nowrap;
 }
 
 .active {
-  background-color: var(--badge-active-bg);
-  color: var(--badge-active-text);
+  background-color: var(--verso-success-light);
+  color: var(--verso-success);
 }
 
 .overdue {
-  background-color: var(--badge-overdue-bg);
-  color: var(--badge-overdue-text);
+  background-color: var(--verso-danger-light);
+  color: var(--verso-danger);
 }
 
 .returned {
-  background-color: var(--badge-returned-bg);
-  color: var(--badge-returned-text);
+  background-color: var(--verso-cream-200);
+  color: var(--verso-brown-600);
 }
 
 .waiting {
-  background-color: var(--badge-waiting-bg);
-  color: var(--badge-waiting-text);
+  background-color: var(--verso-warning-light);
+  color: var(--verso-warning);
 }
 
 .ready {
-  background-color: var(--badge-ready-bg);
-  color: var(--badge-ready-text);
+  background-color: var(--verso-success-light);
+  color: var(--verso-success);
 }
 
 .paid {
-  background-color: var(--badge-paid-bg);
-  color: var(--badge-paid-text);
+  background-color: var(--verso-success-light);
+  color: var(--verso-success);
 }
 
 .unpaid {
-  background-color: var(--badge-unpaid-bg);
-  color: var(--badge-unpaid-text);
+  background-color: var(--verso-danger-light);
+  color: var(--verso-danger);
 }
 
 .suspended {
-  background-color: var(--badge-suspended-bg);
-  color: var(--badge-suspended-text);
+  background-color: var(--verso-danger-light);
+  color: var(--verso-danger);
 }
 
 .fulfilled {
-  background-color: var(--badge-fulfilled-bg);
-  color: var(--badge-fulfilled-text);
+  background-color: var(--verso-cream-200);
+  color: var(--verso-brown-600);
 }
 
 .expired {
-  background-color: var(--badge-expired-bg);
-  color: var(--badge-expired-text);
+  background-color: var(--verso-cream-200);
+  color: var(--verso-text-muted);
 }

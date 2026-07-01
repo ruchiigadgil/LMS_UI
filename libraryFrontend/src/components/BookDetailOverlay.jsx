@@ -6,6 +6,7 @@ import Modal from "./Modal";
 import { MembersContext } from "./MembersContext";
 import { useToast } from "./Toast";
 import Icon from "./Icon";
+import { formatDate } from "../utils/formatDate";
 import {
   issueBook,
   addMember,
@@ -56,11 +57,7 @@ export default function BookDetailOverlay({
 
   const [reserveMemberId, setReserveMemberId] = useState(null);
 
-  const todayStr = new Date().toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  const todayStr = formatDate(new Date().toISOString());
 
   // Prefill forms and load dropdown data on mount
   useEffect(() => {
@@ -485,7 +482,7 @@ export default function BookDetailOverlay({
                       >
                         {bookActiveLoans.map((l) => (
                           <option key={l.loan_id} value={l.loan_id}>
-                            {l.user_name} (Issued: {l.issue_date})
+                            {l.user_name} (Issued: {formatDate(l.issue_date)})
                           </option>
                         ))}
                       </select>
@@ -507,7 +504,7 @@ export default function BookDetailOverlay({
                               fontWeight: 500,
                             }}
                           >
-                            {selectedReturnLoan.due_date}
+                            {formatDate(selectedReturnLoan.due_date)}
                           </span>
                         </div>
                         <div

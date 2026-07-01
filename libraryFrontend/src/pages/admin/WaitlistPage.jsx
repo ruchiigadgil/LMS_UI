@@ -7,6 +7,7 @@ import StatusBadge from '../../components/StatusBadge';
 import Icon from '../../components/Icon';
 import { getBooks, getReservationsByBook } from '../../api/api';
 import { useToast } from '../../components/Toast';
+import { formatDate } from '../../utils/formatDate';
 import styles from './WaitlistPage.module.css';
 
 export default function WaitlistPage() {
@@ -129,25 +130,17 @@ export default function WaitlistPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredQueue.map(row => {
-                  const date = new Date(row.added_at).toLocaleDateString('en-IN', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric'
-                  });
-
-                  return (
+                {filteredQueue.map(row => (
                     <tr key={row.id} className={styles.tr}>
                       <td className={`${styles.td} ${styles.rankVal}`}>#{row.position}</td>
                       <td className={styles.td}>{row.member_name}</td>
                       <td className={styles.td}>{row.email}</td>
-                      <td className={`${styles.td} ${styles.dateVal}`}>{date}</td>
+                      <td className={`${styles.td} ${styles.dateVal}`}>{formatDate(row.added_at)}</td>
                       <td className={styles.td}>
                         <StatusBadge status={row.status} />
                       </td>
                     </tr>
-                  );
-                })}
+              ))}
               </tbody>
             </table>
 

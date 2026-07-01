@@ -5,6 +5,7 @@ import { getFines, payFine } from '../../api/api';
 import { useToast } from '../../components/Toast';
 import StatusBadge from '../../components/StatusBadge';
 import Icon from '../../components/Icon';
+import { formatDate } from '../../utils/formatDate';
 import styles from './FinesPage.module.css';
 
 export default function FinesPage() {
@@ -122,10 +123,7 @@ export default function FinesPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredFines.map(fine => {
-                  const raisedDate = new Date(fine.raised_at).toLocaleDateString();
-                  
-                  return (
+                {filteredFines.map(fine => (
                     <tr key={fine.id} className={styles.tr}>
                       <td className={`${styles.td} ${styles.idVal}`}>{fine.id}</td>
                       <td className={styles.td} style={{ fontWeight: 600 }}>{fine.user_name}</td>
@@ -133,7 +131,7 @@ export default function FinesPage() {
                       <td className={`${styles.td} ${styles.amountVal} ${fine.paid ? styles.amountPaid : styles.amountUnpaid}`}>
                         ₹{fine.amount.toFixed(2)}
                       </td>
-                      <td className={`${styles.td} ${styles.dateVal}`}>{raisedDate}</td>
+                      <td className={`${styles.td} ${styles.dateVal}`}>{formatDate(fine.raised_at)}</td>
                       <td className={styles.td}>
                         <StatusBadge status={fine.paid ? 'PAID' : 'UNPAID'} />
                       </td>
@@ -153,8 +151,7 @@ export default function FinesPage() {
                         )}
                       </td>
                     </tr>
-                  );
-                })}
+              ))}
               </tbody>
             </table>
           </div>

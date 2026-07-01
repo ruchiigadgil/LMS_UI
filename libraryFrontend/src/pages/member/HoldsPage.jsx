@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useMemberHeader } from '../../layouts/MemberShell';
 import { getMemberReservations, getCurrentUser } from '../../api/api';
 import StatusBadge from '../../components/StatusBadge';
+import { formatDate } from '../../utils/formatDate';
 import styles from './HoldsPage.module.css';
 
 export default function HoldsPage() {
@@ -60,14 +61,7 @@ export default function HoldsPage() {
                 </tr>
               </thead>
               <tbody>
-                {reservations.map(reservation => {
-                  const requestedDate = new Date(reservation.requested_at).toLocaleDateString('en-IN', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                  });
-
-                  return (
+                {reservations.map(reservation => (
                     <tr key={reservation.reservation_id} className={styles.tr}>
                       <td className={styles.td}>
                         <span className={styles.bookTitle}>{reservation.book_title}</span>
@@ -75,7 +69,7 @@ export default function HoldsPage() {
                       <td className={styles.td}>
                         <span className={styles.authorName}>{reservation.book_author}</span>
                       </td>
-                      <td className={`${styles.td} ${styles.dateVal}`}>{requestedDate}</td>
+                      <td className={`${styles.td} ${styles.dateVal}`}>{formatDate(reservation.requested_at)}</td>
                       <td className={styles.td}>
                         <div className={styles.queueBadge}>
                           <span className={`${styles.queueNumber} ${reservation.queue_position === 1 ? styles.queueFirst : ''}`}>
@@ -90,8 +84,7 @@ export default function HoldsPage() {
                         <StatusBadge status={reservation.status} />
                       </td>
                     </tr>
-                  );
-                })}
+              ))}
               </tbody>
             </table>
           </div>

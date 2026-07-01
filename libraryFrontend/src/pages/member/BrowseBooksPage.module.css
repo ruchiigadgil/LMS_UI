@@ -1,11 +1,12 @@
 /* src/pages/member/BrowseBooksPage.module.css */
+
 .container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-right: 300px;
+  gap: var(--verso-space-3);
 }
 
+/* ─── Search Bar ─── */
 .searchBarWrapper {
   position: relative;
   width: 100%;
@@ -15,38 +16,70 @@
   gap: 0;
 }
 
-.searchBar {
-  flex: 1;
-  border-radius: 10px 0 0 10px;
+.searchIcon {
+  position: absolute;
+  left: var(--verso-space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--verso-brown-400);
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
 }
 
+.searchBar {
+  flex: 1;
+  width: 100%;
+  padding: var(--verso-space-3) var(--verso-space-4) var(--verso-space-3) 46px;
+  border: none;
+  border-radius: var(--verso-radius-lg) 0 0 var(--verso-radius-lg);
+  background: var(--verso-bg-card);
+  font-family: var(--verso-font-body);
+  font-weight: 400;
+  font-size: var(--verso-text-base);
+  color: var(--verso-text-primary);
+  outline: none;
+  box-shadow: var(--verso-shadow-md);
+  transition: box-shadow var(--verso-transition-normal);
+}
+
+.searchBar::placeholder {
+  color: var(--verso-brown-300);
+}
+
+.searchBar:focus {
+  box-shadow: var(--verso-shadow-lg);
+}
+
+/* ─── Filter Button ─── */
 .filterBtn {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 14px 18px;
+  gap: var(--verso-space-2);
+  padding: var(--verso-space-3) var(--verso-space-4);
   border: none;
-  border-left: 1px solid rgba(141, 110, 99, 0.15);
-  border-radius: 0 10px 10px 0;
-  background: rgba(255, 255, 255, 0.95);
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  border-left: 1px solid var(--verso-border-light);
+  border-radius: 0 var(--verso-radius-lg) var(--verso-radius-lg) 0;
+  background: var(--verso-bg-card);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
   font-weight: 500;
-  color: #5D4037;
+  color: var(--verso-brown-700);
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  transition: all var(--verso-transition-normal);
+  box-shadow: var(--verso-shadow-md);
 }
 
 .filterBtn:hover {
-  background: #F5EDE6;
+  background: var(--verso-cream-200);
 }
 
 .filterBtn.filterActive {
-  background: #5D4037;
+  background: var(--verso-brown-700);
   color: #fff;
 }
 
+/* ─── Filter Dropdown ─── */
 .filterOverlay {
   position: fixed;
   inset: 0;
@@ -55,15 +88,15 @@
 
 .filterDropdown {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + var(--verso-space-2));
   right: 0;
   width: 280px;
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  padding: 16px;
+  border-radius: var(--verso-radius-lg);
+  box-shadow: var(--verso-shadow-xl);
+  padding: var(--verso-space-4);
   z-index: 100;
-  animation: dropdownFadeIn 0.2s ease;
+  animation: dropdownFadeIn var(--verso-transition-normal);
 }
 
 @keyframes dropdownFadeIn {
@@ -80,14 +113,14 @@
 .filterSection {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--verso-space-2);
 }
 
 .filterTitle {
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-xs);
   font-weight: 600;
-  color: #8D6E63;
+  color: var(--verso-brown-400);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 0;
@@ -96,156 +129,121 @@
 .filterOptions {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--verso-space-1);
 }
 
 .filterOption {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 6px;
+  gap: var(--verso-space-3);
+  padding: var(--verso-space-2) var(--verso-space-3);
+  border-radius: var(--verso-radius-md);
   cursor: pointer;
-  transition: background 0.15s ease;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  color: #3E2723;
+  transition: background var(--verso-transition-fast);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-base);
+  color: var(--verso-text-primary);
 }
 
 .filterOption:hover {
-  background: rgba(141, 110, 99, 0.08);
+  background: var(--verso-bg-hover);
 }
 
 .filterOption input[type="radio"] {
   width: 16px;
   height: 16px;
-  accent-color: #5D4037;
+  accent-color: var(--verso-brown-700);
   cursor: pointer;
 }
 
 .filterDivider {
   height: 1px;
-  background: rgba(141, 110, 99, 0.15);
-  margin: 12px 0;
+  background: var(--verso-border-light);
+  margin: var(--verso-space-3) 0;
 }
 
 .filterActions {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(141, 110, 99, 0.15);
+  margin-top: var(--verso-space-3);
+  padding-top: var(--verso-space-3);
+  border-top: 1px solid var(--verso-border-light);
 }
 
 .clearFiltersBtn {
   width: 100%;
-  padding: 10px;
-  border: 1px solid rgba(141, 110, 99, 0.25);
-  border-radius: 6px;
+  padding: var(--verso-space-3);
+  border: 1px solid var(--verso-border-medium);
+  border-radius: var(--verso-radius-md);
   background: transparent;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
   font-weight: 500;
-  color: #5D4037;
+  color: var(--verso-brown-700);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--verso-transition-normal);
 }
 
 .clearFiltersBtn:hover {
-  background: rgba(141, 110, 99, 0.08);
+  background: var(--verso-bg-hover);
 }
 
-.searchIcon {
-  position: absolute;
-  left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #8D6E63;
-  width: 18px;
-  height: 18px;
-}
-
-.searchBar {
-  width: 100%;
-  padding: 14px 18px 14px 46px;
-  border: none;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.95);
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
-  font-size: 14px;
-  color: #3E2723;
-  outline: none;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  transition: box-shadow 0.2s ease;
-}
-
-.searchBar::placeholder {
-  color: #A1887F;
-}
-
-.searchBar:focus {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-}
-
+/* ─── Page Title ─── */
 .pageTitle {
-  font-family: 'Playfair Display', 'Georgia', serif;
-  font-size: 22px;
-  font-weight: 400;
-  color: #3E2723;
+  font-family: var(--verso-font-display);
+  font-size: var(--verso-text-xl);
+  font-weight: 500;
+  color: var(--verso-text-primary);
   margin: 0;
 }
 
+/* ─── Shelves Area ─── */
 .shelvesArea {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding-top: 8px;
+  gap: var(--verso-space-4);
+  padding-top: var(--verso-space-2);
 }
 
-.loadingWrapper, .errorWrapper {
+/* ─── Loading & Empty States ─── */
+.loadingWrapper,
+.errorWrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 80px 0;
+  padding: var(--verso-space-12) 0;
   text-align: center;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--verso-font-body);
   font-weight: 400;
-  color: #5D4037;
+  color: var(--verso-text-secondary);
 }
 
 .noResults {
   text-align: center;
-  padding: 60px 40px;
-  color: #5D4037;
-  font-family: 'Inter', sans-serif;
+  padding: var(--verso-space-12) var(--verso-space-10);
+  color: var(--verso-text-secondary);
+  font-family: var(--verso-font-body);
   font-weight: 400;
-  font-size: 16px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 12px;
+  font-size: var(--verso-text-md);
+  background: var(--verso-bg-card);
+  border-radius: var(--verso-radius-lg);
+  border: 1px dashed var(--verso-border-medium);
 }
 
+/* ─── Responsive ─── */
 @media (max-width: 1024px) {
-  .container {
-    padding-right: 240px;
-  }
-
   .searchBarWrapper {
     max-width: 100%;
   }
 }
 
 @media (max-width: 768px) {
-  .container {
-    padding-right: 0;
-  }
-
   .pageTitle {
-    font-size: 20px;
+    font-size: var(--verso-text-lg);
   }
 
   .searchBar {
-    padding: 14px 16px 14px 48px;
-    font-size: 15px;
+    padding: var(--verso-space-3) var(--verso-space-4) var(--verso-space-3) 48px;
+    font-size: var(--verso-text-md);
   }
 
   .filterBtn span {
@@ -253,7 +251,7 @@
   }
 
   .filterBtn {
-    padding: 14px 16px;
+    padding: var(--verso-space-3) var(--verso-space-4);
   }
 
   .filterDropdown {
@@ -264,10 +262,10 @@
 
 @media (max-width: 480px) {
   .pageTitle {
-    font-size: 18px;
+    font-size: var(--verso-text-md);
   }
 
   .shelvesArea {
-    gap: 16px;
+    gap: var(--verso-space-4);
   }
 }

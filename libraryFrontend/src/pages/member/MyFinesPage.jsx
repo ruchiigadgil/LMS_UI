@@ -4,6 +4,7 @@ import { useMemberHeader } from '../../layouts/MemberShell';
 import { getMemberFines, getMemberLoans, getCurrentUser, payFine } from '../../api/api';
 import { useToast } from '../../components/Toast';
 import StatusBadge from '../../components/StatusBadge';
+import { formatDate } from '../../utils/formatDate';
 import styles from './MyFinesPage.module.css';
 
 export default function MyFinesPage() {
@@ -87,8 +88,8 @@ export default function MyFinesPage() {
           {/* Overdue Books Section */}
           {overdueLoans.length > 0 && (
             <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Overdue Books</h2>
-              <p className={styles.sectionSubtitle}>Return these books to avoid additional fines</p>
+              {/* <h2 className={styles.sectionTitle}>Overdue Books</h2>
+              <p className={styles.sectionSubtitle}>Return these books to avoid additional fines</p> */}
               <div className={styles.tableCard}>
                 <div className={styles.tableWrapper}>
                   <table className={styles.table}>
@@ -107,7 +108,7 @@ export default function MyFinesPage() {
                             <span className={styles.bookTitle}>{loan.book_title}</span>
                           </td>
                           <td className={`${styles.td} ${styles.dateVal} ${styles.overdueDateVal}`}>
-                            {loan.due_date}
+                            {formatDate(loan.due_date)}
                           </td>
                           <td className={styles.td}>
                             <span className={styles.daysOverdue}>{loan.daysOverdue} days</span>
@@ -143,10 +144,7 @@ export default function MyFinesPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {unpaidFines.map(fine => {
-                        const raisedDate = new Date(fine.raised_at).toLocaleDateString();
-
-                        return (
+                      {unpaidFines.map(fine => (
                           <tr key={fine.id} className={styles.tr}>
                             <td className={styles.td}>
                               <span className={styles.bookTitle}>{fine.book_title}</span>
@@ -154,7 +152,7 @@ export default function MyFinesPage() {
                             <td className={`${styles.td} ${styles.amountVal} ${styles.amountUnpaid}`}>
                               ₹{fine.amount.toFixed(2)}
                             </td>
-                            <td className={`${styles.td} ${styles.dateVal}`}>{raisedDate}</td>
+                            <td className={`${styles.td} ${styles.dateVal}`}>{formatDate(fine.raised_at)}</td>
                             <td className={styles.td}>
                               <StatusBadge status="UNPAID" />
                             </td>
@@ -168,8 +166,7 @@ export default function MyFinesPage() {
                               </button>
                             </td>
                           </tr>
-                        );
-                      })}
+                      ))}
                     </tbody>
                   </table>
                 </div>
@@ -193,10 +190,7 @@ export default function MyFinesPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {paidFines.map(fine => {
-                        const raisedDate = new Date(fine.raised_at).toLocaleDateString();
-
-                        return (
+                      {paidFines.map(fine => (
                           <tr key={fine.id} className={styles.tr}>
                             <td className={styles.td}>
                               <span className={styles.bookTitle}>{fine.book_title}</span>
@@ -204,13 +198,12 @@ export default function MyFinesPage() {
                             <td className={`${styles.td} ${styles.amountVal} ${styles.amountPaid}`}>
                               ₹{fine.amount.toFixed(2)}
                             </td>
-                            <td className={`${styles.td} ${styles.dateVal}`}>{raisedDate}</td>
+                            <td className={`${styles.td} ${styles.dateVal}`}>{formatDate(fine.raised_at)}</td>
                             <td className={styles.td}>
                               <StatusBadge status="PAID" />
                             </td>
                           </tr>
-                        );
-                      })}
+                      ))}
                     </tbody>
                   </table>
                 </div>

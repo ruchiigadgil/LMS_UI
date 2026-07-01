@@ -6,6 +6,7 @@ import { useToast } from '../../components/Toast';
 import BookCard from '../../components/BookCard';
 import BookDetailOverlay from "../../components/BookDetailOverlay";
 import Modal from '../../components/Modal';
+import Icon from '../../components/Icon';
 import styles from './BooksPage.module.css';
 
 export default function BooksPage() {
@@ -51,15 +52,11 @@ export default function BooksPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Update header title and action button
+  // Clear header (search bar and button are in content area)
   useEffect(() => {
     setHeader({
-      title: 'Books',
-      action: (
-        <button className={styles.addBtn} onClick={() => setIsAddModalOpen(true)}>
-          <span>➕</span> Add Book
-        </button>
-      )
+      title: '',
+      action: null
     });
   }, [setHeader]);
 
@@ -173,19 +170,22 @@ export default function BooksPage() {
 
   return (
     <div className={styles.container}>
-      {/* Search bar */}
-      <div className={styles.searchBarWrapper}>
-        <span className={styles.searchIcon}>🔍</span>
-        <input
-          type="text"
-          className={styles.searchBar}
-          placeholder="Filter by title, author, genre, or ISBN..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
+      {/* Search bar + Add button row */}
+      <div className={styles.topRow}>
+        <div className={styles.searchBarWrapper}>
+          <Icon name="search" className={styles.searchIcon} />
+          <input
+            type="text"
+            className={styles.searchBar}
+            placeholder="Filter by title, author, genre, or ISBN..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <button className={styles.addBtn} onClick={() => setIsAddModalOpen(true)}>
+          <Icon name="plus" className={styles.btnIcon} /> Add Book
+        </button>
       </div>
-
-      <p className={styles.hintText}>Click on a book to view book actions</p>
 
       {loading ? (
         <div className={styles.loadingWrapper}>

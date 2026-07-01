@@ -1,15 +1,31 @@
 /* src/pages/member/MyLoansPage.module.css */
+
 .container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--verso-space-6);
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--verso-space-2);
+}
+
+.pageTitle {
+  font-family: var(--verso-font-display);
+  font-size: var(--verso-text-xl);
+  font-weight: 500;
+  color: var(--verso-text-primary);
+  margin: 0;
 }
 
 .tableCard {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(62, 39, 35, 0.08);
-  border: 1px solid rgba(141, 110, 99, 0.12);
+  background: var(--verso-bg-card);
+  border-radius: var(--verso-radius-lg);
+  box-shadow: var(--verso-shadow-md);
+  border: 1px solid var(--verso-border-light);
   overflow: hidden;
 }
 
@@ -24,24 +40,24 @@
 }
 
 .th {
-  background: #F5EDE6;
-  padding: 12px 16px;
-  font-family: 'Inter', sans-serif;
-  font-size: 11px;
+  background: var(--verso-cream-200);
+  padding: var(--verso-space-3) var(--verso-space-4);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #6D4C41;
-  border-bottom: 1px solid rgba(141, 110, 99, 0.15);
+  color: var(--verso-brown-600);
+  border-bottom: 1px solid var(--verso-border-medium);
 }
 
 .td {
-  padding: 14px 16px;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
+  padding: var(--verso-space-4);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-base);
   font-weight: 400;
-  border-bottom: 1px solid rgba(141, 110, 99, 0.1);
-  color: #3E2723;
+  border-bottom: 1px solid var(--verso-border-light);
+  color: var(--verso-text-primary);
   vertical-align: middle;
 }
 
@@ -50,79 +66,120 @@
 }
 
 .tr:hover {
-  background: rgba(141, 110, 99, 0.08);
+  background: var(--verso-bg-hover);
 }
 
 .bookTitle {
   font-weight: 500;
-  color: #3E2723;
+  color: var(--verso-text-primary);
+}
+
+.bookAuthor {
+  font-size: var(--verso-text-sm);
+  color: var(--verso-text-muted);
+  margin-top: 2px;
 }
 
 .dateVal {
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  color: #5D4037;
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  color: var(--verso-brown-600);
 }
 
 .dueWarning {
-  color: #C62828 !important;
+  color: var(--verso-danger) !important;
   font-weight: 600;
 }
 
 .renewalsVal {
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  color: #6D4C41;
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  color: var(--verso-brown-600);
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--verso-space-1) var(--verso-space-3);
+  font-size: var(--verso-text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-radius: var(--verso-radius-full);
+}
+
+.statusActive {
+  background: var(--verso-success-light);
+  color: var(--verso-success);
+}
+
+.statusOverdue {
+  background: var(--verso-danger-light);
+  color: var(--verso-danger);
 }
 
 .btnRenew {
-  padding: 8px 16px;
-  background: #5D4037;
+  padding: var(--verso-space-2) var(--verso-space-4);
+  background: var(--verso-brown-700);
   color: #FFFFFF;
   border: none;
-  border-radius: 6px;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  border-radius: var(--verso-radius-md);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all var(--verso-transition-normal);
   cursor: pointer;
 }
 
 .btnRenew:hover {
-  background: #4E342E;
+  background: var(--verso-brown-800);
+  transform: translateY(-1px);
 }
 
 .btnRenew:disabled {
-  background: #D7CCC8;
-  color: #8D6E63;
+  background: var(--verso-brown-100);
+  color: var(--verso-brown-400);
   cursor: not-allowed;
+  transform: none;
 }
 
-.loadingWrapper, .errorWrapper {
+.loadingWrapper,
+.errorWrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 0;
+  padding: var(--verso-space-12) 0;
   text-align: center;
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
-  color: #5D4037;
+  font-family: var(--verso-font-body);
+  color: var(--verso-text-secondary);
 }
 
 .noResults {
   text-align: center;
-  padding: 40px;
-  color: #6D4C41;
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
-  font-size: 15px;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 12px;
+  padding: var(--verso-space-10);
+  color: var(--verso-text-muted);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-md);
+  background: var(--verso-bg-card);
+  border-radius: var(--verso-radius-lg);
+  border: 1px dashed var(--verso-border-medium);
 }
 
-/* Tooltip container styling */
 .tooltipWrapper {
   position: relative;
   display: inline-block;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .th, .td {
+    padding: var(--verso-space-3);
+    font-size: var(--verso-text-sm);
+  }
+
+  .btnRenew {
+    padding: var(--verso-space-2) var(--verso-space-3);
+    font-size: var(--verso-text-xs);
+  }
 }

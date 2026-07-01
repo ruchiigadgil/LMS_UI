@@ -5,6 +5,7 @@ import { getMemberLoans, getCurrentUser, renewLoan } from '../../api/api';
 import { useToast } from '../../components/Toast';
 import StatusBadge from '../../components/StatusBadge';
 import Icon from '../../components/Icon';
+import { formatDate } from '../../utils/formatDate';
 import styles from './MyLoansPage.module.css';
 
 export default function MyLoansPage() {
@@ -45,7 +46,7 @@ export default function MyLoansPage() {
     setRenewingId(loanId);
     try {
       const res = await renewLoan(loanId);
-      toast.success(`Loan renewed. New due date: ${res.new_due_date}`);
+      toast.success(`Loan renewed. New due date: ${formatDate(res.new_due_date)}`);
       
       // Update local state directly
       setLoans(prev => prev.map(l => 
@@ -121,9 +122,9 @@ export default function MyLoansPage() {
                       <td className={styles.td}>
                         <span className={styles.bookTitle}>{loan.book_title}</span>
                       </td>
-                      <td className={`${styles.td} ${styles.dateVal}`}>{loan.issue_date}</td>
+                      <td className={`${styles.td} ${styles.dateVal}`}>{formatDate(loan.issue_date)}</td>
                       <td className={`${styles.td} ${styles.dateVal} ${isPastDue ? styles.dueWarning : ''}`}>
-                        {loan.due_date}
+                        {formatDate(loan.due_date)}
                       </td>
                       <td className={styles.td}>
                         <StatusBadge status={loan.status} />

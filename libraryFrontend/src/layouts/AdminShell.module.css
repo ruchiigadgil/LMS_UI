@@ -1,154 +1,161 @@
+/* src/layouts/AdminShell.module.css */
+
 .container {
   display: flex;
   min-height: 100vh;
-  background: var(--color-bg);
+  background: var(--verso-cream-100);
 }
 
 .sidebar {
   position: fixed;
   inset: 0 auto 0 0;
-  width: 200px;
-  background: var(--color-sidebar);
+  width: 220px;
+  background: linear-gradient(180deg, var(--verso-brown-700) 0%, var(--verso-brown-800) 100%);
   color: #FFFFFF;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
-  padding: 24px 0;
+  padding: 0;
+  box-shadow: var(--verso-shadow-lg);
 }
 
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  margin-top: 12px;
+  gap: 0;
+  padding: var(--verso-space-5) 0;
 }
 
 .navLink {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 38px;
-  padding: 10px 20px;
-  color: rgba(255, 255, 255, 0.7);
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  gap: var(--verso-space-3);
+  min-height: 48px;
+  padding: var(--verso-space-3) var(--verso-space-6);
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-md);
   font-weight: 400;
-  letter-spacing: 0.04em;
   text-decoration: none;
-  border-left: 3px solid transparent;
-  transition: background 0.15s ease, color 0.15s ease;
+  border-left: 4px solid transparent;
+  transition: all var(--verso-transition-fast);
 }
 
 .navLink:hover {
-  background: var(--color-sidebar-hover);
-  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
   text-decoration: none;
 }
 
 .activeLink {
   background: rgba(255, 255, 255, 0.12);
   color: #FFFFFF !important;
-  border-left-color: var(--color-accent-light);
+  border-left-color: var(--verso-brown-300);
 }
 
 .navIcon {
   flex: 0 0 auto;
-  width: 16px;
-  height: 16px;
-  margin-right: 2px;
-  vertical-align: -2px;
+  width: 20px;
+  height: 20px;
 }
 
 .mainArea {
-  margin-left: 200px;
+  margin-left: 220px;
   flex: 1 1 auto;
   min-width: 0;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.mainArea::-webkit-scrollbar {
+  width: 0;
+  display: none;
 }
 
 .brandBar {
-  position: relative;
-  background: var(--color-surface);
-  padding: 20px 24px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding: var(--verso-space-3) var(--verso-space-10);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
 }
 
 .brandCenter {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: var(--verso-space-3);
 }
 
-.brandLogo {
-  width: 228px;
-  height: auto;
-  object-fit: contain;
+.brandText {
+  font-family: var(--verso-font-display);
+  font-size: var(--verso-text-3xl);
+  font-weight: 400;
+  color: var(--verso-text-primary);
+  letter-spacing: 0.02em;
+  margin: 0;
 }
 
-.brandLine {
-  width: min(100%, 1240px);
-  height: 1px;
-  background: rgba(0, 0, 0, 0.08);
-}
-
-.userDock {
-  position: absolute;
-  right: 24px;
-  top: 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.userMeta {
-  text-align: right;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.userName {
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  color: var(--color-text-primary);
-}
-
-.userRole {
-  font-family: 'JetBrains Mono';
-  font-size: 10px;
-  color: var(--color-text-muted);
+.adminBadge {
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-xs);
+  font-weight: 600;
+  color: var(--verso-brown-600);
+  background: var(--verso-cream-200);
+  padding: var(--verso-space-1) var(--verso-space-3);
+  border-radius: var(--verso-radius-full);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-.logoutBtn {
-  display: inline-flex;
+.userMenu {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border-radius: 6px;
+  gap: var(--verso-space-4);
+}
+
+.userName {
+  display: flex;
+  align-items: center;
+  gap: var(--verso-space-2);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-base);
+  font-weight: 600;
+  color: var(--verso-text-primary);
+}
+
+.userIcon {
+  width: 18px;
+  height: 18px;
+  color: var(--verso-text-primary);
+}
+
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--verso-space-2);
+  padding: var(--verso-space-2) var(--verso-space-4);
+  border: 1px solid var(--verso-text-primary);
+  border-radius: var(--verso-radius-md);
   background: transparent;
-  color: var(--color-text-primary);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  color: var(--verso-text-primary);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--verso-transition-normal);
 }
 
 .logoutBtn:hover {
-  background: var(--color-accent-light);
-  border-color: var(--color-accent-light);
+  background: var(--verso-brown-700);
+  color: #fff;
+  border-color: var(--verso-brown-700);
 }
 
-.buttonIcon {
+.logoutIcon {
   width: 16px;
   height: 16px;
 }
@@ -157,31 +164,51 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 24px;
+  gap: var(--verso-space-4);
+  padding: 0 var(--verso-space-10);
 }
 
 .pageTitle {
-  font-family: 'Inter', sans-serif;
-  font-size: 28px;
-  font-weight: 400;
-  color: var(--color-text-primary);
+  font-family: var(--verso-font-display);
+  font-size: var(--verso-text-xl);
+  font-weight: 500;
+  color: var(--verso-text-primary);
+  margin: 0;
 }
 
 .actionArea {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: var(--verso-space-3);
 }
 
 .content {
-  padding: 0 24px 24px;
+  padding: 0 var(--verso-space-10) var(--verso-space-10);
   flex: 1 1 auto;
   min-width: 0;
   overflow: visible;
 }
 
-@media (max-width: 960px) {
+/* Responsive */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .mainArea {
+    margin-left: 200px;
+  }
+
+  .brandBar,
+  .pageBar,
+  .content {
+    padding-left: var(--verso-space-6);
+    padding-right: var(--verso-space-6);
+  }
+}
+
+@media (max-width: 768px) {
   .container {
     flex-direction: column;
   }
@@ -190,25 +217,25 @@
     position: static;
     width: 100%;
     min-height: auto;
-    border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .nav {
     flex-direction: row;
     flex-wrap: wrap;
-    padding: 0 12px;
-    gap: 6px;
+    padding: var(--verso-space-3);
+    gap: var(--verso-space-2);
   }
 
   .navLink {
-    flex: 1 1 calc(50% - 6px);
-    border-left: 3px solid transparent;
-    border-radius: 6px;
+    flex: 1 1 calc(50% - 8px);
+    border-left: none;
+    border-radius: var(--verso-radius-md);
+    padding: var(--verso-space-3) var(--verso-space-4);
+    justify-content: center;
   }
 
   .activeLink {
-    border-left-color: var(--color-accent-light);
+    border-left-color: transparent;
   }
 
   .mainArea {
@@ -216,82 +243,38 @@
   }
 
   .brandBar {
-    padding: 16px;
+    padding: var(--verso-space-5);
     flex-direction: column;
-    align-items: stretch;
+    gap: var(--verso-space-3);
   }
 
-  .brandLogo {
-    width: 150px;
+  .brandText {
+    font-size: var(--verso-text-2xl);
   }
 
-  .userDock {
+  .userMenu {
     position: static;
-    width: 100%;
-    justify-content: flex-end;
-    margin-top: 16px;
+    transform: none;
   }
 
   .pageBar {
-    padding: 16px;
+    padding: var(--verso-space-4);
     flex-direction: column;
     align-items: flex-start;
+    gap: var(--verso-space-3);
   }
 
   .pageTitle {
-    font-size: 24px;
+    font-size: var(--verso-text-lg);
   }
 
   .content {
-    padding: 0 16px 16px;
+    padding: 0 var(--verso-space-4) var(--verso-space-4);
   }
 }
 
-@media (max-width: 960px) {
-  .container {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
-  }
-
-  .nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 4px;
-    padding: 12px;
-  }
-
-  .navLink {
-    border-left: none;
-    border-radius: 6px;
-    padding: 10px 12px;
-    flex: 1 1 45%;
-    min-width: 150px;
-  }
-
-  .activeLink {
-    border-left-color: transparent !important;
-  }
-
-  .footer {
-    padding-top: 12px;
-  }
-
-  .topbar {
-    height: auto;
-    min-height: 64px;
-    padding: 14px 16px;
-  }
-
-  .pageTitle {
-    font-size: 24px;
-  }
-
-  .content {
-    padding: 16px;
+@media (max-width: 480px) {
+  .brandText {
+    font-size: var(--verso-text-xl);
   }
 }

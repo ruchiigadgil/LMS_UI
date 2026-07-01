@@ -1,3 +1,5 @@
+/* src/layouts/MemberShell.module.css */
+
 .container {
   display: flex;
   min-height: 100vh;
@@ -5,51 +7,53 @@
   background-size: cover;
 }
 
+/* ─── Sidebar ─── */
 .sidebar {
   position: fixed;
   inset: 0 auto 0 0;
   width: 220px;
-  background: linear-gradient(180deg, #5D4037 0%, #4E342E 100%);
+  background: linear-gradient(180deg, var(--verso-brown-700) 0%, var(--verso-brown-800) 100%);
   color: #FFFFFF;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   flex-shrink: 0;
   padding: 0;
+  box-shadow: var(--verso-shadow-lg);
 }
 
 .nav {
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding: 20px 0;
+  padding: var(--verso-space-5) 0;
 }
 
 .navLink {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--verso-space-3);
   min-height: 48px;
-  padding: 12px 24px;
-  color: rgba(255,255,255,0.85);
-  font-family: 'Inter', sans-serif;
-  font-size: 15px;
+  padding: var(--verso-space-3) var(--verso-space-6);
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-md);
   font-weight: 400;
   text-decoration: none;
   border-left: 4px solid transparent;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: all var(--verso-transition-fast);
 }
 
 .navLink:hover {
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
   color: #FFFFFF;
   text-decoration: none;
 }
 
 .activeLink {
-  background: rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.12);
   color: #FFFFFF !important;
-  border-left-color: #A1887F;
+  border-left-color: var(--verso-brown-300);
 }
 
 .navIcon {
@@ -58,6 +62,7 @@
   height: 20px;
 }
 
+/* ─── Main Area ─── */
 .mainArea {
   margin-left: 220px;
   flex: 1 1 auto;
@@ -66,6 +71,8 @@
   flex-direction: column;
   overflow-x: hidden;
   overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .mainArea::-webkit-scrollbar {
@@ -73,69 +80,66 @@
   display: none;
 }
 
-.mainArea {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
+/* ─── Brand Bar ─── */
 .brandBar {
-  padding: 12px 40px;
+  padding: var(--verso-space-3) var(--verso-space-10);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .brandText {
-  font-family: 'Playfair Display', 'Georgia', serif;
-  font-size: 42px;
+  font-family: var(--verso-font-display);
+  font-size: var(--verso-text-3xl);
   font-weight: 400;
-  color: #3E2723;
+  color: var(--verso-text-primary);
   letter-spacing: 0.02em;
   margin: 0;
 }
 
+/* ─── User Menu ─── */
 .userMenu {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: var(--verso-space-4);
 }
 
 .userName {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
+  gap: var(--verso-space-2);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-base);
   font-weight: 600;
-  color: #3E2723;
+  color: var(--verso-text-primary);
 }
 
 .userIcon {
   width: 18px;
   height: 18px;
-  color: #3E2723;
+  color: var(--verso-text-primary);
 }
 
 .logoutBtn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border: 1px solid #3E2723;
-  border-radius: 6px;
+  gap: var(--verso-space-2);
+  padding: var(--verso-space-2) var(--verso-space-4);
+  border: 1px solid var(--verso-text-primary);
+  border-radius: var(--verso-radius-md);
   background: transparent;
-  color: #3E2723;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  color: var(--verso-text-primary);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--verso-transition-normal);
 }
 
 .logoutBtn:hover {
-  background: #5D4037;
+  background: var(--verso-brown-700);
   color: #fff;
-  border-color: #5D4037;
+  border-color: var(--verso-brown-700);
 }
 
 .logoutIcon {
@@ -143,14 +147,24 @@
   height: 16px;
 }
 
-.content {
-  padding: 0 40px 40px;
+/* ─── Content Wrapper (Flex container for content + notifications) ─── */
+.contentWrapper {
+  display: flex;
+  flex: 1 1 auto;
+  gap: var(--verso-space-6);
+  padding: 0 var(--verso-space-10);
   padding-bottom: 220px;
+  align-items: flex-start;
+}
+
+/* ─── Content Area ─── */
+.content {
   flex: 1 1 auto;
   min-width: 0;
   overflow: visible;
 }
 
+/* ─── Coffee Corner Decoration ─── */
 .coffeeCorner {
   position: fixed;
   bottom: 0;
@@ -161,6 +175,7 @@
   z-index: 100;
 }
 
+/* ─── Responsive ─── */
 @media (max-width: 1024px) {
   .sidebar {
     width: 200px;
@@ -170,8 +185,8 @@
     margin-left: 200px;
   }
 
-  .content {
-    padding: 0 24px 24px;
+  .contentWrapper {
+    padding: 0 var(--verso-space-6);
     padding-bottom: 200px;
   }
 
@@ -194,15 +209,15 @@
   .nav {
     flex-direction: row;
     flex-wrap: wrap;
-    padding: 12px;
-    gap: 8px;
+    padding: var(--verso-space-3);
+    gap: var(--verso-space-2);
   }
 
   .navLink {
     flex: 1 1 calc(50% - 8px);
     border-left: none;
-    border-radius: 8px;
-    padding: 10px 16px;
+    border-radius: var(--verso-radius-md);
+    padding: var(--verso-space-3) var(--verso-space-4);
     justify-content: center;
   }
 
@@ -215,13 +230,13 @@
   }
 
   .brandBar {
-    padding: 20px;
+    padding: var(--verso-space-5);
     flex-direction: column;
-    gap: 12px;
+    gap: var(--verso-space-3);
   }
 
   .brandText {
-    font-size: 32px;
+    font-size: var(--verso-text-2xl);
   }
 
   .userMenu {
@@ -229,8 +244,8 @@
     transform: none;
   }
 
-  .content {
-    padding: 0 16px 16px;
+  .contentWrapper {
+    padding: 0 var(--verso-space-4);
     padding-bottom: 160px;
   }
 
@@ -244,11 +259,11 @@
     width: 140px;
   }
 
-  .content {
+  .contentWrapper {
     padding-bottom: 120px;
   }
 
   .brandText {
-    font-size: 28px;
+    font-size: var(--verso-text-xl);
   }
 }

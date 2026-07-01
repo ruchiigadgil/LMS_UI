@@ -6,6 +6,7 @@ import { useToast } from '../../components/Toast';
 import StatusBadge from '../../components/StatusBadge';
 import ReturnSummaryModal from '../../components/ReturnSummaryModal';
 import Icon from '../../components/Icon';
+import { formatDate } from '../../utils/formatDate';
 import styles from './LoansPage.module.css';
 
 export default function LoansPage() {
@@ -134,9 +135,9 @@ export default function LoansPage() {
                       <td className={`${styles.td} ${styles.idVal}`}>{loan.loan_id}</td>
                       <td className={styles.td} style={{ fontWeight: 600 }}>{loan.user_name}</td>
                       <td className={styles.td}>{loan.book_title}</td>
-                      <td className={`${styles.td} ${styles.dateVal}`}>{loan.issue_date}</td>
+                      <td className={`${styles.td} ${styles.dateVal}`}>{formatDate(loan.issue_date)}</td>
                       <td className={`${styles.td} ${styles.dateVal} ${isPastDue ? styles.dueWarning : ''}`}>
-                        {loan.due_date}
+                        {formatDate(loan.due_date)}
                       </td>
                       {activeTab === 'overdue' && (
                         <td className={`${styles.td} ${styles.daysOverdue}`}>

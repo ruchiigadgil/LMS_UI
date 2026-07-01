@@ -4,6 +4,7 @@ import Modal from './Modal';
 import { getActiveLoans, returnLoan } from '../api/api';
 import { useToast } from './Toast';
 import Icon from './Icon';
+import { formatDate } from '../utils/formatDate';
 import styles from './ReturnSummaryModal.module.css';
 
 export default function ReturnSummaryModal({ isOpen, onClose, bookId = null, loanId = null, onSuccess }) {
@@ -144,7 +145,7 @@ export default function ReturnSummaryModal({ isOpen, onClose, bookId = null, loa
               >
                 {activeLoans.map(l => (
                   <option key={l.loan_id} value={l.loan_id}>
-                    {l.user_name} (Issued: {l.issue_date} • Due: {l.due_date})
+                    {l.user_name} (Issued: {formatDate(l.issue_date)} • Due: {formatDate(l.due_date)})
                   </option>
                 ))}
               </select>
@@ -169,15 +170,15 @@ export default function ReturnSummaryModal({ isOpen, onClose, bookId = null, loa
               </div>
               <div className={styles.row}>
                 <span className={styles.key}>Issue Date</span>
-                <span className={styles.value}>{selectedLoan.issue_date}</span>
+                <span className={styles.value}>{formatDate(selectedLoan.issue_date)}</span>
               </div>
               <div className={styles.row}>
                 <span className={styles.key}>Due Date</span>
-                <span className={styles.value}>{selectedLoan.due_date}</span>
+                <span className={styles.value}>{formatDate(selectedLoan.due_date)}</span>
               </div>
               <div className={styles.row}>
                 <span className={styles.key}>Return Date</span>
-                <span className={styles.value}>{todayStr} (Today)</span>
+                <span className={styles.value}>{formatDate(todayStr)} (Today)</span>
               </div>
               <hr style={{ border: 'none', borderTop: '1px solid var(--verso-border)' }} />
               <div className={styles.row}>

@@ -5,7 +5,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--color-overlay);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -14,22 +14,22 @@
 }
 
 .modal {
-  background: var(--color-surface);
-  border-radius: 12px;
+  background: var(--verso-bg-card);
+  border-radius: var(--verso-radius-lg);
   width: 90%;
   max-width: 440px;
   max-height: 85vh;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--verso-shadow-xl);
   display: flex;
   flex-direction: column;
   animation: scaleUp 0.22s ease;
   overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.07);
+  border: 1px solid var(--verso-border-light);
 }
 
 .header {
-  padding: 18px 24px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  padding: var(--verso-space-4) var(--verso-space-6);
+  border-bottom: 1px solid var(--verso-border-light);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -37,46 +37,46 @@
 
 .header h3 {
   margin: 0;
-  font-size: 18px;
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
-  color: var(--color-text-primary);
+  font-size: var(--verso-text-lg);
+  font-family: var(--verso-font-display);
+  font-weight: 500;
+  color: var(--verso-text-primary);
 }
 
 .closeBtn {
-  font-family: 'JetBrains Mono';
-  font-size: 16px;
-  color: var(--color-text-muted);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-md);
+  color: var(--verso-text-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: 6px;
-  transition: background 0.15s ease, color 0.15s ease;
+  border-radius: var(--verso-radius-md);
+  transition: background var(--verso-transition-fast), color var(--verso-transition-fast);
 }
 
 .closeBtn:hover {
-  background: var(--color-accent-light);
-  color: var(--color-accent);
+  background: var(--verso-cream-200);
+  color: var(--verso-brown-700);
 }
 
 .body {
-  padding: 24px;
+  padding: var(--verso-space-6);
   overflow-y: auto;
   flex-grow: 1;
-  font-family: 'Inter', sans-serif;
-  font-weight: 300;
+  font-family: var(--verso-font-body);
+  font-weight: 400;
 }
 
 .footer {
-  padding: 16px 24px;
-  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  padding: var(--verso-space-4) var(--verso-space-6);
+  border-top: 1px solid var(--verso-border-light);
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  background: var(--color-bg);
+  gap: var(--verso-space-3);
+  background: var(--verso-cream-100);
 }
 
 @keyframes fadeIn {

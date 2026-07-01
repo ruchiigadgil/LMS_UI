@@ -24,6 +24,7 @@ const iconPaths = {
   alertCircle: 'M12 8v4M12 16h.01M12 3a9 9 0 1 0 0 18a9 9 0 0 0 0 -18z',
   close: 'M18 6L6 18M6 6l12 12',
   filter: 'M4 6h16M6 12h12M8 18h8',
+  bell: 'M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3H4a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6M9 17v1a3 3 0 0 0 6 0v-1',
   user: 'M12 12a4 4 0 1 0 0 -8a4 4 0 0 0 0 8zM6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2',
 };
 
