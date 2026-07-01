@@ -32,15 +32,29 @@ const CHARS_PER_PAGE = 2000;
 // Format TOC-style lines with proper alignment
 function formatTocContent(content) {
   const lines = content.split('\n');
-  const tocPattern = /^(.+?)\s{2,}([ivxlcdmIVXLCDM\d]+)\s*$/;
+  // Pattern for "Title ... page" or "Title    page"
+  const tocWithPagePattern = /^(.+?)\s{2,}([ivxlcdmIVXLCDM\d]+)\s*$/;
+  // Pattern for "CHAPTER I. Title" style (no page number)
+  const chapterEntryPattern = /^\s*(CHAPTER|Chapter|PART|Part|BOOK|Book|ACT|Act)\s+([IVXLCDM\d]+)[.\s]+(.*)$/;
 
   return lines.map(line => {
-    const match = line.match(tocPattern);
-    if (match) {
-      const title = match[1].trim();
-      const pageNum = match[2].trim();
+    // Check for traditional TOC with page numbers
+    const tocMatch = line.match(tocWithPagePattern);
+    if (tocMatch) {
+      const title = tocMatch[1].trim();
+      const pageNum = tocMatch[2].trim();
       return { type: 'toc', title, pageNum };
     }
+
+    // Check for chapter entry style (CHAPTER I. Title)
+    const chapterMatch = line.match(chapterEntryPattern);
+    if (chapterMatch) {
+      const chapterNum = chapterMatch[2];
+      const chapterTitle = chapterMatch[3].trim();
+      const fullTitle = chapterTitle ? `${chapterMatch[1]} ${chapterNum}. ${chapterTitle}` : `${chapterMatch[1]} ${chapterNum}`;
+      return { type: 'tocEntry', chapterNum, title: fullTitle };
+    }
+
     return { type: 'text', content: line };
   });
 }
@@ -49,9 +63,10 @@ function formatTocContent(content) {
 function parseBookIntoPages(content) {
   if (!content) return { chapters: [], pages: [] };
 
-  const chapterPattern = /^(CHAPTER|Chapter|PART|Part|BOOK|Book|ACT|Act)\s+[IVXLCDM\d]+[.\s]*.*$/;
-  const prefacePattern = /^(PREFACE|Preface|PROLOGUE|Prologue|INTRODUCTION|Introduction|FOREWORD|Foreword)\.?$/;
-  const contentsPattern = /^(CONTENTS|Contents|TABLE OF CONTENTS|INDEX)\.?$/;
+  const chapterPattern = /^(CHAPTER|Chapter|PART|Part|BOOK|Book|ACT|Act)\s+[IVXLCDM\d]+\.?\s*$/;
+  const chapterWithTitlePattern = /^(CHAPTER|Chapter|PART|Part|BOOK|Book|ACT|Act)\s+[IVXLCDM\d]+[.\s]+.+$/;
+  const prefacePattern = /^(PREFACE|Preface|PROLOGUE|Prologue|INTRODUCTION|Introduction|FOREWORD|Foreword)\.?\s*$/;
+  const contentsPattern = /^(CONTENTS|Contents|TABLE OF CONTENTS|INDEX)\.?\s*$/;
 
   const lines = content.split('\n');
   const chapters = [];
@@ -61,7 +76,9 @@ function parseBookIntoPages(content) {
   let currentChapterIndex = 0;
   let currentChapterContent = '';
   let currentChapterStartPage = 0;
-  let sectionType = 'titlePage'; // 'titlePage' (centered), 'preface', 'chapter' (left-aligned)
+  let sectionType = 'titlePage';
+  let inContentsSection = false;
+  let blankLineCount = 0;
 
   function splitChapterIntoPages(chapterTitle, chapterContent, chapterIdx, startPageNum, secType) {
     const chapterPages = [];
@@ -100,27 +117,77 @@ function parseBookIntoPages(content) {
     return chapterPages;
   }
 
-  lines.forEach((line) => {
-    const trimmedLine = line.trim();
-    const isChapter = chapterPattern.test(trimmedLine);
-    const isPreface = prefacePattern.test(trimmedLine);
-    const isContents = contentsPattern.test(trimmedLine);
+  // Check if a line looks like a TOC entry (has chapter + title on same line, or indented)
+  function isTocEntry(line) {
+    const trimmed = line.trim();
+    // TOC entries typically have "CHAPTER I. Title" format or are indented lists
+    if (chapterWithTitlePattern.test(trimmed)) return true;
+    // Or they start with spaces/tabs (indented)
+    if (line.startsWith(' ') || line.startsWith('\t')) return true;
+    return false;
+  }
 
-    if (isChapter || isPreface || isContents) {
-      // Save previous section pages
-      if (currentChapterContent.trim()) {
-        const chapterPages = splitChapterIntoPages(
-          currentChapterTitle,
-          currentChapterContent,
-          currentChapterIndex,
-          pages.length,
-          sectionType
-        );
-        pages.push(...chapterPages);
+  // Check if this is a real chapter start (not in TOC)
+  function isRealChapterStart(line, lineIndex) {
+    const trimmed = line.trim();
+
+    // Must match chapter pattern
+    if (!chapterPattern.test(trimmed) && !chapterWithTitlePattern.test(trimmed)) {
+      return false;
+    }
+
+    // If we're in contents section, check if this looks like end of TOC
+    if (inContentsSection) {
+      // Real chapters are usually preceded by multiple blank lines after TOC
+      // and are NOT indented, and the chapter title is on its own line or next line
+
+      // Check if line is NOT indented (real chapter headers aren't indented)
+      if (line.startsWith(' ') || line.startsWith('\t')) {
+        return false;
       }
 
+      // Check for multiple blank lines before this (indicates end of TOC section)
+      if (blankLineCount >= 2) {
+        return true;
+      }
+
+      // Check if this matches the standalone chapter pattern (just "CHAPTER I." without title)
+      if (chapterPattern.test(trimmed) && !chapterWithTitlePattern.test(trimmed)) {
+        return true;
+      }
+
+      return false;
+    }
+
+    return true;
+  }
+
+  lines.forEach((line, lineIndex) => {
+    const trimmedLine = line.trim();
+
+    // Track blank lines
+    if (trimmedLine === '') {
+      blankLineCount++;
+    } else {
+      const isPreface = prefacePattern.test(trimmedLine);
+      const isContents = contentsPattern.test(trimmedLine);
+      const isChapter = isRealChapterStart(line, lineIndex);
+
       if (isContents) {
-        // Contents/Index - new page, still title page style (centered with TOC formatting)
+        // Save previous section
+        if (currentChapterContent.trim()) {
+          const chapterPages = splitChapterIntoPages(
+            currentChapterTitle,
+            currentChapterContent,
+            currentChapterIndex,
+            pages.length,
+            sectionType
+          );
+          pages.push(...chapterPages);
+        }
+
+        // Start contents section
+        inContentsSection = true;
         sectionType = 'contents';
         currentChapterIndex++;
         currentChapterTitle = trimmedLine.substring(0, 50);
@@ -135,7 +202,19 @@ function parseBookIntoPages(content) {
 
         currentChapterContent = line + '\n';
       } else if (isPreface) {
-        // Preface starts - left-aligned like chapters
+        // Save previous section
+        if (currentChapterContent.trim()) {
+          const chapterPages = splitChapterIntoPages(
+            currentChapterTitle,
+            currentChapterContent,
+            currentChapterIndex,
+            pages.length,
+            sectionType
+          );
+          pages.push(...chapterPages);
+        }
+
+        inContentsSection = false;
         sectionType = 'preface';
         currentChapterIndex++;
         currentChapterTitle = trimmedLine.substring(0, 50);
@@ -149,8 +228,21 @@ function parseBookIntoPages(content) {
         });
 
         currentChapterContent = line + '\n';
-      } else {
-        // Chapter starts
+      } else if (isChapter) {
+        // Save previous section
+        if (currentChapterContent.trim()) {
+          const chapterPages = splitChapterIntoPages(
+            currentChapterTitle,
+            currentChapterContent,
+            currentChapterIndex,
+            pages.length,
+            sectionType
+          );
+          pages.push(...chapterPages);
+        }
+
+        // End contents section when we hit first real chapter
+        inContentsSection = false;
         sectionType = 'chapter';
         currentChapterIndex++;
         currentChapterTitle = trimmedLine.substring(0, 50);
@@ -164,9 +256,11 @@ function parseBookIntoPages(content) {
         });
 
         currentChapterContent = line + '\n';
+      } else {
+        currentChapterContent += line + '\n';
       }
-    } else {
-      currentChapterContent += line + '\n';
+
+      blankLineCount = 0;
     }
   });
 
@@ -228,6 +322,7 @@ export default function BookPreviewModal({ book, isOpen, onClose }) {
   const [navOpen, setNavOpen] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
   const [hasRestoredProgress, setHasRestoredProgress] = useState(false);
+  const [hasEbook, setHasEbook] = useState(true);
 
   const readerRef = useRef(null);
   const saveTimeoutRef = useRef(null);
@@ -252,6 +347,7 @@ export default function BookPreviewModal({ book, isOpen, onClose }) {
     setNavOpen(false);
     setReadingProgress(0);
     setHasRestoredProgress(false);
+    setHasEbook(true);
     fetchBookDescription();
     findLocalBook();
   }, [isOpen, book]);
@@ -333,14 +429,34 @@ export default function BookPreviewModal({ book, isOpen, onClose }) {
 
   function findLocalBook() {
     if (!book) return;
-    const titleLower = book.title.toLowerCase();
-    const match = LOCAL_BOOKS_INDEX.find(b =>
-      b.title.toLowerCase().includes(titleLower) ||
-      titleLower.includes(b.title.toLowerCase())
-    );
+    const titleLower = book.title.toLowerCase().trim();
+
+    // Normalize title for matching (remove punctuation, extra spaces)
+    const normalize = (str) => str.toLowerCase().replace(/['']/g, "'").replace(/[^\w\s']/g, '').replace(/\s+/g, ' ').trim();
+    const normalizedBookTitle = normalize(book.title);
+
+    console.log('Looking for book:', book.title, '| normalized:', normalizedBookTitle);
+
+    const match = LOCAL_BOOKS_INDEX.find(b => {
+      const normalizedLocalTitle = normalize(b.title);
+      // Check various matching strategies
+      const exactMatch = normalizedLocalTitle === normalizedBookTitle;
+      const containsMatch = normalizedLocalTitle.includes(normalizedBookTitle) || normalizedBookTitle.includes(normalizedLocalTitle);
+      // Check if main words match (e.g., "alice wonderland" matches "alice's adventures in wonderland")
+      const bookWords = normalizedBookTitle.split(' ').filter(w => w.length > 3);
+      const localWords = normalizedLocalTitle.split(' ').filter(w => w.length > 3);
+      const wordMatch = bookWords.length > 0 && bookWords.every(w => localWords.some(lw => lw.includes(w) || w.includes(lw)));
+
+      return exactMatch || containsMatch || wordMatch;
+    });
+
     if (match) {
+      console.log('Found local match:', match.title, 'with ID:', match.id);
       setGutenbergId(match.id);
+      setHasEbook(true);
     } else {
+      console.log('No local match found, searching Gutenberg online...');
+      setHasEbook(false);
       searchGutenbergOnline();
     }
   }
@@ -371,31 +487,56 @@ export default function BookPreviewModal({ book, isOpen, onClose }) {
       return;
     }
     setLoadingContent(true);
+
+    // Helper to check if content is HTML instead of plain text
+    const isHtmlContent = (text) => {
+      const trimmed = text.trim().toLowerCase();
+      return trimmed.startsWith('<!doctype') || trimmed.startsWith('<html') || trimmed.startsWith('<head');
+    };
+
+    const localPath = `/books/${gutenbergId}.txt`;
+    console.log('Fetching book from:', localPath);
+
     try {
-      const localRes = await fetch(`/books/${gutenbergId}.txt`);
+      const localRes = await fetch(localPath);
+      console.log('Local fetch response:', localRes.status, localRes.ok);
       if (localRes.ok) {
         const text = await localRes.text();
-        setBookContent(text);
-        setLoadingContent(false);
-        return;
+        console.log('Content preview:', text.substring(0, 100));
+        if (!isHtmlContent(text)) {
+          setBookContent(text);
+          setLoadingContent(false);
+          return;
+        } else {
+          console.log('Local file returned HTML, trying Gutenberg...');
+        }
       }
     } catch (err) {
-      console.log('Local file not found, trying Gutenberg...');
+      console.log('Local file fetch error:', err);
     }
 
     try {
       const res = await fetch(`https://www.gutenberg.org/files/${gutenbergId}/${gutenbergId}-0.txt`);
-      if (!res.ok) {
-        const altRes = await fetch(`https://www.gutenberg.org/cache/epub/${gutenbergId}/pg${gutenbergId}.txt`);
-        if (!altRes.ok) {
-          throw new Error('Content not available');
-        }
-        const text = await altRes.text();
-        setBookContent(text);
-      } else {
+      if (res.ok) {
         const text = await res.text();
-        setBookContent(text);
+        if (!isHtmlContent(text)) {
+          setBookContent(text);
+          setLoadingContent(false);
+          return;
+        }
       }
+
+      const altRes = await fetch(`https://www.gutenberg.org/cache/epub/${gutenbergId}/pg${gutenbergId}.txt`);
+      if (altRes.ok) {
+        const text = await altRes.text();
+        if (!isHtmlContent(text)) {
+          setBookContent(text);
+          setLoadingContent(false);
+          return;
+        }
+      }
+
+      throw new Error('Content not available');
     } catch (err) {
       console.error('Failed to fetch book content:', err);
       setBookContent('Unable to load book content. This title may not be available in the public domain.');
@@ -465,6 +606,11 @@ export default function BookPreviewModal({ book, isOpen, onClose }) {
     setNavOpen(false);
   }
 
+  function handleBackToDetails() {
+    setActiveTab('details');
+    setHasRestoredProgress(false);
+  }
+
   if (!isOpen || !book) return null;
 
   const coverUrl = book.cover_image_url
@@ -496,7 +642,10 @@ export default function BookPreviewModal({ book, isOpen, onClose }) {
               <div className={styles.bookDetails}>
                 <h2 className={styles.title}>{book.title}</h2>
                 <p className={styles.author}>by {book.author || 'Unknown'}</p>
-                {book.genre && <span className={styles.genre}>{book.genre}</span>}
+                <div className={styles.tagsRow}>
+                  {book.genre && <span className={styles.genre}>{book.genre}</span>}
+                  {!hasEbook && <span className={styles.noEbookTag}>eBook not available</span>}
+                </div>
                 <div className={`${styles.stockIndicator} ${isAvailable ? styles.inStock : styles.outOfStock}`}>
                   {isAvailable ? 'Available' : 'Not Available'}
                 </div>
@@ -537,7 +686,7 @@ export default function BookPreviewModal({ book, isOpen, onClose }) {
         {activeTab === 'reading' && (
           <div className={styles.fullscreenReader}>
             {/* Floating Controls */}
-            <button className={styles.floatingBackBtn} onClick={() => setActiveTab('details')}>
+            <button className={styles.floatingBackBtn} onClick={handleBackToDetails}>
               <Icon name="arrowLeft" />
             </button>
 
@@ -607,6 +756,10 @@ export default function BookPreviewModal({ book, isOpen, onClose }) {
                                     <span className={styles.tocTitle}>{line.title}</span>
                                     <span className={styles.tocDots}></span>
                                     <span className={styles.tocPage}>{line.pageNum}</span>
+                                  </div>
+                                ) : line.type === 'tocEntry' ? (
+                                  <div key={lineIdx} className={styles.tocEntryLine}>
+                                    <span className={styles.tocEntryTitle}>{line.title}</span>
                                   </div>
                                 ) : (
                                   <div key={lineIdx} className={page.sectionType === 'contents' ? styles.contentsLine : styles.titlePageLine}>

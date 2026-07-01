@@ -79,11 +79,10 @@
 }
 
 .brandBar {
-  padding: 24px 40px;
+  padding: 12px 40px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  position: relative;
+  justify-content: space-between;
 }
 
 .brandText {
@@ -96,10 +95,6 @@
 }
 
 .userMenu {
-  position: absolute;
-  right: 40px;
-  top: 50%;
-  transform: translateY(-50%);
   display: flex;
   align-items: center;
   gap: 16px;
@@ -111,14 +106,14 @@
   gap: 8px;
   font-family: 'Inter', sans-serif;
   font-size: 14px;
-  font-weight: 500;
-  color: #5D4037;
+  font-weight: 600;
+  color: #3E2723;
 }
 
 .userIcon {
   width: 18px;
   height: 18px;
-  color: #6D4C41;
+  color: #3E2723;
 }
 
 .logoutBtn {
@@ -126,13 +121,13 @@
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  border: 1px solid rgba(93, 64, 55, 0.3);
+  border: 1px solid #3E2723;
   border-radius: 6px;
   background: transparent;
-  color: #5D4037;
+  color: #3E2723;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 }

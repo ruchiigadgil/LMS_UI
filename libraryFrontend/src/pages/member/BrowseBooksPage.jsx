@@ -7,7 +7,60 @@ import BookPreviewModal from '../../components/BookPreviewModal';
 import Icon from '../../components/Icon';
 import styles from './BrowseBooksPage.module.css';
 
-const BOOKS_PER_SHELF = 4;
+const BOOKS_PER_SHELF = 5;
+
+const GENRES = [
+  'All Genres',
+  'Fantasy',
+  'Science Fiction',
+  'Romance',
+  'Mystery',
+  'Thriller',
+  'Historical Fiction'
+];
+
+const EBOOK_OPTIONS = [
+  { value: 'all', label: 'All Books' },
+  { value: 'available', label: 'eBook Available' },
+  { value: 'unavailable', label: 'eBook Not Available' }
+];
+
+// Books with local ebook files (Gutenberg IDs)
+const EBOOK_TITLES = [
+  "pride and prejudice",
+  "alice's adventures in wonderland",
+  "the adventures of sherlock holmes",
+  "frankenstein",
+  "the yellow wallpaper",
+  "dracula",
+  "moby dick",
+  "great expectations",
+  "a tale of two cities",
+  "the picture of dorian gray",
+  "the prince",
+  "a christmas carol",
+  "adventures of huckleberry finn",
+  "the adventures of tom sawyer",
+  "metamorphosis",
+  "a modest proposal",
+  "the importance of being earnest",
+  "beowulf",
+  "grimms' fairy tales",
+  "heart of darkness"
+];
+
+function hasEbook(bookTitle) {
+  const normalize = (str) => str.toLowerCase().replace(/['']/g, "'").replace(/[^\w\s']/g, '').replace(/\s+/g, ' ').trim();
+  const normalizedTitle = normalize(bookTitle);
+  return EBOOK_TITLES.some(t => {
+    const normalizedEbook = normalize(t);
+    const containsMatch = normalizedEbook.includes(normalizedTitle) || normalizedTitle.includes(normalizedEbook);
+    const bookWords = normalizedTitle.split(' ').filter(w => w.length > 3);
+    const ebookWords = normalizedEbook.split(' ').filter(w => w.length > 3);
+    const wordMatch = bookWords.length > 0 && bookWords.every(w => ebookWords.some(ew => ew.includes(w) || w.includes(ew)));
+    return containsMatch || wordMatch;
+  });
+}
 
 export default function BrowseBooksPage() {
   const toast = useToast();
@@ -17,6 +70,9 @@ export default function BrowseBooksPage() {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBook, setSelectedBook] = useState(null);
+  const [genreFilter, setGenreFilter] = useState('All Genres');
+  const [ebookFilter, setEbookFilter] = useState('all');
+  const [filterOpen, setFilterOpen] = useState(false);
 
 
   useEffect(() => {
@@ -31,12 +87,22 @@ export default function BrowseBooksPage() {
 
   const filteredBooks = (books || []).filter(book => {
     const q = searchQuery.toLowerCase();
-    return (
+    const matchesSearch = (
       book.title.toLowerCase().includes(q) ||
       (book.author && book.author.toLowerCase().includes(q)) ||
       (book.genre && book.genre.toLowerCase().includes(q)) ||
       (book.isbn && book.isbn.toLowerCase().includes(q))
     );
+
+    const matchesGenre = genreFilter === 'All Genres' ||
+      (book.genre && book.genre.toLowerCase() === genreFilter.toLowerCase());
+
+    const bookHasEbook = hasEbook(book.title);
+    const matchesEbook = ebookFilter === 'all' ||
+      (ebookFilter === 'available' && bookHasEbook) ||
+      (ebookFilter === 'unavailable' && !bookHasEbook);
+
+    return matchesSearch && matchesGenre && matchesEbook;
   });
 
   const shelves = useMemo(() => {
@@ -54,15 +120,75 @@ export default function BrowseBooksPage() {
         <input
           type="text"
           className={styles.searchBar}
-          placeholder="Search by title, genre..."
+          placeholder="Search by title, author..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
+        <button
+          className={`${styles.filterBtn} ${(genreFilter !== 'All Genres' || ebookFilter !== 'all') ? styles.filterActive : ''}`}
+          onClick={() => setFilterOpen(!filterOpen)}
+        >
+          <Icon name="filter" />
+          <span>Filter</span>
+        </button>
+
+        {filterOpen && (
+          <>
+            <div className={styles.filterOverlay} onClick={() => setFilterOpen(false)} />
+            <div className={styles.filterDropdown}>
+              <div className={styles.filterSection}>
+                <h4 className={styles.filterTitle}>Genre</h4>
+                <div className={styles.filterOptions}>
+                  {GENRES.map(genre => (
+                    <label key={genre} className={styles.filterOption}>
+                      <input
+                        type="radio"
+                        name="genre"
+                        checked={genreFilter === genre}
+                        onChange={() => setGenreFilter(genre)}
+                      />
+                      <span>{genre}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles.filterDivider} />
+
+              <div className={styles.filterSection}>
+                <h4 className={styles.filterTitle}>eBook</h4>
+                <div className={styles.filterOptions}>
+                  {EBOOK_OPTIONS.map(opt => (
+                    <label key={opt.value} className={styles.filterOption}>
+                      <input
+                        type="radio"
+                        name="ebook"
+                        checked={ebookFilter === opt.value}
+                        onChange={() => setEbookFilter(opt.value)}
+                      />
+                      <span>{opt.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles.filterActions}>
+                <button
+                  className={styles.clearFiltersBtn}
+                  onClick={() => {
+                    setGenreFilter('All Genres');
+                    setEbookFilter('all');
+                  }}
+                >
+                  Clear Filters
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
-      <div className={styles.titleBar}>
-        <h2 className={styles.pageTitle}>Your Bookshelf</h2>
-      </div>
+      {/* <h2 className={styles.pageTitle}>Your Bookshelf</h2> */}
 
       {loading ? (
         <div className={styles.loadingWrapper}>

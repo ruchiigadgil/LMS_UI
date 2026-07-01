@@ -1,8 +1,8 @@
 /* src/components/BookOnShelf.module.css */
 .book {
   position: relative;
-  width: 120px;
-  height: 175px;
+  width: 108px;
+  height: 158px;
   cursor: pointer;
   transition: transform 0.3s ease, filter 0.3s ease;
   transform-origin: bottom center;
@@ -10,21 +10,21 @@
 }
 
 .book:hover {
-  transform: translateY(-20px) scale(1.08);
+  transform: translateY(-18px) scale(1.08);
   z-index: 10;
-  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.4));
 }
 
 .spine {
   width: 100%;
   height: 100%;
   position: relative;
-  border-radius: 4px 8px 8px 4px;
+  border-radius: 4px 7px 7px 4px;
   overflow: hidden;
   box-shadow:
-    4px 4px 12px rgba(0, 0, 0, 0.3),
+    4px 4px 11px rgba(0, 0, 0, 0.3),
     -2px 0 4px rgba(0, 0, 0, 0.1),
-    inset -4px 0 8px rgba(0, 0, 0, 0.2),
+    inset -4px 0 7px rgba(0, 0, 0, 0.2),
     inset 2px 0 4px rgba(255, 255, 255, 0.1);
 }
 
@@ -57,7 +57,7 @@
 
 .spineTitle {
   font-family: 'Inter', sans-serif;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: white;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
@@ -65,22 +65,22 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding: 8px;
+  padding: 7px;
   text-align: center;
 }
 
 .unavailableBadge {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 5px;
+  right: 5px;
   background: #dc2626;
   color: white;
   font-family: 'Inter', sans-serif;
-  font-size: 8px;
+  font-size: 7px;
   font-weight: 700;
-  padding: 3px 6px;
+  padding: 3px 5px;
   border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 }

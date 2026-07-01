@@ -2,39 +2,179 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
   padding-right: 300px;
 }
 
 .searchBarWrapper {
   position: relative;
   width: 100%;
-  max-width: 700px;
-  margin: 0 auto;
+  max-width: 630px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.searchBar {
+  flex: 1;
+  border-radius: 10px 0 0 10px;
+}
+
+.filterBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 14px 18px;
+  border: none;
+  border-left: 1px solid rgba(141, 110, 99, 0.15);
+  border-radius: 0 10px 10px 0;
+  background: rgba(255, 255, 255, 0.95);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #5D4037;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.filterBtn:hover {
+  background: #F5EDE6;
+}
+
+.filterBtn.filterActive {
+  background: #5D4037;
+  color: #fff;
+}
+
+.filterOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+}
+
+.filterDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 280px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  z-index: 100;
+  animation: dropdownFadeIn 0.2s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filterSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filterTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8D6E63;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.filterOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filterOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #3E2723;
+}
+
+.filterOption:hover {
+  background: rgba(141, 110, 99, 0.08);
+}
+
+.filterOption input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #5D4037;
+  cursor: pointer;
+}
+
+.filterDivider {
+  height: 1px;
+  background: rgba(141, 110, 99, 0.15);
+  margin: 12px 0;
+}
+
+.filterActions {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(141, 110, 99, 0.15);
+}
+
+.clearFiltersBtn {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid rgba(141, 110, 99, 0.25);
+  border-radius: 6px;
+  background: transparent;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #5D4037;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clearFiltersBtn:hover {
+  background: rgba(141, 110, 99, 0.08);
 }
 
 .searchIcon {
   position: absolute;
-  left: 20px;
+  left: 16px;
   top: 50%;
   transform: translateY(-50%);
   color: #8D6E63;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
 
 .searchBar {
   width: 100%;
-  padding: 16px 20px 16px 54px;
+  padding: 14px 18px 14px 46px;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.95);
   font-family: 'Inter', sans-serif;
   font-weight: 400;
-  font-size: 16px;
+  font-size: 14px;
   color: #3E2723;
   outline: none;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
   transition: box-shadow 0.2s ease;
 }
 
@@ -46,16 +186,9 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
-.titleBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 0;
-}
-
 .pageTitle {
   font-family: 'Playfair Display', 'Georgia', serif;
-  font-size: 32px;
+  font-size: 22px;
   font-weight: 400;
   color: #3E2723;
   margin: 0;
@@ -64,8 +197,8 @@
 .shelvesArea {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding-top: 10px;
+  gap: 14px;
+  padding-top: 8px;
 }
 
 .loadingWrapper, .errorWrapper {
@@ -107,18 +240,31 @@
   }
 
   .pageTitle {
-    font-size: 26px;
+    font-size: 20px;
   }
 
   .searchBar {
     padding: 14px 16px 14px 48px;
     font-size: 15px;
   }
+
+  .filterBtn span {
+    display: none;
+  }
+
+  .filterBtn {
+    padding: 14px 16px;
+  }
+
+  .filterDropdown {
+    width: calc(100vw - 32px);
+    right: -16px;
+  }
 }
 
 @media (max-width: 480px) {
   .pageTitle {
-    font-size: 22px;
+    font-size: 18px;
   }
 
   .shelvesArea {
