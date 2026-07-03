@@ -47,6 +47,7 @@ class Book(db.Model):
     # --- Relationships ---
     loans        = db.relationship("Loan",        back_populates="book")
     reservations = db.relationship("Reservation", back_populates="book")
+    reviews      = db.relationship("Review",      back_populates="book", cascade="all, delete-orphan")
 
     @property
     def available_copies(self):

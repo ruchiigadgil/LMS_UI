@@ -1,5 +1,6 @@
 // src/pages/member/MyLoansPage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useMemberHeader } from '../../layouts/MemberShell';
 import { getMemberLoans, getCurrentUser, renewLoan } from '../../api/api';
 import { useToast } from '../../components/Toast';
@@ -11,11 +12,28 @@ import styles from './MyLoansPage.module.css';
 export default function MyLoansPage() {
   const setHeader = useMemberHeader();
   const toast = useToast();
+  const [searchParams] = useSearchParams();
 
   const [loans, setLoans] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [renewingId, setRenewingId] = useState(null);
+
+  // Row highlight when arriving from a notification
+  const [highlightId, setHighlightId] = useState(searchParams.get('highlight'));
+  const highlightRef = useRef(null);
+
+  useEffect(() => {
+    if (!highlightId) return;
+    const timer = setTimeout(() => setHighlightId(null), 5000);
+    return () => clearTimeout(timer);
+  }, [highlightId]);
+
+  useEffect(() => {
+    if (highlightRef.current) {
+      highlightRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [loans]);
 
   // Check waitlist reservations locally for tooltip display
   const [reservations, setReservations] = useState([]);
@@ -117,8 +135,14 @@ export default function MyLoansPage() {
                     buttonTooltip = 'Renew for an additional 14 days';
                   }
 
+                  const isHighlighted = String(loan.loan_id) === highlightId;
+
                   return (
-                    <tr key={loan.loan_id} className={styles.tr}>
+                    <tr
+                      key={loan.loan_id}
+                      ref={isHighlighted ? highlightRef : null}
+                      className={`${styles.tr} ${isHighlighted ? styles.highlightRow : ''}`}
+                    >
                       <td className={styles.td}>
                         <span className={styles.bookTitle}>{loan.book_title}</span>
                       </td>

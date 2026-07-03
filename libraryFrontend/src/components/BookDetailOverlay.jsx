@@ -1,10 +1,9 @@
 ﻿// src/components/BookDetailOverlay.jsx
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import SearchableDropdown from "./SearchableDropdown";
 import Modal from "./Modal";
 import { MembersContext } from "./MembersContext";
-import { useToast } from "./Toast";
 import Icon from "./Icon";
 import { formatDate } from "../utils/formatDate";
 import {
@@ -27,7 +26,6 @@ export default function BookDetailOverlay({
   isAdmin,
 }) {
   const navigate = useNavigate();
-  const toast = useToast();
   const { members, setMembers, load: loadMembers } = useContext(MembersContext);
 
   const [activeSubView, setActiveSubView] = useState(null); // 'issue' | 'return' | 'edit'
@@ -56,6 +54,29 @@ export default function BookDetailOverlay({
   const [deleteQuantity, setDeleteQuantity] = useState(1);
 
   const [reserveMemberId, setReserveMemberId] = useState(null);
+
+  // Inline feedback banner shown at the top of the modal
+  const [banner, setBanner] = useState(null); // { type: 'success'|'error'|'info', text }
+  const bannerTimer = useRef(null);
+
+  function showBanner(type, text, autoHide = true) {
+    setBanner({ type, text });
+    if (bannerTimer.current) clearTimeout(bannerTimer.current);
+    if (autoHide) {
+      bannerTimer.current = setTimeout(() => setBanner(null), 4000);
+    }
+  }
+
+  // Show a success banner in the modal, then close it shortly after
+  function closeAfterBanner(text) {
+    showBanner("success", text, false);
+    setTimeout(() => {
+      setBanner(null);
+      onClose();
+    }, 1600);
+  }
+
+  useEffect(() => () => clearTimeout(bannerTimer.current), []);
 
   const todayStr = formatDate(new Date().toISOString());
 
@@ -88,11 +109,11 @@ export default function BookDetailOverlay({
           setSelectedReturnLoan(filtered.length > 0 ? filtered[0] : null);
         })
         .catch((err) =>
-          toast.error("Failed to load active loans for this book"),
+          showBanner("error", "Failed to load active loans for this book"),
         )
         .finally(() => setLoading(false));
     }
-  }, [activeSubView, book, toast]);
+  }, [activeSubView, book]);
 
   if (!book) return null;
 
@@ -109,19 +130,17 @@ export default function BookDetailOverlay({
   async function handleIssueSubmit(e) {
     e.preventDefault();
     if (!issueMemberId) {
-      toast.error("Please select a member");
+      showBanner("error", "Please select a member");
       return;
     }
     setLoading(true);
     try {
       await issueBook({ user_id: issueMemberId, book_id: book.id });
-      toast.success("Book issued successfully!");
       onUpdate({ ...book, available_copies: book.available_copies - 1 });
-      setActiveSubView(null);
       setIssueMemberId(null);
-      onClose();
+      closeAfterBanner("Book issued successfully!");
     } catch (err) {
-      toast.error(err.message || "Failed to issue book");
+      showBanner("error", err.message || "Failed to issue book");
     } finally {
       setLoading(false);
     }
@@ -130,7 +149,7 @@ export default function BookDetailOverlay({
   async function handleMiniRegister(e) {
     e.preventDefault();
     if (!miniName || !miniEmail) {
-      toast.error("Name and Email are required");
+      showBanner("error", "Name and Email are required");
       return;
     }
     setLoading(true);
@@ -155,9 +174,9 @@ export default function BookDetailOverlay({
       setMiniName("");
       setMiniEmail("");
       setMiniphone("");
-      toast.success(`Registered and selected: ${newMember.name}`);
+      showBanner("success", `Registered and selected: ${newMember.name}`);
     } catch (err) {
-      toast.error(err.message || "Failed to register member");
+      showBanner("error", err.message || "Failed to register member");
     } finally {
       setLoading(false);
     }
@@ -169,20 +188,17 @@ export default function BookDetailOverlay({
     setLoading(true);
     try {
       const result = await returnLoan(selectedReturnLoan.loan_id);
-      if (result.fine_amount > 0)
-        toast.success(
-          `Book returned. Fine of Rs.${result.fine_amount} raised.`,
-        );
-      else toast.success("Book returned. No fine.");
-      if (result.reservation_msg) toast.info(result.reservation_msg);
+      let msg = result.fine_amount > 0
+        ? `Book returned. Fine of Rs.${result.fine_amount} raised.`
+        : "Book returned. No fine.";
+      if (result.reservation_msg) msg += ` ${result.reservation_msg}`;
       else if (result.message && result.message.includes("Reservation"))
-        toast.info(result.message);
+        msg += ` ${result.message}`;
       onUpdate({ ...book, available_copies: book.available_copies + 1 });
-      setActiveSubView(null);
       setSelectedReturnLoan(null);
-      onClose();
+      closeAfterBanner(msg);
     } catch (err) {
-      toast.error(err.message || "Return failed");
+      showBanner("error", err.message || "Return failed");
     } finally {
       setLoading(false);
     }
@@ -193,17 +209,15 @@ export default function BookDetailOverlay({
     setLoading(true);
     try {
       await editBook(book.id, editForm);
-      toast.success("Book details updated");
       onUpdate({
         ...book,
         ...editForm,
         available_copies:
           book.available_copies + (editForm.total_copies - book.total_copies),
       });
-      setActiveSubView(null);
-      onClose();
+      closeAfterBanner("Book details updated");
     } catch (err) {
-      toast.error(err.message || "Failed to update book");
+      showBanner("error", err.message || "Failed to update book");
     } finally {
       setLoading(false);
     }
@@ -212,18 +226,16 @@ export default function BookDetailOverlay({
   async function handleReserveSubmit(e) {
     e.preventDefault();
     if (!reserveMemberId) {
-      toast.error("Please select a member");
+      showBanner("error", "Please select a member");
       return;
     }
     setLoading(true);
     try {
       const result = await addToWaitlist({ user_id: reserveMemberId, book_id: book.id });
-      toast.success(`Member added to waitlist. Position: ${result.queue_position}`);
-      setActiveSubView(null);
       setReserveMemberId(null);
-      onClose();
+      closeAfterBanner(`Member added to waitlist. Position: ${result.queue_position}`);
     } catch (err) {
-      toast.error(err.message || "Failed to add reservation");
+      showBanner("error", err.message || "Failed to add reservation");
     } finally {
       setLoading(false);
     }
@@ -231,7 +243,7 @@ export default function BookDetailOverlay({
 
   async function handleDeleteConfirm() {
     if (!deleteReason.trim()) {
-      toast.error("Please provide a reason for deletion");
+      showBanner("error", "Please provide a reason for deletion");
       return;
     }
     setLoading(true);
@@ -240,11 +252,12 @@ export default function BookDetailOverlay({
         reason: deleteReason,
         quantity: -deleteQuantity
       });
+      let msg;
       if (result.deleted) {
-        toast.success("Book deleted completely");
+        msg = "Book deleted completely";
         onDelete(book.id);
       } else {
-        toast.success(result.message);
+        msg = result.message;
         onUpdate({
           ...book,
           total_copies: result.new_total,
@@ -254,9 +267,9 @@ export default function BookDetailOverlay({
       setShowDeleteConfirm(false);
       setDeleteReason("");
       setDeleteQuantity(1);
-      onClose();
+      closeAfterBanner(msg);
     } catch (err) {
-      toast.error(err.message || "Failed to delete book");
+      showBanner("error", err.message || "Failed to delete book");
     } finally {
       setLoading(false);
     }
@@ -276,6 +289,22 @@ export default function BookDetailOverlay({
     }
   }
 
+  // Inline feedback banner (rendered at the top of every panel)
+  const bannerEl = banner ? (
+    <div
+      className={`${styles.feedbackBanner} ${
+        banner.type === "success"
+          ? styles.bannerSuccess
+          : banner.type === "info"
+            ? styles.bannerInfo
+            : styles.bannerError
+      }`}
+      role="status"
+    >
+      {banner.text}
+    </div>
+  ) : null;
+
   // ==========================================
   // ISSUE VIEW - uses same layout as main panel
   // Left: Book card (cover + genre/ISBN)    Right: Issue form
@@ -289,6 +318,7 @@ export default function BookDetailOverlay({
         role="dialog"
       >
         <div className={styles.issuePanel} onClick={(e) => e.stopPropagation()}>
+          {bannerEl}
           <div className={styles.issueHeader}>
             <button
               className={styles.returnLink}
@@ -424,6 +454,7 @@ export default function BookDetailOverlay({
           className={styles.returnPanel}
           onClick={(e) => e.stopPropagation()}
         >
+          {bannerEl}
           <div className={styles.issueHeader}>
             <button
               className={styles.returnLink}
@@ -546,6 +577,7 @@ export default function BookDetailOverlay({
         role="dialog"
       >
         <div className={styles.editPanel} onClick={(e) => e.stopPropagation()}>
+          {bannerEl}
           <div className={styles.issueHeader}>
             <button
               className={styles.returnLink}
@@ -681,6 +713,7 @@ export default function BookDetailOverlay({
         role="dialog"
       >
         <div className={styles.reservePanel} onClick={(e) => e.stopPropagation()}>
+          {bannerEl}
           <div className={styles.issueHeader}>
             <button
               className={styles.returnLink}
@@ -748,6 +781,7 @@ export default function BookDetailOverlay({
       role="dialog"
     >
       <div className={styles.panel} onClick={(e) => e.stopPropagation()}>
+        {bannerEl}
         <button
           className={styles.closeBtn}
           onClick={onClose}

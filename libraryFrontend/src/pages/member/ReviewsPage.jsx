@@ -63,18 +63,21 @@ export default function ReviewsPage() {
       return;
     }
 
-    const book = books.find(b => b.id === selectedBookId);
-
     setSubmitting(true);
     try {
       const review = await addReview({
         bookId: selectedBookId,
-        bookTitle: book ? book.title : 'Unknown',
         rating,
         text: text.trim()
       });
-      setReviews(prev => [review, ...prev]);
-      toast.success('Review posted');
+      // Refetch — posting again for the same book updates the existing review
+      const updated = await getReviews().catch(() => null);
+      if (updated) {
+        setReviews(updated);
+      } else {
+        setReviews(prev => [review, ...prev.filter(r => r.id !== review.id)]);
+      }
+      toast.success(review.updated ? 'Your review was updated' : 'Review posted');
 
       // Reset and close form
       setRating(0);

@@ -14,7 +14,7 @@
   padding: var(--verso-space-3) var(--verso-space-10) var(--verso-space-3) var(--verso-space-4);
   border: none;
   border-radius: var(--verso-radius-lg);
-  background: var(--verso-bg-card);
+  background: #FFFFFF;
   font-family: var(--verso-font-body);
   font-weight: 400;
   font-size: var(--verso-text-base);
@@ -68,7 +68,7 @@
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  background: var(--verso-bg-card);
+  background: #FFFFFF;
   border: 1px solid var(--verso-border-light);
   border-radius: var(--verso-radius-lg);
   box-shadow: var(--verso-shadow-lg);

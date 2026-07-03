@@ -5,3 +5,4 @@ from .fine import Fine
 from .payment import Payment
 from .reservation import Reservation
 from .book_inventory_transaction import BookInventoryTransaction
+from .review import Review

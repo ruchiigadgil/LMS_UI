@@ -1,10 +1,12 @@
 // src/components/NotificationPanel.jsx
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getMemberLoans, getMemberReservations, getMemberFines, getCurrentUser } from '../api/api';
 import Icon from './Icon';
 import styles from './NotificationPanel.module.css';
 
 export default function NotificationPanel() {
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -46,26 +48,29 @@ export default function NotificationPanel() {
 
           if (diffDays > 0) {
             notifs.push({
-              id: `overdue-${loan.id}`,
+              id: `overdue-${loan.loan_id}`,
               type: 'warning',
               icon: 'alert',
               message: `"${loan.book_title}" is overdue by ${diffDays} day${diffDays > 1 ? 's' : ''}`,
+              link: `/member/loans?highlight=${loan.loan_id}`,
               timestamp: new Date(),
             });
           } else if (diffDays === 0) {
             notifs.push({
-              id: `due-today-${loan.id}`,
+              id: `due-today-${loan.loan_id}`,
               type: 'warning',
               icon: 'info',
               message: `"${loan.book_title}" is due today`,
+              link: `/member/loans?highlight=${loan.loan_id}`,
               timestamp: new Date(),
             });
           } else if (diffDays >= -3) {
             notifs.push({
-              id: `due-soon-${loan.id}`,
+              id: `due-soon-${loan.loan_id}`,
               type: 'info',
               icon: 'book',
               message: `"${loan.book_title}" is due in ${Math.abs(diffDays)} day${Math.abs(diffDays) > 1 ? 's' : ''}`,
+              link: `/member/loans?highlight=${loan.loan_id}`,
               timestamp: new Date(),
             });
           }
@@ -82,18 +87,20 @@ export default function NotificationPanel() {
       (reservations || []).forEach(res => {
         if (res.status === 'ready') {
           notifs.push({
-            id: `ready-${res.id}`,
+            id: `ready-${res.reservation_id}`,
             type: 'success',
             icon: 'book',
             message: `"${res.book_title}" is ready for pickup!`,
+            link: `/member/holds?highlight=${res.reservation_id}`,
             timestamp: new Date(),
           });
         } else if (res.status === 'waiting' && res.queue_position) {
           notifs.push({
-            id: `queue-${res.id}`,
+            id: `queue-${res.reservation_id}`,
             type: 'info',
             icon: 'clipboardList',
             message: `Your position in queue for "${res.book_title}" is #${res.queue_position}`,
+            link: `/member/holds?highlight=${res.reservation_id}`,
             timestamp: new Date(),
           });
         }
@@ -114,6 +121,7 @@ export default function NotificationPanel() {
           type: 'warning',
           icon: 'creditCard',
           message: `You have $${totalFine.toFixed(2)} in unpaid fines`,
+          link: '/member/fines?highlight=unpaid',
           timestamp: new Date(),
         });
       }
@@ -161,12 +169,15 @@ export default function NotificationPanel() {
             {notifications.map(notif => (
               <div
                 key={notif.id}
-                className={`${styles.notification} ${styles[notif.type]}`}
+                className={`${styles.notification} ${styles[notif.type]} ${notif.link ? styles.clickable : ''}`}
+                onClick={() => notif.link && navigate(notif.link)}
+                role={notif.link ? 'button' : undefined}
+                tabIndex={notif.link ? 0 : undefined}
               >
                 <p className={styles.notifMessage}>{notif.message}</p>
                 <button
                   className={styles.dismissBtn}
-                  onClick={() => dismissNotification(notif.id)}
+                  onClick={(e) => { e.stopPropagation(); dismissNotification(notif.id); }}
                   aria-label="Dismiss"
                 >
                   <Icon name="close" />

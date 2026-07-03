@@ -1,0 +1,16 @@
+/* src/components/RecommendationsSection.module.css */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--verso-space-2);
+  margin-bottom: -24px;
+}
+
+.title {
+  font-family: var(--verso-font-display);
+  font-size: var(--verso-text-xl);
+  font-weight: 600;
+  color: var(--verso-text-primary);
+  margin: 0;
+}

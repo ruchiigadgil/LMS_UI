@@ -1,5 +1,6 @@
 // src/pages/member/HoldsPage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useMemberHeader } from '../../layouts/MemberShell';
 import { getMemberReservations, getCurrentUser } from '../../api/api';
 import StatusBadge from '../../components/StatusBadge';
@@ -8,9 +9,26 @@ import styles from './HoldsPage.module.css';
 
 export default function HoldsPage() {
   const setHeader = useMemberHeader();
+  const [searchParams] = useSearchParams();
   const [reservations, setReservations] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Row highlight when arriving from a notification
+  const [highlightId, setHighlightId] = useState(searchParams.get('highlight'));
+  const highlightRef = useRef(null);
+
+  useEffect(() => {
+    if (!highlightId) return;
+    const timer = setTimeout(() => setHighlightId(null), 5000);
+    return () => clearTimeout(timer);
+  }, [highlightId]);
+
+  useEffect(() => {
+    if (highlightRef.current) {
+      highlightRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [reservations]);
 
   useEffect(() => {
     setHeader({ title: 'My Reservations', action: null });
@@ -62,7 +80,11 @@ export default function HoldsPage() {
               </thead>
               <tbody>
                 {reservations.map(reservation => (
-                    <tr key={reservation.reservation_id} className={styles.tr}>
+                    <tr
+                      key={reservation.reservation_id}
+                      ref={String(reservation.reservation_id) === highlightId ? highlightRef : null}
+                      className={`${styles.tr} ${String(reservation.reservation_id) === highlightId ? styles.highlightRow : ''}`}
+                    >
                       <td className={styles.td}>
                         <span className={styles.bookTitle}>{reservation.book_title}</span>
                       </td>

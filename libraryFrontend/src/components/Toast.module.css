@@ -12,7 +12,7 @@
 }
 
 .toast {
-  background: var(--verso-bg-card);
+  background: #FFFFFF;
   border-left: 4px solid var(--verso-brown-700);
   padding: var(--verso-space-4) var(--verso-space-5);
   border-radius: var(--verso-radius-md);
@@ -28,13 +28,13 @@
 
 .success {
   border-left-color: var(--verso-success);
-  background-color: var(--verso-success-light);
+  background-color: #EAF3EB;
   color: var(--verso-success);
 }
 
 .error {
   border-left-color: var(--verso-danger);
-  background-color: var(--verso-danger-light);
+  background-color: #F9EAEA;
   color: var(--verso-danger);
 }
 

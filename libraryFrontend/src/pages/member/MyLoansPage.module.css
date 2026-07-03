@@ -183,3 +183,17 @@
     font-size: var(--verso-text-xs);
   }
 }
+
+/* Row highlight when arriving from a notification */
+.highlightRow {
+  animation: highlightPulse 1.4s ease-in-out 3;
+}
+
+@keyframes highlightPulse {
+  0%, 100% {
+    background: var(--verso-cream-300);
+  }
+  50% {
+    background: rgba(217, 119, 6, 0.22);
+  }
+}

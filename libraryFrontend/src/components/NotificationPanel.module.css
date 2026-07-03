@@ -135,6 +135,10 @@
   background: var(--verso-cream-200);
 }
 
+.clickable {
+  cursor: pointer;
+}
+
 .notification.warning {
   background: rgba(198, 40, 40, 0.05);
 }

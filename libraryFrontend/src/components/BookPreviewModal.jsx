@@ -1,6 +1,8 @@
 // src/components/BookPreviewModal.jsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Icon from './Icon';
+import { getAlsoRead, getReviews } from '../api/api';
+import { formatDate } from '../utils/formatDate';
 import styles from './BookPreviewModal.module.css';
 
 // Local book index - maps titles to Gutenberg IDs with descriptions
@@ -309,7 +311,7 @@ function saveReadingProgress(bookId, scrollPercent) {
   }
 }
 
-export default function BookPreviewModal({ book, isOpen, onClose }) {
+export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, onBack }) {
   const [activeTab, setActiveTab] = useState('details');
   const [description, setDescription] = useState('');
   const [bookContent, setBookContent] = useState('');
@@ -323,6 +325,8 @@ export default function BookPreviewModal({ book, isOpen, onClose }) {
   const [readingProgress, setReadingProgress] = useState(0);
   const [hasRestoredProgress, setHasRestoredProgress] = useState(false);
   const [hasEbook, setHasEbook] = useState(true);
+  const [alsoRead, setAlsoRead] = useState([]);
+  const [bookReviews, setBookReviews] = useState([]);
 
   const readerRef = useRef(null);
   const saveTimeoutRef = useRef(null);
@@ -350,6 +354,18 @@ export default function BookPreviewModal({ book, isOpen, onClose }) {
     setHasEbook(true);
     fetchBookDescription();
     findLocalBook();
+
+    // "Readers also read" recommendations + reviews for this book
+    setAlsoRead([]);
+    setBookReviews([]);
+    if (book.id) {
+      getAlsoRead(book.id)
+        .then(data => setAlsoRead(data || []))
+        .catch(() => setAlsoRead([]));
+      getReviews(book.id)
+        .then(data => setBookReviews(data || []))
+        .catch(() => setBookReviews([]));
+    }
   }, [isOpen, book]);
 
   useEffect(() => {
@@ -360,9 +376,33 @@ export default function BookPreviewModal({ book, isOpen, onClose }) {
     }
   }, [bookContent]);
 
+  function fetchWithTimeout(url, ms = 5000) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), ms);
+    return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timer));
+  }
+
   async function fetchBookDescription() {
     if (!book) return;
+
+    // Cached from a previous fetch — no network call
+    const cacheKey = `verso_desc_${book.id}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      setDescription(cached);
+      setLoadingDescription(false);
+      return;
+    }
+
     setLoadingDescription(true);
+
+    function saveAndShow(desc) {
+      if (desc && desc.trim()) {
+        localStorage.setItem(cacheKey, desc);
+      }
+      setDescription(desc);
+      setLoadingDescription(false);
+    }
 
     // Check local index for description first
     const titleLower = book.title.toLowerCase();
@@ -371,60 +411,83 @@ export default function BookPreviewModal({ book, isOpen, onClose }) {
       titleLower.includes(b.title.toLowerCase())
     );
     if (localMatch && localMatch.description) {
-      setDescription(localMatch.description);
-      setLoadingDescription(false);
+      saveAndShow(localMatch.description);
       return;
     }
 
     // Use book's own description if available
     const bookOwnDescription = book.description || book.summary || book.synopsis;
 
-    // Try Google Books API
-    try {
-      const query = encodeURIComponent(`${book.title} ${book.author || ''}`);
-      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=1`);
-      const data = await res.json();
-      if (data.items && data.items.length > 0) {
-        const volumeInfo = data.items[0].volumeInfo;
-        if (volumeInfo.description) {
-          setDescription(volumeInfo.description);
-          setLoadingDescription(false);
-          return;
-        }
+    // Search Google Books and return the first result that HAS a description
+    async function tryGoogleBooks(query) {
+      try {
+        const res = await fetchWithTimeout(
+          `https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=10&printType=books`
+        );
+        const data = await res.json();
+        const match = (data.items || []).find(
+          it => it.volumeInfo && it.volumeInfo.description && it.volumeInfo.description.length > 60
+        );
+        return match ? match.volumeInfo.description : null;
+      } catch (err) {
+        console.error('Google Books API failed:', err);
+        return null;
       }
-    } catch (err) {
-      console.error('Google Books API failed:', err);
     }
 
-    // Try Open Library API as fallback
+    // 1. Precise lookup by ISBN when we have one
+    if (book.isbn) {
+      const cleanIsbn = book.isbn.replace(/[^0-9Xx]/g, '');
+      if (cleanIsbn.length >= 10) {
+        const desc = await tryGoogleBooks(`isbn:${cleanIsbn}`);
+        if (desc) { saveAndShow(desc); return; }
+      }
+    }
+
+    // 2. Title + author search
+    {
+      const q = encodeURIComponent(`intitle:"${book.title}"${book.author ? `+inauthor:"${book.author}"` : ''}`);
+      const desc = await tryGoogleBooks(q);
+      if (desc) { saveAndShow(desc); return; }
+    }
+
+    // 3. Loose title search
+    {
+      const q = encodeURIComponent(`${book.title} ${book.author || ''}`);
+      const desc = await tryGoogleBooks(q);
+      if (desc) { saveAndShow(desc); return; }
+    }
+
+    // 4. Open Library fallback
     try {
       const query = encodeURIComponent(book.title);
-      const res = await fetch(`https://openlibrary.org/search.json?title=${query}&limit=1`);
+      const res = await fetchWithTimeout(`https://openlibrary.org/search.json?title=${query}&limit=3`);
       const data = await res.json();
-      if (data.docs && data.docs.length > 0) {
-        const doc = data.docs[0];
-        if (doc.key) {
-          try {
-            const workRes = await fetch(`https://openlibrary.org${doc.key}.json`);
-            const workData = await workRes.json();
-            if (workData.description) {
-              const desc = typeof workData.description === 'string' ? workData.description : workData.description.value;
-              setDescription(desc);
-              setLoadingDescription(false);
-              return;
-            }
-          } catch (e) {
-            console.error('Open Library work fetch failed:', e);
+      for (const doc of (data.docs || [])) {
+        if (!doc.key) continue;
+        try {
+          const workRes = await fetchWithTimeout(`https://openlibrary.org${doc.key}.json`);
+          const workData = await workRes.json();
+          if (workData.description) {
+            const desc = typeof workData.description === 'string' ? workData.description : workData.description.value;
+            if (desc) { saveAndShow(desc); return; }
           }
+        } catch (e) {
+          console.error('Open Library work fetch failed:', e);
         }
       }
     } catch (err) {
       console.error('Open Library API failed:', err);
     }
 
-    // Use book's own description or show not available
-    setDescription(bookOwnDescription || 'No description available for this book.');
-    setLoadingDescription(false);
+    // Book's own description is cacheable; the "not available" fallback is
+    // deliberately not cached so a later open can retry the APIs
+    if (bookOwnDescription) {
+      saveAndShow(bookOwnDescription);
+    } else {
+      setDescription('No description available for this book.');
+      setLoadingDescription(false);
+    }
   }
 
   function findLocalBook() {
@@ -621,12 +684,27 @@ export default function BookPreviewModal({ book, isOpen, onClose }) {
 
   const isAvailable = book.available_copies > 0;
 
+  // Rating: prefer the book object's aggregate; fall back to the fetched reviews
+  const avgRating = book.avg_rating != null
+    ? book.avg_rating
+    : (bookReviews.length > 0
+        ? Math.round((bookReviews.reduce((sum, r) => sum + r.rating, 0) / bookReviews.length) * 10) / 10
+        : null);
+  const ratingsCount = book.avg_rating != null ? book.ratings_count : bookReviews.length;
+
   return (
     <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className={styles.modal}>
         <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
           <Icon name="close" />
         </button>
+
+        {onBack && activeTab === 'details' && (
+          <button className={styles.backNavBtn} onClick={onBack} aria-label="Back to previous book">
+            <Icon name="arrowLeft" />
+            <span>Back</span>
+          </button>
+        )}
 
         {activeTab === 'details' && (
           <div className={styles.content}>
@@ -642,6 +720,27 @@ export default function BookPreviewModal({ book, isOpen, onClose }) {
               <div className={styles.bookDetails}>
                 <h2 className={styles.title}>{book.title}</h2>
                 <p className={styles.author}>by {book.author || 'Unknown'}</p>
+                <div className={styles.ratingRow}>
+                  {avgRating != null ? (
+                    <>
+                      <span className={styles.ratingStars}>
+                        {[1, 2, 3, 4, 5].map(i => (
+                          <Icon
+                            key={i}
+                            name="star"
+                            size={15}
+                            className={i <= Math.round(avgRating) ? styles.ratingStarFilled : styles.ratingStarEmpty}
+                          />
+                        ))}
+                      </span>
+                      <span className={styles.ratingText}>
+                        {avgRating} ({ratingsCount} rating{ratingsCount !== 1 ? 's' : ''})
+                      </span>
+                    </>
+                  ) : (
+                    <span className={styles.ratingText}>No ratings yet</span>
+                  )}
+                </div>
                 <div className={styles.tagsRow}>
                   {book.genre && <span className={styles.genre}>{book.genre}</span>}
                   {!hasEbook && <span className={styles.noEbookTag}>eBook not available</span>}
@@ -662,7 +761,7 @@ export default function BookPreviewModal({ book, isOpen, onClose }) {
               ) : (
                 <div
                   className={styles.description}
-                  dangerouslySetInnerHTML={{ __html: description }}
+                  dangerouslySetInnerHTML={{ __html: description || 'No description available for this book.' }}
                 />
               )}
 
@@ -679,6 +778,71 @@ export default function BookPreviewModal({ book, isOpen, onClose }) {
                   Pay To Read The Full Book
                 </button>
               </div>
+
+              <div className={styles.reviewsSection}>
+                <h4 className={styles.reviewsTitle}>
+                  Reviews ({bookReviews.length})
+                </h4>
+                {bookReviews.length === 0 ? (
+                  <p className={styles.noReviewsText}>
+                    No reviews yet. Be the first to review this book.
+                  </p>
+                ) : (
+                  <div className={styles.reviewsList}>
+                    {bookReviews.map(review => (
+                      <div key={review.id} className={styles.reviewItem}>
+                        <div className={styles.reviewItemHeader}>
+                          <span className={styles.reviewStars}>
+                            {[1, 2, 3, 4, 5].map(i => (
+                              <Icon
+                                key={i}
+                                name="star"
+                                size={13}
+                                className={i <= review.rating ? styles.ratingStarFilled : styles.ratingStarEmpty}
+                              />
+                            ))}
+                          </span>
+                          <span className={styles.reviewAuthor}>{review.user_name}</span>
+                          <span className={styles.reviewDate}>{formatDate(review.created_at)}</span>
+                        </div>
+                        {review.text && (
+                          <p className={styles.reviewItemText}>{review.text}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {alsoRead.length > 0 && (
+                <div className={styles.alsoRead}>
+                  <h4 className={styles.alsoReadTitle}>Readers of this book also read</h4>
+                  <div className={styles.alsoReadRow}>
+                    {alsoRead.map(b => (
+                      <div
+                        key={b.id}
+                        className={styles.alsoReadCard}
+                        title={`${b.title} by ${b.author}`}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => onSelectBook && onSelectBook(b)}
+                      >
+                        <img
+                          src={b.cover_image_url
+                            ? (b.cover_image_url.startsWith('http')
+                                ? b.cover_image_url
+                                : `http://localhost:5005${b.cover_image_url}`)
+                            : '/placeholder-cover.svg'}
+                          alt={b.title}
+                          className={styles.alsoReadCover}
+                          onError={(e) => e.target.src = '/placeholder-cover.svg'}
+                        />
+                        <span className={styles.alsoReadBookTitle}>{b.title}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

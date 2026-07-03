@@ -35,6 +35,11 @@ export default function BookOnShelf({ book, onClick }) {
       {!isAvailable && (
         <div className={styles.unavailableBadge}>Borrowed</div>
       )}
+      {book.avg_rating != null && (
+        <div className={styles.ratingBadge}>
+          <span className={styles.ratingStar}>★</span> {book.avg_rating}
+        </div>
+      )}
     </div>
   );
 }

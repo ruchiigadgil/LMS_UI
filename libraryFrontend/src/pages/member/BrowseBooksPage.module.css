@@ -90,11 +90,11 @@
   position: absolute;
   top: calc(100% + var(--verso-space-2));
   right: 0;
-  width: 280px;
+  width: 260px;
   background: #fff;
   border-radius: var(--verso-radius-lg);
   box-shadow: var(--verso-shadow-xl);
-  padding: var(--verso-space-4);
+  padding: var(--verso-space-3);
   z-index: 100;
   animation: dropdownFadeIn var(--verso-transition-normal);
 }
@@ -113,7 +113,7 @@
 .filterSection {
   display: flex;
   flex-direction: column;
-  gap: var(--verso-space-2);
+  gap: var(--verso-space-1);
 }
 
 .filterTitle {
@@ -129,19 +129,19 @@
 .filterOptions {
   display: flex;
   flex-direction: column;
-  gap: var(--verso-space-1);
+  gap: 0;
 }
 
 .filterOption {
   display: flex;
   align-items: center;
-  gap: var(--verso-space-3);
-  padding: var(--verso-space-2) var(--verso-space-3);
+  gap: var(--verso-space-2);
+  padding: var(--verso-space-1) var(--verso-space-2);
   border-radius: var(--verso-radius-md);
   cursor: pointer;
   transition: background var(--verso-transition-fast);
   font-family: var(--verso-font-body);
-  font-size: var(--verso-text-base);
+  font-size: var(--verso-text-sm);
   color: var(--verso-text-primary);
 }
 
@@ -159,18 +159,18 @@
 .filterDivider {
   height: 1px;
   background: var(--verso-border-light);
-  margin: var(--verso-space-3) 0;
+  margin: var(--verso-space-2) 0;
 }
 
 .filterActions {
-  margin-top: var(--verso-space-3);
-  padding-top: var(--verso-space-3);
+  margin-top: var(--verso-space-2);
+  padding-top: var(--verso-space-2);
   border-top: 1px solid var(--verso-border-light);
 }
 
 .clearFiltersBtn {
   width: 100%;
-  padding: var(--verso-space-3);
+  padding: var(--verso-space-2);
   border: 1px solid var(--verso-border-medium);
   border-radius: var(--verso-radius-md);
   background: transparent;
@@ -201,6 +201,14 @@
   flex-direction: column;
   gap: var(--verso-space-4);
   padding-top: var(--verso-space-2);
+}
+
+.sectionTitle {
+  font-family: var(--verso-font-display);
+  font-size: var(--verso-text-xl);
+  font-weight: 600;
+  color: var(--verso-text-primary);
+  margin: 0;
 }
 
 /* ─── Loading & Empty States ─── */

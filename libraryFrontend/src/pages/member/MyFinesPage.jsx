@@ -1,5 +1,6 @@
 // src/pages/member/MyFinesPage.jsx
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useMemberHeader } from '../../layouts/MemberShell';
 import { getMemberFines, getMemberLoans, getCurrentUser, payFine } from '../../api/api';
 import { useToast } from '../../components/Toast';
@@ -10,11 +11,21 @@ import styles from './MyFinesPage.module.css';
 export default function MyFinesPage() {
   const setHeader = useMemberHeader();
   const toast = useToast();
+  const [searchParams] = useSearchParams();
   const [fines, setFines] = useState(null);
   const [overdueLoans, setOverdueLoans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [payingId, setPayingId] = useState(null);
+
+  // Highlight unpaid fines when arriving from a notification
+  const [highlightUnpaid, setHighlightUnpaid] = useState(searchParams.get('highlight') === 'unpaid');
+
+  useEffect(() => {
+    if (!highlightUnpaid) return;
+    const timer = setTimeout(() => setHighlightUnpaid(false), 5000);
+    return () => clearTimeout(timer);
+  }, [highlightUnpaid]);
 
   useEffect(() => {
     setHeader({ title: 'My Fines', action: null });
@@ -145,7 +156,7 @@ export default function MyFinesPage() {
                     </thead>
                     <tbody>
                       {unpaidFines.map(fine => (
-                          <tr key={fine.id} className={styles.tr}>
+                          <tr key={fine.id} className={`${styles.tr} ${highlightUnpaid ? styles.highlightRow : ''}`}>
                             <td className={styles.td}>
                               <span className={styles.bookTitle}>{fine.book_title}</span>
                             </td>

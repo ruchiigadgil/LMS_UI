@@ -4,6 +4,7 @@ import { getBooks } from '../../api/api';
 import { useToast } from '../../components/Toast';
 import BookShelf from '../../components/BookShelf';
 import BookPreviewModal from '../../components/BookPreviewModal';
+import RecommendationsSection from '../../components/RecommendationsSection';
 import Icon from '../../components/Icon';
 import styles from './BrowseBooksPage.module.css';
 
@@ -73,6 +74,7 @@ export default function BrowseBooksPage() {
   const [genreFilter, setGenreFilter] = useState('All Genres');
   const [ebookFilter, setEbookFilter] = useState('all');
   const [filterOpen, setFilterOpen] = useState(false);
+  const [bookHistory, setBookHistory] = useState([]);
 
 
   useEffect(() => {
@@ -112,6 +114,36 @@ export default function BrowseBooksPage() {
     }
     return result;
   }, [filteredBooks]);
+
+  // Always open the modal with the canonical catalog object, no matter
+  // which section (recommendations shelf or library shelves) was clicked
+  function handleBookClick(book) {
+    const canonical = (books || []).find(b => b.id === book.id);
+    setBookHistory([]);
+    setSelectedBook(canonical || book);
+  }
+
+  // Navigating inside the modal (via "readers also read") keeps a history
+  // so the user can go back to the book they started from
+  function handleModalNavigate(book) {
+    const canonical = (books || []).find(b => b.id === book.id) || book;
+    setBookHistory(prev => [...prev, selectedBook]);
+    setSelectedBook(canonical);
+  }
+
+  function handleModalBack() {
+    setBookHistory(prev => {
+      if (prev.length === 0) return prev;
+      const copy = [...prev];
+      setSelectedBook(copy.pop());
+      return copy;
+    });
+  }
+
+  function handleModalClose() {
+    setSelectedBook(null);
+    setBookHistory([]);
+  }
 
   return (
     <div className={styles.container}>
@@ -188,7 +220,10 @@ export default function BrowseBooksPage() {
         )}
       </div>
 
-      {/* <h2 className={styles.pageTitle}>Your Bookshelf</h2> */}
+      {/* Recommendations — hidden while searching or filtering */}
+      {!searchQuery && genreFilter === 'All Genres' && ebookFilter === 'all' && (
+        <RecommendationsSection onBookClick={handleBookClick} />
+      )}
 
       {loading ? (
         <div className={styles.loadingWrapper}>
@@ -205,11 +240,14 @@ export default function BrowseBooksPage() {
         </div>
       ) : (
         <div className={styles.shelvesArea}>
+          {!searchQuery && genreFilter === 'All Genres' && ebookFilter === 'all' && (
+            <h2 className={styles.sectionTitle}>Browse Books in the Library</h2>
+          )}
           {shelves.map((shelfBooks, index) => (
             <BookShelf
               key={index}
               books={shelfBooks}
-              onBookClick={setSelectedBook}
+              onBookClick={handleBookClick}
             />
           ))}
         </div>
@@ -218,7 +256,9 @@ export default function BrowseBooksPage() {
       <BookPreviewModal
         book={selectedBook}
         isOpen={selectedBook !== null}
-        onClose={() => setSelectedBook(null)}
+        onClose={handleModalClose}
+        onSelectBook={handleModalNavigate}
+        onBack={bookHistory.length > 0 ? handleModalBack : null}
       />
     </div>
   );

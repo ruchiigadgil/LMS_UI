@@ -82,17 +82,52 @@ def upload_cover():
         return jsonify({"error": f"Failed to process image: {str(e)}"}), 400
 
 def fetch_and_save_cover(isbn):
-    url = f"https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg"
-    dest = os.path.join("app", "static", "covers", f"{isbn}.jpg")
+    # Sanitize: users often type ISBNs with dashes/spaces
+    clean_isbn = "".join(c for c in isbn if c.isalnum())
+    if not clean_isbn:
+        return None
+
+    dest = os.path.join("app", "static", "covers", f"{clean_isbn}.jpg")
     os.makedirs(os.path.dirname(dest), exist_ok=True)
+
+    def save(content):
+        with open(dest, "wb") as f:
+            f.write(content)
+        return f"/static/covers/{clean_isbn}.jpg"
+
+    # 1. Open Library (default=false -> 404 instead of blank placeholder).
+    #    Some covers redirect to archive.org which can be slow, hence the
+    #    generous read timeout.
     try:
-        r = requests.get(url, timeout=10)
+        r = requests.get(
+            f"https://covers.openlibrary.org/b/isbn/{clean_isbn}-L.jpg?default=false",
+            timeout=(5, 25)
+        )
         if r.status_code == 200 and len(r.content) > 1000:
-            with open(dest, "wb") as f:
-                f.write(r.content)
-            return f"/static/covers/{isbn}.jpg"
-    except:
+            return save(r.content)
+    except Exception:
         pass
+
+    # 2. Google Books thumbnail fallback
+    try:
+        r = requests.get(
+            f"https://www.googleapis.com/books/v1/volumes?q=isbn:{clean_isbn}&maxResults=1",
+            timeout=10
+        )
+        items = r.json().get("items") or []
+        if items:
+            links = items[0].get("volumeInfo", {}).get("imageLinks", {})
+            thumb = (links.get("extraLarge") or links.get("large")
+                     or links.get("medium") or links.get("thumbnail")
+                     or links.get("smallThumbnail"))
+            if thumb:
+                thumb = thumb.replace("http://", "https://").replace("zoom=1", "zoom=2")
+                img = requests.get(thumb, timeout=10)
+                if img.status_code == 200 and len(img.content) > 1000:
+                    return save(img.content)
+    except Exception:
+        pass
+
     return None
 
 @admin_bp.route("/books", methods=["POST"])
@@ -468,8 +503,19 @@ def add_reservation():
 
 @admin_bp.route("/books", methods=["GET"])
 def get_books():
+    from sqlalchemy import func
+    from app.models.review import Review
+
     # Only return books with total_copies > 0
     books = Book.query.filter(Book.total_copies > 0).all()
+
+    # Aggregate ratings in one query: {book_id: (avg, count)}
+    rating_rows = db.session.query(
+        Review.book_id,
+        func.avg(Review.rating),
+        func.count(Review.id)
+    ).group_by(Review.book_id).all()
+    ratings = {row[0]: (float(row[1]), row[2]) for row in rating_rows}
 
     result = []
     for book in books:
@@ -477,6 +523,8 @@ def get_books():
             Loan.book_id == book.id,
             Loan.status.in_(["active", "overdue"])
         ).count()
+
+        avg_rating, ratings_count = ratings.get(book.id, (None, 0))
 
         result.append({
             "id": book.id,
@@ -486,7 +534,9 @@ def get_books():
             "isbn": book.isbn,
             "total_copies": book.total_copies,
             "available_copies": book.total_copies - active_loans,
-            "cover_image_url": book.cover_image_url
+            "cover_image_url": book.cover_image_url,
+            "avg_rating": round(avg_rating, 1) if avg_rating is not None else None,
+            "ratings_count": ratings_count
         })
 
     return jsonify(result), 200

@@ -658,38 +658,58 @@ export async function getMemberReservations(userId) {
   }
 }
 
-// ---- Reviews (stored locally) ----
+// ---- Reviews (stored in backend database) ----
 
-export async function getReviews() {
-  await new Promise(r => setTimeout(r, 200));
-  return JSON.parse(localStorage.getItem('verso_reviews') || '[]');
+export async function getReviews(bookId = null) {
+  const url = bookId
+    ? `${BASE_URL}/member/reviews?book_id=${bookId}`
+    : `${BASE_URL}/member/reviews`;
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: getHeaders()
+  });
+  return handleResponse(res);
 }
 
-export async function addReview({ bookId, bookTitle, rating, text }) {
-  await new Promise(r => setTimeout(r, 200));
+export async function addReview({ bookId, rating, text }) {
   const user = getCurrentUser();
   if (!user) throw new Error('Please sign in first');
 
-  const reviews = JSON.parse(localStorage.getItem('verso_reviews') || '[]');
-  const review = {
-    id: Date.now(),
-    user_id: user.id,
-    user_name: user.name || user.username || 'Member',
-    book_id: bookId,
-    book_title: bookTitle,
-    rating,
-    text,
-    created_at: new Date().toISOString()
-  };
-  reviews.unshift(review);
-  localStorage.setItem('verso_reviews', JSON.stringify(reviews));
-  return review;
+  const res = await fetch(`${BASE_URL}/member/reviews`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({
+      user_id: user.id,
+      book_id: bookId,
+      rating,
+      text
+    })
+  });
+  return handleResponse(res);
 }
 
 export async function deleteReview(reviewId) {
-  await new Promise(r => setTimeout(r, 200));
-  const reviews = JSON.parse(localStorage.getItem('verso_reviews') || '[]');
-  const updated = reviews.filter(r => r.id !== reviewId);
-  localStorage.setItem('verso_reviews', JSON.stringify(updated));
-  return { message: 'Review deleted' };
+  const res = await fetch(`${BASE_URL}/member/reviews/${reviewId}`, {
+    method: 'DELETE',
+    headers: getHeaders()
+  });
+  return handleResponse(res);
+}
+
+// ---- Recommendations ----
+
+export async function getRecommendations(userId) {
+  const res = await fetch(`${BASE_URL}/member/recommendations/${userId}`, {
+    method: 'GET',
+    headers: getHeaders()
+  });
+  return handleResponse(res);
+}
+
+export async function getAlsoRead(bookId) {
+  const res = await fetch(`${BASE_URL}/member/books/${bookId}/also-read`, {
+    method: 'GET',
+    headers: getHeaders()
+  });
+  return handleResponse(res);
 }

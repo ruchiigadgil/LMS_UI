@@ -64,6 +64,7 @@ class User(db.Model):
     fines        = db.relationship("Fine",        back_populates="user", cascade="all, delete-orphan")
     payments     = db.relationship("Payment",     back_populates="user", cascade="all, delete-orphan")
     reservations = db.relationship("Reservation", back_populates="user", cascade="all, delete-orphan")
+    reviews      = db.relationship("Review",      back_populates="user", cascade="all, delete-orphan")
 
     # --- Serializer ---
     def to_dict(self):
