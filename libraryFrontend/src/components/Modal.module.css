@@ -27,6 +27,10 @@
   border: 1px solid var(--verso-border-light);
 }
 
+.modalWide {
+  max-width: 720px;
+}
+
 .header {
   padding: var(--verso-space-4) var(--verso-space-6);
   border-bottom: 1px solid var(--verso-border-light);

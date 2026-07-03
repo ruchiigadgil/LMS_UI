@@ -22,6 +22,7 @@ import BrowseBooksPage from './pages/member/BrowseBooksPage';
 import MyLoansPage from './pages/member/MyLoansPage';
 import MyFinesPage from './pages/member/MyFinesPage';
 import HoldsPage from './pages/member/HoldsPage';
+import ReviewsPage from './pages/member/ReviewsPage';
 
 export default function App() {
   return (
@@ -51,6 +52,7 @@ export default function App() {
             <Route path="loans" element={<MyLoansPage />} />
             <Route path="holds" element={<HoldsPage />} />
             <Route path="fines" element={<MyFinesPage />} />
+            <Route path="reviews" element={<ReviewsPage />} />
           </Route>
         </Route>
 

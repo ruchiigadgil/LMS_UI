@@ -1,5 +1,6 @@
 // src/components/SearchableDropdown.jsx
 import React, { useState, useEffect, useRef } from 'react';
+import Icon from './Icon';
 import styles from './SearchableDropdown.module.css';
 
 export default function SearchableDropdown({ options = [], onSelect, placeholder = 'Search...', initialSelectedId = null }) {
@@ -75,10 +76,12 @@ export default function SearchableDropdown({ options = [], onSelect, placeholder
             setIsOpen(true);
           }}
         />
-        {selected && (
+        {selected ? (
           <button type="button" className={styles.clearBtn} onClick={handleClear} aria-label="Clear selection">
             &times;
           </button>
+        ) : (
+          <Icon name="chevronDown" className={styles.chevronIcon} />
         )}
       </div>
 

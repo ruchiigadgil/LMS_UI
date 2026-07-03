@@ -56,7 +56,7 @@
 }
 
 .spineTitle {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--verso-font-body);
   font-size: 10px;
   font-weight: 600;
   color: white;
@@ -75,7 +75,7 @@
   right: 5px;
   background: #dc2626;
   color: white;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--verso-font-body);
   font-size: 7px;
   font-weight: 700;
   padding: 3px 5px;

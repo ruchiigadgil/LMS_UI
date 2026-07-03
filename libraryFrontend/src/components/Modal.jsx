@@ -2,7 +2,7 @@
 import React, { useEffect, useRef } from 'react';
 import styles from './Modal.module.css';
 
-export default function Modal({ isOpen, onClose, title, children, footer }) {
+export default function Modal({ isOpen, onClose, title, children, footer, size = 'default' }) {
   const modalRef = useRef(null);
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export default function Modal({ isOpen, onClose, title, children, footer }) {
 
   return (
     <div className={styles.overlay} onClick={handleOverlayClick} aria-modal="true" role="dialog">
-      <div className={styles.modal} ref={modalRef}>
+      <div className={`${styles.modal} ${size === 'wide' ? styles.modalWide : ''}`} ref={modalRef}>
         <div className={styles.header}>
           <h3>{title}</h3>
           <button className={styles.closeBtn} onClick={onClose} aria-label="Close modal">

@@ -19,7 +19,7 @@ export default function FinesPage() {
   const [submittingId, setSubmittingId] = useState(null);
 
   useEffect(() => {
-    setHeader({ title: 'Fines & Penalties', action: null });
+    setHeader({ title: '', action: null });
   }, [setHeader]);
 
   useEffect(() => {
@@ -145,7 +145,7 @@ export default function FinesPage() {
                             {submittingId === fine.id ? 'Processing...' : 'Mark Paid'}
                           </button>
                         ) : (
-                          <span style={{ color: 'var(--verso-muted)', fontSize: '13px', fontStyle: 'italic' }}>
+                          <span style={{ color: 'var(--verso-text-muted)', fontSize: 'var(--verso-text-sm)' }}>
                             Settled
                           </span>
                         )}

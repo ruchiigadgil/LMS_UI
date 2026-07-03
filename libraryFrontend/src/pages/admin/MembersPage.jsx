@@ -7,6 +7,7 @@ import { useToast } from '../../components/Toast';
 import StatusBadge from '../../components/StatusBadge';
 import Modal from '../../components/Modal';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import MemberDetailModal from '../../components/MemberDetailModal';
 import Icon from '../../components/Icon';
 import styles from './MembersPage.module.css';
 
@@ -19,6 +20,7 @@ export default function MembersPage() {
 
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [viewingMember, setViewingMember] = useState(null);
   const [editingMember, setEditingMember] = useState(null);
   const [deletingMember, setDeletingMember] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -35,13 +37,8 @@ export default function MembersPage() {
   // Update header action button
   useEffect(() => {
     setHeader({
-      title: 'Members',
-      action: (
-        <button className={styles.addBtn} onClick={() => setIsAddModalOpen(true)}>
-          <Icon name="plus" className={styles.btnIcon} />
-          <span>Add Member</span>
-        </button>
-      )
+      title: '',
+      action: null
     });
   }, [setHeader]);
 
@@ -145,15 +142,20 @@ export default function MembersPage() {
   return (
     <div className={styles.container}>
       {/* Search filter bar */}
-      <div className={styles.searchBarWrapper}>
-        <Icon name="search" className={styles.searchIcon} />
-        <input
-          type="text"
-          className={styles.searchBar}
-          placeholder="Filter by name, email, or phone number..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
+      <div className={styles.topRow}>
+        <div className={styles.searchBarWrapper}>
+          <Icon name="search" className={styles.searchIcon} />
+          <input
+            type="text"
+            className={styles.searchBar}
+            placeholder="Filter by name, email, or phone number..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <button className={styles.addBtn} onClick={() => setIsAddModalOpen(true)}>
+          <Icon name="plus" className={styles.btnIcon} /> Add Member
+        </button>
       </div>
 
       {loading && !members ? (
@@ -194,9 +196,13 @@ export default function MembersPage() {
               </thead>
               <tbody>
                 {filteredMembers.map(member => (
-                  <tr key={member.id} className={styles.tr}>
+                  <tr
+                    key={member.id}
+                    className={`${styles.tr} ${styles.clickableRow}`}
+                    onClick={() => setViewingMember(member)}
+                  >
                     <td className={`${styles.td} ${styles.idVal}`}>{member.id}</td>
-                    <td className={styles.td} style={{ fontWeight: 600 }}>{member.name}</td>
+                    <td className={`${styles.td} ${styles.nameCell}`}>{member.name}</td>
                     <td className={styles.td}>{member.email}</td>
                     <td className={styles.td}>{member.phone || '—'}</td>
                     <td className={styles.td}>
@@ -207,10 +213,16 @@ export default function MembersPage() {
                     </td>
                     <td className={styles.td}>
                       <div className={styles.actionBtns}>
-                        <button className={styles.btnEdit} onClick={() => setEditingMember(member)}>
+                        <button
+                          className={styles.btnEdit}
+                          onClick={(e) => { e.stopPropagation(); setEditingMember(member); }}
+                        >
                           Edit
                         </button>
-                        <button className={styles.btnDelete} onClick={() => setDeletingMember(member)}>
+                        <button
+                          className={styles.btnDelete}
+                          onClick={(e) => { e.stopPropagation(); setDeletingMember(member); }}
+                        >
                           Delete
                         </button>
                       </div>
@@ -340,6 +352,13 @@ export default function MembersPage() {
         onCancel={() => setDeletingMember(null)}
         onConfirm={handleDeleteConfirm}
         message={deletingMember ? `Are you sure you want to permanently delete the member account for "${deletingMember.name}"?` : ''}
+      />
+
+      {/* Member Detail Modal */}
+      <MemberDetailModal
+        member={viewingMember}
+        isOpen={viewingMember !== null}
+        onClose={() => setViewingMember(null)}
       />
     </div>
   );

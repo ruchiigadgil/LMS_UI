@@ -1,0 +1,196 @@
+/* src/components/MemberDetailModal.module.css */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--verso-space-5);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--verso-space-4);
+  padding-bottom: var(--verso-space-5);
+  border-bottom: 1px solid var(--verso-border-light);
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-family: var(--verso-font-display);
+  font-size: var(--verso-text-xl);
+  font-weight: 600;
+  color: var(--verso-text-primary);
+  margin: 0;
+}
+
+.email {
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  color: var(--verso-text-secondary);
+  margin: var(--verso-space-1) 0 0 0;
+}
+
+.phone {
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  color: var(--verso-text-muted);
+  margin: var(--verso-space-1) 0 0 0;
+}
+
+.metaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--verso-space-3) var(--verso-space-4);
+  background: var(--verso-brown-50);
+  border-radius: var(--verso-radius-md);
+}
+
+.metaLabel {
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  font-weight: 500;
+  color: var(--verso-text-secondary);
+}
+
+.metaValue {
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  font-weight: 600;
+  color: var(--verso-text-primary);
+}
+
+.loadingState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--verso-space-3);
+  padding: var(--verso-space-8);
+  color: var(--verso-text-secondary);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--verso-space-3);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--verso-space-3);
+}
+
+.sectionTitle {
+  font-family: var(--verso-font-display);
+  font-size: var(--verso-text-md);
+  font-weight: 600;
+  color: var(--verso-text-primary);
+  margin: 0;
+}
+
+.sectionCount {
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-xs);
+  font-weight: 600;
+  color: var(--verso-brown-700);
+  background: var(--verso-brown-100);
+  padding: var(--verso-space-1) var(--verso-space-2);
+  border-radius: var(--verso-radius-full);
+  min-width: 24px;
+  text-align: center;
+}
+
+.emptyText {
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  color: var(--verso-text-muted);
+  margin: 0;
+  padding: var(--verso-space-2) 0;
+}
+
+.tableWrapper {
+  border: 1px solid var(--verso-border-light);
+  border-radius: var(--verso-radius-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+  table-layout: fixed;
+}
+
+.table th {
+  text-align: left;
+  padding: var(--verso-space-2) var(--verso-space-3);
+  background: var(--verso-brown-50);
+  font-family: var(--verso-font-body);
+  font-weight: 600;
+  color: var(--verso-brown-600);
+  font-size: var(--verso-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--verso-border-light);
+}
+
+.table th:first-child {
+  width: 40%;
+}
+
+.table th:nth-child(2),
+.table th:nth-child(3) {
+  width: 20%;
+}
+
+.table th:last-child {
+  width: 20%;
+}
+
+.table td {
+  padding: var(--verso-space-2) var(--verso-space-3);
+  color: var(--verso-text-primary);
+  border-bottom: 1px solid var(--verso-border-light);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table tr:hover td {
+  background: var(--verso-brown-50);
+}
+
+.overdue {
+  color: var(--verso-danger);
+  font-weight: 600;
+}
+
+.fineAmount {
+  font-family: var(--verso-font-body);
+  font-weight: 600;
+  color: var(--verso-danger);
+}
+
+.totalFine {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--verso-space-3) var(--verso-space-4);
+  background: var(--verso-danger-light);
+  border-radius: var(--verso-radius-md);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  font-weight: 600;
+  color: var(--verso-danger);
+}

@@ -28,7 +28,7 @@
 
 .panel {
   position: relative;
-  background: var(--verso-bg-card);
+  background: #FFFFFF;
   border-radius: var(--verso-radius-lg);
   box-shadow: var(--verso-shadow-xl);
   border: 1px solid var(--verso-border-light);
@@ -58,7 +58,7 @@
 .issuePanel,
 .returnPanel {
   position: relative;
-  background: var(--verso-bg-card);
+  background: #FFFFFF;
   border-radius: var(--verso-radius-lg);
   box-shadow: var(--verso-shadow-xl);
   border: 1px solid var(--verso-border-light);
@@ -262,7 +262,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--verso-space-4);
+  gap: var(--verso-space-2);
 }
 
 .panelTitle {
@@ -344,18 +344,17 @@
 .meta {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--verso-space-3);
-  margin-top: var(--verso-space-1);
+  gap: var(--verso-space-2);
 }
 
 .metaBox {
   background: var(--verso-cream-100);
   border: 1px solid var(--verso-border-light);
-  padding: var(--verso-space-3);
+  padding: var(--verso-space-2) var(--verso-space-3);
   border-radius: var(--verso-radius-md);
   display: flex;
   flex-direction: column;
-  gap: var(--verso-space-1);
+  gap: 2px;
 }
 
 .metaLabel {
@@ -389,8 +388,8 @@
 .actionGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--verso-space-3);
-  margin-top: var(--verso-space-2);
+  gap: var(--verso-space-2);
+  margin-top: var(--verso-space-1);
 }
 
 .btnAction {
@@ -443,7 +442,7 @@
 /* Reserve panel styles */
 .reservePanel {
   position: relative;
-  background: var(--verso-bg-card);
+  background: #FFFFFF;
   border-radius: var(--verso-radius-lg);
   box-shadow: var(--verso-shadow-xl);
   border: 1px solid var(--verso-border-light);
@@ -671,7 +670,7 @@
 /* Return panel styles - same as issue panel */
 .returnPanel {
   position: relative;
-  background: var(--verso-bg-card);
+  background: #FFFFFF;
   border-radius: var(--verso-radius-lg);
   box-shadow: var(--verso-shadow-xl);
   border: 1px solid var(--verso-border-light);
@@ -692,7 +691,7 @@
 /* Edit panel styles - same as issue/return panel */
 .editPanel {
   position: relative;
-  background: var(--verso-bg-card);
+  background: #FFFFFF;
   border-radius: var(--verso-radius-lg);
   box-shadow: var(--verso-shadow-xl);
   border: 1px solid var(--verso-border-light);
@@ -728,10 +727,51 @@
   border: 1px solid var(--verso-border-light);
   padding: var(--verso-space-4);
   border-radius: var(--verso-radius-md);
+  font-family: var(--verso-font-body);
   font-size: var(--verso-text-sm);
   display: flex;
   flex-direction: column;
   gap: var(--verso-space-2);
+}
+
+.returnRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.returnKey {
+  color: var(--verso-text-muted);
+}
+
+.returnValue {
+  font-weight: 600;
+  color: var(--verso-text-primary);
+}
+
+.returnHighlight {
+  font-weight: 600;
+  color: var(--verso-brown-700);
+}
+
+.returnDivider {
+  border: none;
+  border-top: 1px solid var(--verso-border-light);
+  margin: 0;
+}
+
+.fineDanger {
+  color: var(--verso-danger);
+}
+
+.fineOk {
+  color: var(--verso-success);
+}
+
+.noLoansMsg {
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  color: var(--verso-text-muted);
 }
 
 .formGroup {

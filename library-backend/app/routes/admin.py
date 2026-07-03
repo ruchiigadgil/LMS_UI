@@ -507,8 +507,10 @@ def get_members():
             "id": member.id,
             "name": member.name,
             "email": member.email,
+            "phone": member.phone,
             "membership_status": member.membership_status,
-            "active_loans": active_loans
+            "active_loans": active_loans,
+            "created_at": member.created_at.isoformat() if member.created_at else None
         })
 
     return jsonify(result), 200
@@ -571,6 +573,37 @@ def delete_member(member_id):
 
     return jsonify({
         "message": "Member deleted successfully",
+        "member_id": member_id
+    }), 200
+
+
+@admin_bp.route("/members/<int:member_id>", methods=["PUT"])
+def update_member(member_id):
+    member = User.query.get(member_id)
+    if not member:
+        return jsonify({"error": "Member not found"}), 404
+
+    if member.role != "member":
+        return jsonify({"error": "Cannot update non-member users via this endpoint"}), 400
+
+    data = request.get_json()
+
+    if "name" in data:
+        member.name = data["name"]
+    if "email" in data:
+        existing = User.query.filter(User.email == data["email"], User.id != member_id).first()
+        if existing:
+            return jsonify({"error": "Email already in use by another member"}), 400
+        member.email = data["email"]
+    if "phone" in data:
+        member.phone = data["phone"]
+    if "membership_status" in data:
+        member.membership_status = data["membership_status"]
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Member updated successfully",
         "member_id": member_id
     }), 200
 

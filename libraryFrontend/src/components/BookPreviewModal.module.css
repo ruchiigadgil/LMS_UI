@@ -38,7 +38,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #5D4037;
+  color: var(--verso-brown-700);
   font-size: 18px;
   transition: background 0.2s ease, transform 0.2s ease;
   z-index: 10;
@@ -90,18 +90,18 @@
 }
 
 .title {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--verso-font-display);
   font-size: 20px;
   font-weight: 500;
-  color: #3E2723;
+  color: var(--verso-brown-900);
   margin: 0;
   line-height: 1.3;
 }
 
 .author {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--verso-font-body);
   font-size: 14px;
-  color: #6D4C41;
+  color: var(--verso-brown-600);
   margin: 0;
 }
 
@@ -114,10 +114,10 @@
 
 .genre {
   display: inline-block;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--verso-font-body);
   font-size: 11px;
   font-weight: 500;
-  color: #6D4C41;
+  color: var(--verso-brown-600);
   background: rgba(141, 110, 99, 0.15);
   padding: 4px 10px;
   border-radius: 999px;
@@ -127,7 +127,7 @@
 
 .noEbookTag {
   display: inline-block;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--verso-font-body);
   font-size: 10px;
   font-weight: 600;
   color: #B71C1C;
@@ -141,7 +141,7 @@
 .stockIndicator {
   padding: 8px 12px;
   border-radius: 6px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--verso-font-body);
   font-size: 13px;
   font-weight: 500;
   text-align: center;
@@ -171,10 +171,10 @@
 }
 
 .sectionTitle {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--verso-font-display);
   font-size: 22px;
   font-weight: 400;
-  color: #3E2723;
+  color: var(--verso-brown-900);
   margin: 0 0 16px 0;
 }
 
@@ -183,15 +183,15 @@
   align-items: center;
   gap: 12px;
   padding: 24px;
-  color: #6D4C41;
-  font-family: 'Inter', sans-serif;
+  color: var(--verso-brown-600);
+  font-family: var(--verso-font-body);
 }
 
 .description {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--verso-font-body);
   font-size: 15px;
   line-height: 1.75;
-  color: #4E342E;
+  color: var(--verso-brown-800);
   flex: 1;
   overflow-y: auto;
   padding-right: 8px;
@@ -222,11 +222,11 @@
   justify-content: center;
   gap: 10px;
   padding: 14px 20px;
-  border: 2px solid #5D4037;
+  border: 2px solid var(--verso-brown-700);
   border-radius: 8px;
   background: transparent;
-  color: #5D4037;
-  font-family: 'Inter', sans-serif;
+  color: var(--verso-brown-700);
+  font-family: var(--verso-font-body);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -234,7 +234,7 @@
 }
 
 .previewBtn:hover {
-  background: #5D4037;
+  background: var(--verso-brown-700);
   color: #FDF8F3;
 }
 
@@ -247,9 +247,9 @@
   padding: 14px 20px;
   border: none;
   border-radius: 8px;
-  background: linear-gradient(135deg, #6D4C41 0%, #5D4037 100%);
+  background: linear-gradient(135deg, var(--verso-brown-600) 0%, var(--verso-brown-700) 100%);
   color: #fff;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--verso-font-body);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -273,7 +273,7 @@
 .fullscreenReader {
   position: fixed;
   inset: 0;
-  background: #3E2723;
+  background: var(--verso-brown-900);
   z-index: 2000;
   display: flex;
   flex-direction: column;
@@ -364,9 +364,9 @@
 }
 
 .pageNumber {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--verso-font-body);
   font-size: 12px;
-  color: #6D4C41;
+  color: var(--verso-brown-600);
   font-weight: 500;
 }
 
@@ -387,9 +387,9 @@
 }
 
 .previewEndPage p {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--verso-font-display);
   font-size: 20px;
-  color: #6D4C41;
+  color: var(--verso-brown-600);
   margin: 0;
 }
 
@@ -401,14 +401,14 @@
   gap: 16px;
   height: 100%;
   width: 100%;
-  color: #6D4C41;
-  font-family: 'Inter', sans-serif;
+  color: var(--verso-brown-600);
+  font-family: var(--verso-font-body);
   font-size: 15px;
 }
 
 .bookText {
   width: 100%;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--verso-font-body);
   font-size: 16px;
   line-height: 1.55;
   color: #2D2117;
@@ -428,7 +428,7 @@
 }
 
 .chapterIndicator {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--verso-font-body);
   font-size: 11px;
   color: #A1887F;
   text-transform: uppercase;
@@ -440,10 +440,10 @@
 }
 
 .chapterTitle {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--verso-font-display);
   font-size: 24px;
   font-weight: 600;
-  color: #3E2723;
+  color: var(--verso-brown-900);
   margin: 0 0 20px 0;
   padding-bottom: 12px;
   border-bottom: 2px solid rgba(141, 110, 99, 0.2);
@@ -479,10 +479,10 @@
 }
 
 .contentsTitle {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--verso-font-display);
   font-size: 24px;
   font-weight: 600;
-  color: #3E2723;
+  color: var(--verso-brown-900);
   margin: 0 0 24px 0;
   padding-bottom: 12px;
   border-bottom: 2px solid rgba(141, 110, 99, 0.2);
@@ -525,7 +525,7 @@
   width: 60px;
   text-align: center;
   font-weight: 600;
-  color: #5D4037;
+  color: var(--verso-brown-700);
   border-left: 2px solid rgba(141, 110, 99, 0.15);
   padding-left: 16px;
   flex-shrink: 0;
@@ -539,9 +539,9 @@
 }
 
 .tocEntryTitle {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--verso-font-body);
   font-size: 14px;
-  color: #3E2723;
+  color: var(--verso-brown-900);
   padding-left: 16px;
 }
 
@@ -558,11 +558,11 @@
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  border: 2px solid #5D4037;
+  border: 2px solid var(--verso-brown-700);
   border-radius: 8px;
   background: transparent;
-  color: #5D4037;
-  font-family: 'Inter', sans-serif;
+  color: var(--verso-brown-700);
+  font-family: var(--verso-font-body);
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
@@ -570,12 +570,12 @@
 }
 
 .nextChapterBtn:hover {
-  background: #5D4037;
+  background: var(--verso-brown-700);
   color: #FDF8F3;
 }
 
 .bookEnd {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--verso-font-display);
   font-size: 20px;
   font-style: italic;
   color: #8D6E63;
@@ -591,9 +591,9 @@
 }
 
 .previewEnd p {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--verso-font-body);
   font-size: 16px;
-  color: #6D4C41;
+  color: var(--verso-brown-600);
   margin: 0;
 }
 
@@ -605,9 +605,9 @@
   padding: 14px 28px;
   border: none;
   border-radius: 8px;
-  background: linear-gradient(135deg, #6D4C41 0%, #5D4037 100%);
+  background: linear-gradient(135deg, var(--verso-brown-600) 0%, var(--verso-brown-700) 100%);
   color: #fff;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--verso-font-body);
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
@@ -653,10 +653,10 @@
 }
 
 .navHeader h4 {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--verso-font-body);
   font-size: 14px;
   font-weight: 600;
-  color: #3E2723;
+  color: var(--verso-brown-900);
   margin: 0;
 }
 
@@ -666,7 +666,7 @@
   border-radius: 6px;
   border: none;
   background: transparent;
-  color: #6D4C41;
+  color: var(--verso-brown-600);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -701,8 +701,8 @@
   border: none;
   border-radius: 4px;
   background: transparent;
-  color: #3E2723;
-  font-family: 'Inter', sans-serif;
+  color: var(--verso-brown-900);
+  font-family: var(--verso-font-body);
   font-size: 13px;
   text-align: left;
   cursor: pointer;
@@ -733,7 +733,7 @@
 .chapterPage {
   flex-shrink: 0;
   font-weight: 600;
-  color: #6D4C41;
+  color: var(--verso-brown-600);
   min-width: 24px;
   text-align: right;
 }
@@ -742,7 +742,7 @@
   padding: 20px;
   text-align: center;
   color: #8D6E63;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--verso-font-body);
   font-size: 14px;
 }
 

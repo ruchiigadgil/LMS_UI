@@ -92,6 +92,15 @@ export default function MemberShell() {
               <Icon name="receipt" className={styles.navIcon} />
               <span>Reservations</span>
             </NavLink>
+            <NavLink
+              to="/member/reviews"
+              className={({ isActive }) =>
+                `${styles.navLink} ${isActive ? styles.activeLink : ""}`
+              }
+            >
+              <Icon name="star" className={styles.navIcon} />
+              <span>Reviews</span>
+            </NavLink>
           </nav>
         </aside>
 

@@ -180,7 +180,7 @@ export default function ReturnSummaryModal({ isOpen, onClose, bookId = null, loa
                 <span className={styles.key}>Return Date</span>
                 <span className={styles.value}>{formatDate(todayStr)} (Today)</span>
               </div>
-              <hr style={{ border: 'none', borderTop: '1px solid var(--verso-border)' }} />
+              <hr style={{ border: 'none', borderTop: '1px solid var(--verso-border-light)' }} />
               <div className={styles.row}>
                 <span className={styles.key}>Grace Period</span>
                 <span className={styles.value}>2 Days</span>

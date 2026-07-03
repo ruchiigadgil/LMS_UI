@@ -11,16 +11,18 @@
 
 .input {
   width: 100%;
-  padding: var(--verso-space-3) var(--verso-space-4);
-  border: 1px solid var(--verso-border-medium);
-  border-radius: var(--verso-radius-md);
+  padding: var(--verso-space-3) var(--verso-space-10) var(--verso-space-3) var(--verso-space-4);
+  border: none;
+  border-radius: var(--verso-radius-lg);
   background: var(--verso-bg-card);
   font-family: var(--verso-font-body);
   font-weight: 400;
   font-size: var(--verso-text-base);
   color: var(--verso-text-primary);
-  transition: border-color var(--verso-transition-fast), box-shadow var(--verso-transition-fast);
   outline: none;
+  box-shadow: var(--verso-shadow-md);
+  transition: box-shadow var(--verso-transition-fast);
+  cursor: pointer;
 }
 
 .input::placeholder {
@@ -28,8 +30,18 @@
 }
 
 .input:focus {
-  border-color: var(--verso-brown-500);
-  box-shadow: 0 0 0 3px rgba(141, 110, 99, 0.12);
+  box-shadow: var(--verso-shadow-lg);
+}
+
+.chevronIcon {
+  position: absolute;
+  right: var(--verso-space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--verso-brown-400);
+  pointer-events: none;
 }
 
 .clearBtn {
@@ -39,11 +51,12 @@
   transform: translateY(-50%);
   color: var(--verso-text-muted);
   font-family: var(--verso-font-body);
-  font-size: var(--verso-text-md);
+  font-size: var(--verso-text-lg);
   cursor: pointer;
   background: none;
   border: none;
   padding: 0;
+  line-height: 1;
 }
 
 .clearBtn:hover {
@@ -52,14 +65,14 @@
 
 .dropdown {
   position: absolute;
-  top: 105%;
+  top: calc(100% + 4px);
   left: 0;
   right: 0;
   background: var(--verso-bg-card);
   border: 1px solid var(--verso-border-light);
-  border-radius: var(--verso-radius-md);
+  border-radius: var(--verso-radius-lg);
   box-shadow: var(--verso-shadow-lg);
-  max-height: 220px;
+  max-height: 260px;
   overflow-y: auto;
   z-index: 1010;
 }

@@ -23,7 +23,7 @@ export default function LoansPage() {
   const [selectedLoanId, setSelectedLoanId] = useState(null);
 
   useEffect(() => {
-    setHeader({ title: 'Loans', action: null });
+    setHeader({ title: '', action: null });
   }, [setHeader]);
 
   // Fetch loans based on tab

@@ -210,7 +210,8 @@ export async function getMembers(searchQuery = '') {
         email: lm.email,
         phone: lm.phone,
         membership_status: lm.membership_status,
-        active_loans: 0
+        active_loans: 0,
+        created_at: lm.created_at || new Date().toISOString()
       });
     }
   });
@@ -244,7 +245,8 @@ export async function addMember(memberData) {
       phone: memberData.phone || '',
       password: 'password', // Default dummy password
       role: 'member',
-      membership_status: 'active'
+      membership_status: 'active',
+      created_at: new Date().toISOString()
     });
     localStorage.setItem('verso_users', JSON.stringify(users));
   }
@@ -253,9 +255,14 @@ export async function addMember(memberData) {
 }
 
 export async function editMember(memberId, memberData) {
-  console.log(`PUT /api/admin/members/${memberId} - STUBBED on backend, saving locally`);
-  await new Promise(r => setTimeout(r, 300));
+  const res = await fetch(`${BASE_URL}/admin/members/${memberId}`, {
+    method: 'PUT',
+    headers: getHeaders(),
+    body: JSON.stringify(memberData)
+  });
+  const data = await handleResponse(res);
 
+  // Also update local overrides for consistency
   const overrides = getMemberOverrides();
   overrides.edited[memberId] = {
     ...overrides.edited[memberId],
@@ -271,7 +278,7 @@ export async function editMember(memberId, memberData) {
     localStorage.setItem('verso_users', JSON.stringify(users));
   }
 
-  return { message: 'Member updated successfully (locally)', id: memberId };
+  return data;
 }
 
 export async function deleteMember(memberId) {
@@ -649,4 +656,40 @@ export async function getMemberReservations(userId) {
     console.log('getMemberReservations error, returning empty array:', error);
     return [];
   }
+}
+
+// ---- Reviews (stored locally) ----
+
+export async function getReviews() {
+  await new Promise(r => setTimeout(r, 200));
+  return JSON.parse(localStorage.getItem('verso_reviews') || '[]');
+}
+
+export async function addReview({ bookId, bookTitle, rating, text }) {
+  await new Promise(r => setTimeout(r, 200));
+  const user = getCurrentUser();
+  if (!user) throw new Error('Please sign in first');
+
+  const reviews = JSON.parse(localStorage.getItem('verso_reviews') || '[]');
+  const review = {
+    id: Date.now(),
+    user_id: user.id,
+    user_name: user.name || user.username || 'Member',
+    book_id: bookId,
+    book_title: bookTitle,
+    rating,
+    text,
+    created_at: new Date().toISOString()
+  };
+  reviews.unshift(review);
+  localStorage.setItem('verso_reviews', JSON.stringify(reviews));
+  return review;
+}
+
+export async function deleteReview(reviewId) {
+  await new Promise(r => setTimeout(r, 200));
+  const reviews = JSON.parse(localStorage.getItem('verso_reviews') || '[]');
+  const updated = reviews.filter(r => r.id !== reviewId);
+  localStorage.setItem('verso_reviews', JSON.stringify(updated));
+  return { message: 'Review deleted' };
 }

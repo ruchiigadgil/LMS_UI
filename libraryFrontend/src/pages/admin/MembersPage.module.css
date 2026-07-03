@@ -3,13 +3,21 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: var(--verso-space-6);
+  gap: var(--verso-space-4);
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  gap: var(--verso-space-4);
+  width: 100%;
 }
 
 .searchBarWrapper {
   position: relative;
-  width: 100%;
-  max-width: 630px;
+  flex: 1;
+  display: flex;
+  align-items: center;
 }
 
 .searchIcon {
@@ -106,6 +114,20 @@
 .loansVal {
   font-size: var(--verso-text-sm);
   font-weight: 600;
+}
+
+.clickableRow {
+  cursor: pointer;
+  transition: background var(--verso-transition-fast);
+}
+
+.clickableRow:hover {
+  background: var(--verso-cream-200) !important;
+}
+
+.nameCell {
+  font-weight: 600;
+  color: var(--verso-brown-700);
 }
 
 .actionBtns {

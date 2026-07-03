@@ -21,6 +21,17 @@ export default function NotificationPanel() {
       return;
     }
 
+    // Check if account is suspended
+    if (user.membership_status === 'suspended') {
+      notifs.push({
+        id: 'account-suspended',
+        type: 'error',
+        icon: 'alert',
+        message: 'Your account has been suspended. Please contact the library administration.',
+        timestamp: new Date(),
+      });
+    }
+
     try {
       // Check for overdue books and due soon
       const loans = await getMemberLoans(user.id);
@@ -110,8 +121,8 @@ export default function NotificationPanel() {
       console.error('Failed to fetch fines for notifications:', err);
     }
 
-    // Sort: warnings first, then success, then info
-    const priority = { warning: 0, success: 1, info: 2 };
+    // Sort: error first, then warnings, then success, then info
+    const priority = { error: 0, warning: 1, success: 2, info: 3 };
     notifs.sort((a, b) => priority[a.type] - priority[b.type]);
 
     setNotifications(notifs);
@@ -152,9 +163,6 @@ export default function NotificationPanel() {
                 key={notif.id}
                 className={`${styles.notification} ${styles[notif.type]}`}
               >
-                <div className={styles.notifIcon}>
-                  <Icon name={notif.icon} />
-                </div>
                 <p className={styles.notifMessage}>{notif.message}</p>
                 <button
                   className={styles.dismissBtn}

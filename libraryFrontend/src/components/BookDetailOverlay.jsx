@@ -454,12 +454,7 @@ export default function BookDetailOverlay({
                 {loading ? (
                   <div>Loading active loans...</div>
                 ) : bookActiveLoans.length === 0 ? (
-                  <div
-                    style={{
-                      color: "var(--color-danger)",
-                      fontStyle: "italic",
-                    }}
-                  >
+                  <div className={styles.noLoansMsg}>
                     No active loans for this book.
                   </div>
                 ) : (
@@ -489,104 +484,33 @@ export default function BookDetailOverlay({
                     </div>
                     {selectedReturnLoan && (
                       <div className={styles.returnDetails}>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <span style={{ color: "var(--color-text-muted)" }}>
-                            Due Date:
-                          </span>
-                          <span
-                            style={{
-                              fontFamily: "JetBrains Mono",
-                              fontWeight: 500,
-                            }}
-                          >
+                        <div className={styles.returnRow}>
+                          <span className={styles.returnKey}>Due Date:</span>
+                          <span className={styles.returnValue}>
                             {formatDate(selectedReturnLoan.due_date)}
                           </span>
                         </div>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <span style={{ color: "var(--color-text-muted)" }}>
-                            Return Date:
-                          </span>
-                          <span
-                            style={{
-                              fontFamily: "JetBrains Mono",
-                              fontWeight: 500,
-                            }}
-                          >
+                        <div className={styles.returnRow}>
+                          <span className={styles.returnKey}>Return Date:</span>
+                          <span className={styles.returnValue}>
                             {todayStr} (Today)
                           </span>
                         </div>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <span style={{ color: "var(--color-text-muted)" }}>
-                            Days Overdue:
-                          </span>
-                          <span
-                            style={{
-                              fontFamily: "JetBrains Mono",
-                              fontWeight: 500,
-                            }}
-                          >
+                        <div className={styles.returnRow}>
+                          <span className={styles.returnKey}>Days Overdue:</span>
+                          <span className={styles.returnValue}>
                             {returnDaysOverdue} day(s)
                           </span>
                         </div>
-                        <hr
-                          style={{
-                            border: "none",
-                            borderTop: "1px solid var(--color-border)",
-                          }}
-                        />
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
-                          <span style={{ color: "var(--color-text-muted)" }}>
-                            Grace period:
-                          </span>
-                          <span
-                            style={{
-                              color: "var(--color-accent)",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            2 Days
-                          </span>
+                        <hr className={styles.returnDivider} />
+                        <div className={styles.returnRow}>
+                          <span className={styles.returnKey}>Grace period:</span>
+                          <span className={styles.returnHighlight}>2 Days</span>
                         </div>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
-                          <span style={{ color: "var(--color-text-muted)" }}>
-                            Fines raised:
-                          </span>
+                        <div className={styles.returnRow}>
+                          <span className={styles.returnKey}>Fines raised:</span>
                           <span
-                            style={{
-                              fontFamily: "JetBrains Mono",
-                              fontWeight: "bold",
-                              color:
-                                returnFine > 0
-                                  ? "var(--color-danger)"
-                                  : "green",
-                            }}
+                            className={`${styles.returnValue} ${returnFine > 0 ? styles.fineDanger : styles.fineOk}`}
                           >
                             Rs.{returnFine.toFixed(2)}
                           </span>
@@ -946,7 +870,7 @@ export default function BookDetailOverlay({
                       <span className={styles.hint}>
                         Current total: {book.total_copies} copies
                         {deleteQuantity >= book.total_copies && (
-                          <span style={{ color: "var(--color-danger)", marginLeft: 8 }}>
+                          <span style={{ color: "var(--verso-danger)", marginLeft: 8 }}>
                             (This will delete the book entirely)
                           </span>
                         )}

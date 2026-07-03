@@ -23,7 +23,7 @@ export default function WaitlistPage() {
   const [memberSearch, setMemberSearch] = useState('');
 
   useEffect(() => {
-    setHeader({ title: 'Waitlist', action: null });
+    setHeader({ title: '', action: null });
 
     getBooks()
       .then(setBooks)
@@ -62,42 +62,36 @@ export default function WaitlistPage() {
   return (
     <div className={styles.container}>
       {/* Filter Bar */}
-      <div className={styles.filterBar}>
-        <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>Select Book</label>
-          <div className={styles.dropdownWrapper}>
-            {books.length > 0 && (
-              <SearchableDropdown
-                options={books}
-                placeholder="Search by title or ISBN..."
-                onSelect={(id) => {
-                  setSelectedBookId(id);
-                  setMemberSearch('');
-                }}
-                initialSelectedId={selectedBookId}
-              />
-            )}
-          </div>
+      <div className={styles.topRow}>
+        <div className={styles.dropdownWrapper}>
+          {books.length > 0 && (
+            <SearchableDropdown
+              options={books}
+              placeholder="Search for a book..."
+              onSelect={(id) => {
+                setSelectedBookId(id);
+                setMemberSearch('');
+              }}
+              initialSelectedId={selectedBookId}
+            />
+          )}
         </div>
 
         {selectedBook && (
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>Search Member</label>
-            <div className={styles.searchWrapper}>
-              <Icon name="search" className={styles.searchIcon} />
-              <input
-                type="text"
-                className={styles.searchInput}
-                placeholder="Filter by name or email..."
-                value={memberSearch}
-                onChange={(e) => setMemberSearch(e.target.value)}
-              />
-              {memberSearch && (
-                <button className={styles.clearBtn} onClick={() => setMemberSearch('')}>
-                  &times;
-                </button>
-              )}
-            </div>
+          <div className={styles.searchWrapper}>
+            <Icon name="search" className={styles.searchIcon} />
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="Filter by member name or email..."
+              value={memberSearch}
+              onChange={(e) => setMemberSearch(e.target.value)}
+            />
+            {memberSearch && (
+              <button className={styles.clearBtn} onClick={() => setMemberSearch('')}>
+                &times;
+              </button>
+            )}
           </div>
         )}
       </div>
