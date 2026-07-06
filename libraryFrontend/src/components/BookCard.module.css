@@ -61,6 +61,20 @@
   transition: transform var(--verso-transition-normal);
 }
 
+.noCoverPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--verso-space-3);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-xs);
+  color: var(--verso-text-muted);
+  background: var(--verso-cream-100);
+}
+
 .card:hover .cover {
   transform: scale(1.02);
 }

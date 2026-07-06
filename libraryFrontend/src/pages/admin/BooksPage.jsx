@@ -36,20 +36,24 @@ export default function BooksPage() {
     cover_image_url: ''
   });
 
-  // Fetch books on mount
-  useEffect(() => {
-    if (books !== null) return;
-    
-    setLoading(true);
-    getBooks()
+  // Refetch the book catalog from the server
+  function refreshBooks() {
+    return getBooks()
       .then(data => {
         setBooks(data);
         setError(null);
       })
       .catch(err => {
         setError(err.message || 'Failed to fetch book catalog');
-      })
-      .finally(() => setLoading(false));
+      });
+  }
+
+  // Fetch books on mount
+  useEffect(() => {
+    if (books !== null) return;
+
+    setLoading(true);
+    refreshBooks().finally(() => setLoading(false));
   }, []);
 
   // Clear header (search bar and button are in content area)
@@ -117,22 +121,11 @@ export default function BooksPage() {
 
     setSubmittingAdd(true);
     try {
-      const res = await addBook(addForm);
+      await addBook(addForm);
       toast.success('Book added successfully');
 
-      const newBook = {
-        id: res.book_id,
-        title: addForm.title,
-        author: addForm.author,
-        genre: addForm.genre,
-        isbn: addForm.isbn,
-        total_copies: Number(addForm.total_copies),
-        available_copies: Number(addForm.total_copies),
-        cover_image_url: addForm.cover_image_url
-      };
-
-      // Mutation: append new book
-      setBooks(prev => [...(prev || []), newBook]);
+      // Refresh from server so the grid always reflects the latest state
+      await refreshBooks();
 
       // Reset
       setAddForm({
@@ -233,6 +226,7 @@ export default function BooksPage() {
         onClose={() => setSelectedBook(null)}
         onUpdate={handleBookUpdated}
         onDelete={handleBookDeleted}
+        onRefresh={refreshBooks}
         isAdmin={true}
       />
 

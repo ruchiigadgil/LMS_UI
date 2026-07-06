@@ -2,8 +2,9 @@
 import React from 'react';
 import styles from './BookCard.module.css';
 
-export default function BookCard({ book, onClick, disableClick = false, isAdmin = false }) {
-  const coverUrl = book.cover_image_url
+export default function BookCard({ book, onClick, disableClick = false, isAdmin = false, noCoverText = false }) {
+  const hasCover = !!book.cover_image_url;
+  const coverUrl = hasCover
     ? (book.cover_image_url.startsWith('http')
         ? book.cover_image_url
         : `http://localhost:5005${book.cover_image_url}`)
@@ -20,14 +21,18 @@ export default function BookCard({ book, onClick, disableClick = false, isAdmin 
       tabIndex={disableClick ? undefined : 0}
     >
       <div className={styles.coverWrapper}>
-        <img
-          src={coverUrl}
-          alt={book.title}
-          className={styles.cover}
-          onError={(e) => {
-            e.target.src = '/placeholder-cover.svg';
-          }}
-        />
+        {!hasCover && noCoverText ? (
+          <div className={styles.noCoverPlaceholder}>No cover uploaded</div>
+        ) : (
+          <img
+            src={coverUrl}
+            alt={book.title}
+            className={styles.cover}
+            onError={(e) => {
+              e.target.src = '/placeholder-cover.svg';
+            }}
+          />
+        )}
         {isAdmin && (
           <div className={`${styles.stockBadge} ${isOutOfStock ? styles.outOfStock : ''}`}>
             {isOutOfStock

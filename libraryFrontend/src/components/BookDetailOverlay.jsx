@@ -14,6 +14,7 @@ import {
   getActiveLoans,
   returnLoan,
   addToWaitlist,
+  uploadCover,
 } from "../api/api";
 import BookCard from "./BookCard";
 import styles from "./BookDetailOverlay.module.css";
@@ -23,6 +24,7 @@ export default function BookDetailOverlay({
   onClose,
   onUpdate,
   onDelete,
+  onRefresh,
   isAdmin,
 }) {
   const navigate = useNavigate();
@@ -45,6 +47,9 @@ export default function BookDetailOverlay({
     total_copies: 1,
     cover_image_url: "",
   });
+  const [editCoverPreview, setEditCoverPreview] = useState(null);
+  const [uploadingEditCover, setUploadingEditCover] = useState(false);
+  const editFileInputRef = useRef(null);
 
   const [bookActiveLoans, setBookActiveLoans] = useState([]);
   const [selectedReturnLoan, setSelectedReturnLoan] = useState(null);
@@ -91,6 +96,7 @@ export default function BookDetailOverlay({
         total_copies: book.total_copies || 1,
         cover_image_url: book.cover_image_url || "",
       });
+      setEditCoverPreview(null);
       setActiveSubView(null);
       setIssueMemberId(null);
       setShowMiniForm(false);
@@ -137,6 +143,7 @@ export default function BookDetailOverlay({
     try {
       await issueBook({ user_id: issueMemberId, book_id: book.id });
       onUpdate({ ...book, available_copies: book.available_copies - 1 });
+      onRefresh?.();
       setIssueMemberId(null);
       closeAfterBanner("Book issued successfully!");
     } catch (err) {
@@ -195,12 +202,49 @@ export default function BookDetailOverlay({
       else if (result.message && result.message.includes("Reservation"))
         msg += ` ${result.message}`;
       onUpdate({ ...book, available_copies: book.available_copies + 1 });
+      onRefresh?.();
       setSelectedReturnLoan(null);
       closeAfterBanner(msg);
     } catch (err) {
       showBanner("error", err.message || "Return failed");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleEditCoverUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const validTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+    if (!validTypes.includes(file.type)) {
+      showBanner("error", "Invalid file type. Use PNG, JPG, or WebP.");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      showBanner("error", "File too large. Maximum size is 5MB.");
+      return;
+    }
+
+    setUploadingEditCover(true);
+    try {
+      const res = await uploadCover(file);
+      setEditForm((prev) => ({ ...prev, cover_image_url: res.cover_image_url }));
+      setEditCoverPreview(URL.createObjectURL(file));
+      showBanner("success", `Cover uploaded (${res.dimensions.width}x${res.dimensions.height}px)`);
+    } catch (err) {
+      showBanner("error", err.message || "Failed to upload cover");
+    } finally {
+      setUploadingEditCover(false);
+    }
+  }
+
+  function handleRemoveEditCover() {
+    setEditForm((prev) => ({ ...prev, cover_image_url: "" }));
+    setEditCoverPreview(null);
+    if (editFileInputRef.current) {
+      editFileInputRef.current.value = "";
     }
   }
 
@@ -215,6 +259,7 @@ export default function BookDetailOverlay({
         available_copies:
           book.available_copies + (editForm.total_copies - book.total_copies),
       });
+      onRefresh?.();
       closeAfterBanner("Book details updated");
     } catch (err) {
       showBanner("error", err.message || "Failed to update book");
@@ -232,6 +277,7 @@ export default function BookDetailOverlay({
     setLoading(true);
     try {
       const result = await addToWaitlist({ user_id: reserveMemberId, book_id: book.id });
+      onRefresh?.();
       setReserveMemberId(null);
       closeAfterBanner(`Member added to waitlist. Position: ${result.queue_position}`);
     } catch (err) {
@@ -264,6 +310,7 @@ export default function BookDetailOverlay({
           available_copies: result.new_available
         });
       }
+      onRefresh?.();
       setShowDeleteConfirm(false);
       setDeleteReason("");
       setDeleteQuantity(1);
@@ -598,7 +645,7 @@ export default function BookDetailOverlay({
           <div className={styles.editBody}>
             {/* LEFT: Book card */}
             <div className={styles.left}>
-              <BookCard book={book} disableClick />
+              <BookCard book={book} disableClick noCoverText />
             </div>
 
             {/* RIGHT: Edit form */}
@@ -653,36 +700,74 @@ export default function BookDetailOverlay({
                     />
                   </div>
                 </div>
-                <div className={styles.formRow}>
-                  <div className={styles.formGroup}>
-                    <label className={styles.label}>Total Copies *</label>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Total Copies *</label>
+                  <input
+                    type="number"
+                    min="1"
+                    className={styles.input}
+                    value={editForm.total_copies}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        total_copies: Number(e.target.value),
+                      })
+                    }
+                    required
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Cover Image</label>
+                  <div className={styles.coverUploadArea}>
+                    {editCoverPreview || editForm.cover_image_url ? (
+                      <div className={styles.coverPreviewWrapper}>
+                        <img
+                          src={
+                            editCoverPreview ||
+                            (editForm.cover_image_url.startsWith("http")
+                              ? editForm.cover_image_url
+                              : `http://localhost:5005${editForm.cover_image_url}`)
+                          }
+                          alt="Cover preview"
+                          className={styles.coverPreview}
+                        />
+                        <button
+                          type="button"
+                          className={styles.removeCoverBtn}
+                          onClick={handleRemoveEditCover}
+                          disabled={loading || uploadingEditCover}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        className={styles.uploadDropzone}
+                        onClick={() => editFileInputRef.current?.click()}
+                      >
+                        {uploadingEditCover ? (
+                          <>
+                            <span className="spinner"></span>
+                            <span>Uploading...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className={styles.uploadIcon}>📷</span>
+                            <span>Click to upload cover</span>
+                            <span className={styles.uploadHint}>
+                              PNG, JPG, WebP (300-1200 x 400-1800px)
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    )}
                     <input
-                      type="number"
-                      min="1"
-                      className={styles.input}
-                      value={editForm.total_copies}
-                      onChange={(e) =>
-                        setEditForm({
-                          ...editForm,
-                          total_copies: Number(e.target.value),
-                        })
-                      }
-                      required
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label className={styles.label}>Cover URL</label>
-                    <input
-                      type="text"
-                      className={styles.input}
-                      value={editForm.cover_image_url}
-                      onChange={(e) =>
-                        setEditForm({
-                          ...editForm,
-                          cover_image_url: e.target.value,
-                        })
-                      }
-                      placeholder="/static/covers/..."
+                      ref={editFileInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      onChange={handleEditCoverUpload}
+                      style={{ display: "none" }}
+                      disabled={loading || uploadingEditCover}
                     />
                   </div>
                 </div>
