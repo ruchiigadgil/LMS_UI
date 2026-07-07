@@ -319,7 +319,7 @@ export default function BooksPage() {
               {coverPreview || addForm.cover_image_url ? (
                 <div className={styles.coverPreviewWrapper}>
                   <img
-                    src={coverPreview || `http://localhost:5005${addForm.cover_image_url}`}
+                    src={coverPreview || addForm.cover_image_url}
                     alt="Cover preview"
                     className={styles.coverPreview}
                   />

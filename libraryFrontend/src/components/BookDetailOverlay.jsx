@@ -126,11 +126,7 @@ export default function BookDetailOverlay({
   const isAvailable = book.available_copies > 0;
 
   // Cover URL helper
-  const coverUrl = book.cover_image_url
-    ? book.cover_image_url.startsWith("http")
-      ? book.cover_image_url
-      : `http://localhost:5005${book.cover_image_url}`
-    : "/placeholder-cover.svg";
+  const coverUrl = book.cover_image_url || "/placeholder-cover.svg";
 
   // --- Handlers ---
   async function handleIssueSubmit(e) {
@@ -724,9 +720,7 @@ export default function BookDetailOverlay({
                         <img
                           src={
                             editCoverPreview ||
-                            (editForm.cover_image_url.startsWith("http")
-                              ? editForm.cover_image_url
-                              : `http://localhost:5005${editForm.cover_image_url}`)
+                            editForm.cover_image_url
                           }
                           alt="Cover preview"
                           className={styles.coverPreview}

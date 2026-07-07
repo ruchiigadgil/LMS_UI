@@ -676,11 +676,7 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
 
   if (!isOpen || !book) return null;
 
-  const coverUrl = book.cover_image_url
-    ? (book.cover_image_url.startsWith('http')
-        ? book.cover_image_url
-        : `http://localhost:5005${book.cover_image_url}`)
-    : '/placeholder-cover.svg';
+  const coverUrl = book.cover_image_url || '/placeholder-cover.svg';
 
   const isAvailable = book.available_copies > 0;
 
@@ -828,11 +824,7 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
                         onClick={() => onSelectBook && onSelectBook(b)}
                       >
                         <img
-                          src={b.cover_image_url
-                            ? (b.cover_image_url.startsWith('http')
-                                ? b.cover_image_url
-                                : `http://localhost:5005${b.cover_image_url}`)
-                            : '/placeholder-cover.svg'}
+                          src={b.cover_image_url || '/placeholder-cover.svg'}
                           alt={b.title}
                           className={styles.alsoReadCover}
                           onError={(e) => e.target.src = '/placeholder-cover.svg'}

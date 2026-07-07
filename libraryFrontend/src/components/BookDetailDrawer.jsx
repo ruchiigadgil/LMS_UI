@@ -91,11 +91,7 @@ export default function BookDetailDrawer({ book, isOpen, onClose, onUpdate, onDe
   if (!book) return null;
 
   const isAvailable = book.available_copies > 0;
-  const coverUrl = book.cover_image_url
-    ? (book.cover_image_url.startsWith('http') 
-        ? book.cover_image_url 
-        : `http://localhost:5005${book.cover_image_url}`)
-    : '/placeholder-cover.svg';
+  const coverUrl = book.cover_image_url || '/placeholder-cover.svg';
 
   // --- Handlers ---
   async function handleIssueSubmit(e) {

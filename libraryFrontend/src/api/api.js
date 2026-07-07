@@ -1,6 +1,6 @@
 // src/api/api.js
 
-const BASE_URL = 'http://localhost:5005/api';
+const BASE_URL = '/api';
 
 // Helper to handle response and throw errors
 async function handleResponse(response) {

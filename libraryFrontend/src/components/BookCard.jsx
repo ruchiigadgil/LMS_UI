@@ -5,9 +5,7 @@ import styles from './BookCard.module.css';
 export default function BookCard({ book, onClick, disableClick = false, isAdmin = false, noCoverText = false }) {
   const hasCover = !!book.cover_image_url;
   const coverUrl = hasCover
-    ? (book.cover_image_url.startsWith('http')
-        ? book.cover_image_url
-        : `http://localhost:5005${book.cover_image_url}`)
+    ? book.cover_image_url
     : '/placeholder-cover.svg';
 
   const isAvailable = book.available_copies > 0;

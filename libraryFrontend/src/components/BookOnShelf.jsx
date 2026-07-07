@@ -3,11 +3,7 @@ import React from 'react';
 import styles from './BookOnShelf.module.css';
 
 export default function BookOnShelf({ book, onClick }) {
-  const coverUrl = book.cover_image_url
-    ? (book.cover_image_url.startsWith('http')
-        ? book.cover_image_url
-        : `http://localhost:5005${book.cover_image_url}`)
-    : '/placeholder-cover.svg';
+  const coverUrl = book.cover_image_url || '/placeholder-cover.svg';
 
   const isAvailable = book.available_copies > 0;
 
