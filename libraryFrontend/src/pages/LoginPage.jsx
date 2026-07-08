@@ -118,7 +118,6 @@ export default function LoginPage() {
       <div className={styles.container}>
         <div className={styles.card}>
           <div className={styles.brand}>
-            <img src="/logo.png" alt="VERSO logo" className={styles.logoImage} />
             <div className={styles.logoText}>VERSO</div>
             <div className={styles.tagline}>Reset Password</div>
           </div>
@@ -158,7 +157,6 @@ export default function LoginPage() {
       <div className={styles.container}>
         <div className={styles.card}>
           <div className={styles.brand}>
-            <img src="/logo.png" alt="VERSO logo" className={styles.logoImage} />
             <div className={styles.logoText}>VERSO</div>
             <div className={styles.tagline}>Set New Password</div>
           </div>
@@ -209,7 +207,6 @@ export default function LoginPage() {
     <div className={styles.container}>
       <div className={styles.card}>
         <div className={styles.brand}>
-          <img src="/logo.png" alt="VERSO logo" className={styles.logoImage} />
           <div className={styles.logoText}>VERSO</div>
           <div className={styles.tagline}>Behind the Shelf</div>
         </div>

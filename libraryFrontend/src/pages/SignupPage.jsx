@@ -38,7 +38,6 @@ export default function SignupPage() {
     <div className={styles.container}>
       <div className={styles.card}>
         <div className={styles.brand}>
-          <img src="/logo.png" alt="VERSO logo" className={styles.logoImage} />
           <div className={styles.logoText}>VERSO</div>
           <div className={styles.tagline}>Behind the Shelf</div>
         </div>
