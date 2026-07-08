@@ -119,6 +119,30 @@ Open `http://<EC2-PUBLIC-IP>` — the site is live.
 
 ---
 
+## Deploying updates to the live site
+
+**Frontend changes** — all from laptop PowerShell:
+```powershell
+cd "C:\UI Enhacements\Library_Management_System\libraryFrontend"
+npm run build
+scp -i C:\Users\Ruchi\Downloads\library-key.pem -r dist ubuntu@3.236.152.164:/home/ubuntu/frontend
+```
+Then hard-refresh the browser (Ctrl+Shift+R).
+
+**Backend changes:**
+1. Laptop: `git add . && git commit -m "..." && git push`
+2. Laptop: `ssh -i C:\Users\Ruchi\Downloads\library-key.pem ubuntu@3.236.152.164`
+3. Server: `cd ~/LMS_UI && git pull && sudo systemctl restart library`
+
+If you added a Python package (server, before restart):
+`cd library-backend && source venv/bin/activate && pip install -r requirements.txt`
+
+If you changed database models (server, before restart):
+`export FLASK_APP=run.py && flask db upgrade`
+
+Note: the server IP (3.236.152.164) changes if the EC2 instance is
+stopped and started — update it in these commands after a restart.
+
 ## Teardown after your week ($0 after this)
 
 1. **Backup the database** (from the server):
