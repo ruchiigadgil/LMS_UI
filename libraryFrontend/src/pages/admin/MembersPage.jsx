@@ -201,17 +201,17 @@ export default function MembersPage() {
                     className={`${styles.tr} ${styles.clickableRow}`}
                     onClick={() => setViewingMember(member)}
                   >
-                    <td className={`${styles.td} ${styles.idVal}`}>{member.id}</td>
-                    <td className={`${styles.td} ${styles.nameCell}`}>{member.name}</td>
-                    <td className={styles.td}>{member.email}</td>
-                    <td className={styles.td}>{member.phone || '—'}</td>
-                    <td className={styles.td}>
+                    <td className={`${styles.td} ${styles.idVal}`} data-label="ID">{member.id}</td>
+                    <td className={`${styles.td} ${styles.nameCell}`} data-label="Name">{member.name}</td>
+                    <td className={styles.td} data-label="Email">{member.email}</td>
+                    <td className={styles.td} data-label="Phone">{member.phone || '—'}</td>
+                    <td className={styles.td} data-label="Status">
                       <StatusBadge status={member.membership_status || 'ACTIVE'} />
                     </td>
-                    <td className={`${styles.td} ${styles.loansVal}`}>
+                    <td className={`${styles.td} ${styles.loansVal}`} data-label="Loans">
                       {member.active_loans} / 5
                     </td>
-                    <td className={styles.td}>
+                    <td className={styles.td} data-label="Actions">
                       <div className={styles.actionBtns}>
                         <button
                           className={styles.btnEdit}

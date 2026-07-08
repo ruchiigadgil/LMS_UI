@@ -125,9 +125,12 @@ Open `http://<EC2-PUBLIC-IP>` — the site is live.
 ```powershell
 cd "C:\UI Enhacements\Library_Management_System\libraryFrontend"
 npm run build
+ssh -i C:\Users\Ruchi\Downloads\library-key.pem ubuntu@3.236.152.164 "rm -rf /home/ubuntu/frontend"
 scp -i C:\Users\Ruchi\Downloads\library-key.pem -r dist ubuntu@3.236.152.164:/home/ubuntu/frontend
 ```
 Then hard-refresh the browser (Ctrl+Shift+R).
+(The rm -rf line matters: without it, scp nests the new files inside the
+old folder as frontend/dist and the site keeps serving stale files.)
 
 **Backend changes:**
 1. Laptop: `git add . && git commit -m "..." && git push`

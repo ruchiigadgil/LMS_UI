@@ -225,6 +225,9 @@ img {
   background: var(--color-accent-light);
 }
 
+:root {
+  scrollbar-color: rgba(109, 76, 65, 0.55) transparent;
+}
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -233,11 +236,11 @@ img {
   background: var(--color-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(124,58,237,0.28);
+  background: rgba(109, 76, 65, 0.45);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-accent);
+  background: var(--verso-brown-600);
 }
 
 /* ═══════════════════════════════════════════

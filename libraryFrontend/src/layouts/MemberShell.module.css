@@ -3,8 +3,18 @@
 .container {
   display: flex;
   min-height: 100vh;
-  background: url('/Background.png') no-repeat center center fixed;
+  /* Anchor to the top so the brown table edge at the bottom of the
+     artwork stays cropped out of view */
+  background: url('/Background.png') no-repeat top center fixed;
   background-size: cover;
+}
+
+/* Portrait screens fit the image's full height into the viewport, which
+   would expose the brown bottom edge — zoom slightly to keep it cropped */
+@media (orientation: portrait) {
+  .container {
+    background-size: auto 118%;
+  }
 }
 
 /* ─── Sidebar ─── */
@@ -200,38 +210,18 @@
     flex-direction: column;
   }
 
-  .sidebar {
-    position: static;
-    width: 100%;
-    min-height: auto;
-  }
-
-  .nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: var(--verso-space-3);
-    gap: var(--verso-space-2);
-  }
-
-  .navLink {
-    flex: 1 1 calc(50% - 8px);
-    border-left: none;
-    border-radius: var(--verso-radius-md);
-    padding: var(--verso-space-3) var(--verso-space-4);
-    justify-content: center;
-  }
-
-  .activeLink {
-    border-left-color: transparent;
-  }
-
+  /* Dissolve mainArea so brandBar, nav and content can be reordered:
+     1) Verso + user row, 2) nav tabs, 3) page content */
   .mainArea {
-    margin-left: 0;
+    display: contents;
   }
 
   .brandBar {
-    padding: var(--verso-space-5);
-    flex-direction: column;
+    order: 1;
+    padding: var(--verso-space-4) var(--verso-space-5);
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     gap: var(--verso-space-3);
   }
 
@@ -244,25 +234,53 @@
     transform: none;
   }
 
-  .contentWrapper {
-    padding: 0 var(--verso-space-4);
-    padding-bottom: 160px;
+  .sidebar {
+    order: 2;
+    position: static;
+    width: 100%;
+    min-height: auto;
   }
 
+  .nav {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: var(--verso-space-2) var(--verso-space-3);
+    gap: var(--verso-space-2);
+  }
+
+  .navLink {
+    flex: 0 0 auto;
+    min-height: 40px;
+    border-left: none;
+    border-radius: var(--verso-radius-md);
+    padding: var(--verso-space-2) var(--verso-space-3);
+    font-size: var(--verso-text-sm);
+    justify-content: center;
+  }
+
+  .navIcon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .activeLink {
+    border-left-color: transparent;
+  }
+
+  .contentWrapper {
+    order: 3;
+    /* Top padding gives breathing room between nav tabs and content */
+    padding: var(--verso-space-4) var(--verso-space-4) var(--verso-space-8);
+  }
+
+  /* Decoration gets in the way on small screens */
   .coffeeCorner {
-    width: 180px;
+    display: none;
   }
 }
 
 @media (max-width: 480px) {
-  .coffeeCorner {
-    width: 140px;
-  }
-
-  .contentWrapper {
-    padding-bottom: 120px;
-  }
-
   .brandText {
     font-size: var(--verso-text-xl);
   }

@@ -85,14 +85,14 @@ export default function HoldsPage() {
                       ref={String(reservation.reservation_id) === highlightId ? highlightRef : null}
                       className={`${styles.tr} ${String(reservation.reservation_id) === highlightId ? styles.highlightRow : ''}`}
                     >
-                      <td className={styles.td}>
+                      <td className={styles.td} data-label="Book">
                         <span className={styles.bookTitle}>{reservation.book_title}</span>
                       </td>
-                      <td className={styles.td}>
+                      <td className={styles.td} data-label="Author">
                         <span className={styles.authorName}>{reservation.book_author}</span>
                       </td>
-                      <td className={`${styles.td} ${styles.dateVal}`}>{formatDate(reservation.requested_at)}</td>
-                      <td className={styles.td}>
+                      <td className={`${styles.td} ${styles.dateVal}`} data-label="Requested">{formatDate(reservation.requested_at)}</td>
+                      <td className={styles.td} data-label="Queue">
                         <div className={styles.queueBadge}>
                           <span className={`${styles.queueNumber} ${reservation.queue_position === 1 ? styles.queueFirst : ''}`}>
                             #{reservation.queue_position}
@@ -102,7 +102,7 @@ export default function HoldsPage() {
                           )}
                         </div>
                       </td>
-                      <td className={styles.td}>
+                      <td className={styles.td} data-label="Status">
                         <StatusBadge status={reservation.status} />
                       </td>
                     </tr>

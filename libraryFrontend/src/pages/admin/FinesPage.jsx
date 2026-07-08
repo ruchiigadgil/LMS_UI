@@ -125,17 +125,17 @@ export default function FinesPage() {
               <tbody>
                 {filteredFines.map(fine => (
                     <tr key={fine.id} className={styles.tr}>
-                      <td className={`${styles.td} ${styles.idVal}`}>{fine.id}</td>
-                      <td className={styles.td} style={{ fontWeight: 600 }}>{fine.user_name}</td>
-                      <td className={styles.td}>{fine.book_title}</td>
-                      <td className={`${styles.td} ${styles.amountVal} ${fine.paid ? styles.amountPaid : styles.amountUnpaid}`}>
+                      <td className={`${styles.td} ${styles.idVal}`} data-label="Fine ID">{fine.id}</td>
+                      <td className={styles.td} style={{ fontWeight: 600 }} data-label="Member">{fine.user_name}</td>
+                      <td className={styles.td} data-label="Book">{fine.book_title}</td>
+                      <td className={`${styles.td} ${styles.amountVal} ${fine.paid ? styles.amountPaid : styles.amountUnpaid}`} data-label="Amount">
                         ₹{fine.amount.toFixed(2)}
                       </td>
-                      <td className={`${styles.td} ${styles.dateVal}`}>{formatDate(fine.raised_at)}</td>
-                      <td className={styles.td}>
+                      <td className={`${styles.td} ${styles.dateVal}`} data-label="Raised">{formatDate(fine.raised_at)}</td>
+                      <td className={styles.td} data-label="Status">
                         <StatusBadge status={fine.paid ? 'PAID' : 'UNPAID'} />
                       </td>
-                      <td className={styles.td}>
+                      <td className={styles.td} data-label="Action">
                         {!fine.paid ? (
                           <button
                             className={styles.btnPay}

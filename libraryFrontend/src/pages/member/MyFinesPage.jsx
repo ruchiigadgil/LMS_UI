@@ -115,16 +115,16 @@ export default function MyFinesPage() {
                     <tbody>
                       {overdueLoans.map(loan => (
                         <tr key={loan.loan_id} className={`${styles.tr} ${styles.overdueRow}`}>
-                          <td className={styles.td}>
+                          <td className={styles.td} data-label="Book">
                             <span className={styles.bookTitle}>{loan.book_title}</span>
                           </td>
-                          <td className={`${styles.td} ${styles.dateVal} ${styles.overdueDateVal}`}>
+                          <td className={`${styles.td} ${styles.dateVal} ${styles.overdueDateVal}`} data-label="Due">
                             {formatDate(loan.due_date)}
                           </td>
-                          <td className={styles.td}>
+                          <td className={styles.td} data-label="Overdue">
                             <span className={styles.daysOverdue}>{loan.daysOverdue} days</span>
                           </td>
-                          <td className={styles.td}>
+                          <td className={styles.td} data-label="Est. Fine">
                             <span className={styles.estimatedFine}>
                               {loan.estimatedFine > 0 ? `₹${loan.estimatedFine.toFixed(2)}` : 'Within grace period'}
                             </span>
@@ -157,17 +157,17 @@ export default function MyFinesPage() {
                     <tbody>
                       {unpaidFines.map(fine => (
                           <tr key={fine.id} className={`${styles.tr} ${highlightUnpaid ? styles.highlightRow : ''}`}>
-                            <td className={styles.td}>
+                            <td className={styles.td} data-label="Book">
                               <span className={styles.bookTitle}>{fine.book_title}</span>
                             </td>
-                            <td className={`${styles.td} ${styles.amountVal} ${styles.amountUnpaid}`}>
+                            <td className={`${styles.td} ${styles.amountVal} ${styles.amountUnpaid}`} data-label="Amount">
                               ₹{fine.amount.toFixed(2)}
                             </td>
-                            <td className={`${styles.td} ${styles.dateVal}`}>{formatDate(fine.raised_at)}</td>
-                            <td className={styles.td}>
+                            <td className={`${styles.td} ${styles.dateVal}`} data-label="Raised">{formatDate(fine.raised_at)}</td>
+                            <td className={styles.td} data-label="Status">
                               <StatusBadge status="UNPAID" />
                             </td>
-                            <td className={styles.td}>
+                            <td className={styles.td} data-label="Action">
                               <button
                                 className={styles.btnPay}
                                 onClick={() => handlePayFine(fine.id)}
@@ -203,14 +203,14 @@ export default function MyFinesPage() {
                     <tbody>
                       {paidFines.map(fine => (
                           <tr key={fine.id} className={styles.tr}>
-                            <td className={styles.td}>
+                            <td className={styles.td} data-label="Book">
                               <span className={styles.bookTitle}>{fine.book_title}</span>
                             </td>
-                            <td className={`${styles.td} ${styles.amountVal} ${styles.amountPaid}`}>
+                            <td className={`${styles.td} ${styles.amountVal} ${styles.amountPaid}`} data-label="Amount">
                               ₹{fine.amount.toFixed(2)}
                             </td>
-                            <td className={`${styles.td} ${styles.dateVal}`}>{formatDate(fine.raised_at)}</td>
-                            <td className={styles.td}>
+                            <td className={`${styles.td} ${styles.dateVal}`} data-label="Raised">{formatDate(fine.raised_at)}</td>
+                            <td className={styles.td} data-label="Status">
                               <StatusBadge status="PAID" />
                             </td>
                           </tr>

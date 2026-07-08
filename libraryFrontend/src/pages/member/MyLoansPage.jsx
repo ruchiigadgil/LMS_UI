@@ -143,20 +143,20 @@ export default function MyLoansPage() {
                       ref={isHighlighted ? highlightRef : null}
                       className={`${styles.tr} ${isHighlighted ? styles.highlightRow : ''}`}
                     >
-                      <td className={styles.td}>
+                      <td className={styles.td} data-label="Book">
                         <span className={styles.bookTitle}>{loan.book_title}</span>
                       </td>
-                      <td className={`${styles.td} ${styles.dateVal}`}>{formatDate(loan.issue_date)}</td>
-                      <td className={`${styles.td} ${styles.dateVal} ${isPastDue ? styles.dueWarning : ''}`}>
+                      <td className={`${styles.td} ${styles.dateVal}`} data-label="Issued">{formatDate(loan.issue_date)}</td>
+                      <td className={`${styles.td} ${styles.dateVal} ${isPastDue ? styles.dueWarning : ''}`} data-label="Due">
                         {formatDate(loan.due_date)}
                       </td>
-                      <td className={styles.td}>
+                      <td className={styles.td} data-label="Status">
                         <StatusBadge status={loan.status} />
                       </td>
-                      <td className={`${styles.td} ${styles.renewalsVal}`}>
+                      <td className={`${styles.td} ${styles.renewalsVal}`} data-label="Renewals">
                         {loan.renewal_count} / 2
                       </td>
-                      <td className={styles.td}>
+                      <td className={styles.td} data-label="Action">
                         <div className={styles.tooltipWrapper} title={buttonTooltip}>
                           <button
                             className={styles.btnRenew}

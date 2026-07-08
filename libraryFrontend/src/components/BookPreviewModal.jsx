@@ -608,14 +608,6 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
     }
   }
 
-  function handlePreviewClick() {
-    setIsFullBook(false);
-    setActiveTab('reading');
-    if (!bookContent) {
-      fetchBookContent();
-    }
-  }
-
   function openFullBook() {
     setIsFullBook(true);
     setActiveTab('reading');
@@ -764,14 +756,11 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
               <div className={styles.actions}>
                 <button
                   className={styles.previewBtn}
-                  onClick={handlePreviewClick}
+                  onClick={openFullBook}
+                  disabled={!gutenbergId}
                 >
                   <Icon name="book" className={styles.btnIcon} />
-                  View Book Preview
-                </button>
-                <button className={styles.payBtn} onClick={openFullBook}>
-                  <Icon name="book" className={styles.btnIcon} />
-                  Pay To Read The Full Book
+                  {gutenbergId ? 'Read the eBook' : 'eBook Not Available'}
                 </button>
               </div>
 
@@ -941,16 +930,6 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
                   ) : (
                     <div className={styles.bookPage}>
                       <div className={styles.bookText}>{bookContent}</div>
-                    </div>
-                  )}
-
-                  {/* End of preview message */}
-                  {!isFullBook && pages.length > pagesToShow.length && (
-                    <div className={styles.previewEndPage}>
-                      <p>End of preview</p>
-                      <button className={styles.continueBtn} onClick={openFullBook}>
-                        Pay To Read Full Book
-                      </button>
                     </div>
                   )}
 

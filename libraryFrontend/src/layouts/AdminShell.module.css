@@ -213,38 +213,17 @@
     flex-direction: column;
   }
 
-  .sidebar {
-    position: static;
-    width: 100%;
-    min-height: auto;
-  }
-
-  .nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: var(--verso-space-3);
-    gap: var(--verso-space-2);
-  }
-
-  .navLink {
-    flex: 1 1 calc(50% - 8px);
-    border-left: none;
-    border-radius: var(--verso-radius-md);
-    padding: var(--verso-space-3) var(--verso-space-4);
-    justify-content: center;
-  }
-
-  .activeLink {
-    border-left-color: transparent;
-  }
-
+  /* Dissolve mainArea so brandBar, nav and content can be reordered:
+     1) Verso + user row, 2) nav tabs, 3) page content */
   .mainArea {
-    margin-left: 0;
+    display: contents;
   }
 
   .brandBar {
-    padding: var(--verso-space-5);
-    flex-direction: column;
+    order: 1;
+    padding: var(--verso-space-4) var(--verso-space-5);
+    align-items: center;
+    justify-content: space-between;
     gap: var(--verso-space-3);
   }
 
@@ -257,7 +236,42 @@
     transform: none;
   }
 
+  .sidebar {
+    order: 2;
+    position: static;
+    width: 100%;
+    min-height: auto;
+  }
+
+  .nav {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: var(--verso-space-2) var(--verso-space-3);
+    gap: var(--verso-space-2);
+  }
+
+  .navLink {
+    flex: 0 0 auto;
+    min-height: 40px;
+    border-left: none;
+    border-radius: var(--verso-radius-md);
+    padding: var(--verso-space-2) var(--verso-space-3);
+    font-size: var(--verso-text-sm);
+    justify-content: center;
+  }
+
+  .navIcon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .activeLink {
+    border-left-color: transparent;
+  }
+
   .pageBar {
+    order: 3;
     padding: var(--verso-space-4);
     flex-direction: column;
     align-items: flex-start;
@@ -269,6 +283,7 @@
   }
 
   .content {
+    order: 4;
     padding: 0 var(--verso-space-4) var(--verso-space-4);
   }
 }

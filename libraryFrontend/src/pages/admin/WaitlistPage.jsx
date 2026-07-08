@@ -126,11 +126,11 @@ export default function WaitlistPage() {
               <tbody>
                 {filteredQueue.map(row => (
                     <tr key={row.id} className={styles.tr}>
-                      <td className={`${styles.td} ${styles.rankVal}`}>#{row.position}</td>
-                      <td className={styles.td}>{row.member_name}</td>
-                      <td className={styles.td}>{row.email}</td>
-                      <td className={`${styles.td} ${styles.dateVal}`}>{formatDate(row.added_at)}</td>
-                      <td className={styles.td}>
+                      <td className={`${styles.td} ${styles.rankVal}`} data-label="Rank">#{row.position}</td>
+                      <td className={styles.td} data-label="Member">{row.member_name}</td>
+                      <td className={styles.td} data-label="Email">{row.email}</td>
+                      <td className={`${styles.td} ${styles.dateVal}`} data-label="Requested">{formatDate(row.added_at)}</td>
+                      <td className={styles.td} data-label="Status">
                         <StatusBadge status={row.status} />
                       </td>
                     </tr>

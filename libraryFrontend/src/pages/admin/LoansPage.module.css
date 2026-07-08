@@ -161,3 +161,54 @@
     font-size: var(--verso-text-xs);
   }
 }
+
+/* Dates must never wrap onto two lines */
+.dateVal {
+  white-space: nowrap;
+}
+
+/* Stack table rows into label/value pairs on phones (no sideways scroll) */
+@media (max-width: 640px) {
+  .table thead {
+    display: none;
+  }
+
+  .table,
+  .table tbody,
+  .tr,
+  .td {
+    display: block;
+    width: 100%;
+  }
+
+  .tr {
+    padding: var(--verso-space-3) var(--verso-space-4);
+    border-bottom: 1px solid var(--verso-border-medium);
+  }
+
+  .tr:last-child {
+    border-bottom: none;
+  }
+
+  .td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--verso-space-3);
+    border-bottom: none;
+    padding: var(--verso-space-1) 0;
+    text-align: right;
+  }
+
+  .td::before {
+    content: attr(data-label);
+    font-family: var(--verso-font-body);
+    font-size: var(--verso-text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--verso-brown-600);
+    flex-shrink: 0;
+    text-align: left;
+  }
+}

@@ -107,3 +107,53 @@
   font-size: 8px;
   line-height: 1;
 }
+
+@media (max-width: 900px) {
+  .book {
+    width: 84px;
+    height: 123px;
+  }
+
+  .book:hover {
+    transform: translateY(-12px) scale(1.06);
+  }
+
+  .spineTitle {
+    font-size: 9px;
+    padding: 5px;
+  }
+}
+
+@media (max-width: 640px) {
+  .book {
+    width: 58px;
+    height: 85px;
+  }
+
+  .book:hover {
+    transform: translateY(-8px) scale(1.05);
+  }
+
+  .spineTitle {
+    font-size: 7px;
+    padding: 4px;
+  }
+
+  .unavailableBadge {
+    font-size: 5px;
+    padding: 2px 3px;
+    top: 3px;
+    right: 3px;
+  }
+
+  .ratingBadge {
+    font-size: 7px;
+    padding: 2px 3px;
+    top: 3px;
+    left: 3px;
+  }
+
+  .ratingStar {
+    font-size: 6px;
+  }
+}

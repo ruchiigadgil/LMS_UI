@@ -91,12 +91,12 @@ export default function MemberDetailModal({ member, isOpen, onClose }) {
 
                         return (
                           <tr key={loan.loan_id}>
-                            <td>{loan.book_title}</td>
-                            <td>{formatDate(loan.issue_date)}</td>
-                            <td className={isOverdue ? styles.overdue : ''}>
+                            <td data-label="Book">{loan.book_title}</td>
+                            <td data-label="Issued">{formatDate(loan.issue_date)}</td>
+                            <td className={isOverdue ? styles.overdue : ''} data-label="Due">
                               {formatDate(loan.due_date)}
                             </td>
-                            <td>
+                            <td data-label="Status">
                               <StatusBadge status={isOverdue ? 'OVERDUE' : 'ACTIVE'} />
                             </td>
                           </tr>
@@ -130,10 +130,10 @@ export default function MemberDetailModal({ member, isOpen, onClose }) {
                     <tbody>
                       {activeReservations.map(res => (
                         <tr key={res.reservation_id}>
-                          <td>{res.book_title}</td>
-                          <td>{formatDate(res.requested_at)}</td>
-                          <td>{res.queue_position}</td>
-                          <td>
+                          <td data-label="Book">{res.book_title}</td>
+                          <td data-label="Requested">{formatDate(res.requested_at)}</td>
+                          <td data-label="Queue">{res.queue_position}</td>
+                          <td data-label="Status">
                             <StatusBadge status={res.status} />
                           </td>
                         </tr>
@@ -165,9 +165,9 @@ export default function MemberDetailModal({ member, isOpen, onClose }) {
                     <tbody>
                       {unpaidFines.map(fine => (
                         <tr key={fine.id}>
-                          <td>{fine.book_title}</td>
-                          <td className={styles.fineAmount}>{fine.amount.toFixed(2)}</td>
-                          <td>{formatDate(fine.raised_at)}</td>
+                          <td data-label="Book">{fine.book_title}</td>
+                          <td className={styles.fineAmount} data-label="Amount">{fine.amount.toFixed(2)}</td>
+                          <td data-label="Raised">{formatDate(fine.raised_at)}</td>
                         </tr>
                       ))}
                     </tbody>

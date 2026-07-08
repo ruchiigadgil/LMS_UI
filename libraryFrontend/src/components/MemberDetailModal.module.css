@@ -194,3 +194,57 @@
   font-weight: 600;
   color: var(--verso-danger);
 }
+
+/* Stack table rows into label/value pairs on phones (no sideways scroll) */
+@media (max-width: 640px) {
+  .table thead {
+    display: none;
+  }
+
+  .table,
+  .table tbody,
+  .table tr,
+  .table td {
+    display: block;
+    width: 100%;
+  }
+
+  .table {
+    white-space: normal;
+  }
+
+  .table tr {
+    padding: var(--verso-space-2) var(--verso-space-3);
+    border-bottom: 1px solid var(--verso-border-light);
+  }
+
+  .table tr:last-child {
+    border-bottom: none;
+  }
+
+  .table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--verso-space-3);
+    border-bottom: none;
+    padding: var(--verso-space-1) 0;
+    overflow: visible;
+    text-align: right;
+  }
+
+  .table tr:hover td {
+    background: transparent;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    font-size: var(--verso-text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--verso-brown-600);
+    flex-shrink: 0;
+    text-align: left;
+  }
+}

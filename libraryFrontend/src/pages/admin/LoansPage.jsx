@@ -132,23 +132,23 @@ export default function LoansPage() {
                   
                   return (
                     <tr key={loan.loan_id} className={styles.tr}>
-                      <td className={`${styles.td} ${styles.idVal}`}>{loan.loan_id}</td>
-                      <td className={styles.td} style={{ fontWeight: 600 }}>{loan.user_name}</td>
-                      <td className={styles.td}>{loan.book_title}</td>
-                      <td className={`${styles.td} ${styles.dateVal}`}>{formatDate(loan.issue_date)}</td>
-                      <td className={`${styles.td} ${styles.dateVal} ${isPastDue ? styles.dueWarning : ''}`}>
+                      <td className={`${styles.td} ${styles.idVal}`} data-label="Loan ID">{loan.loan_id}</td>
+                      <td className={styles.td} style={{ fontWeight: 600 }} data-label="Member">{loan.user_name}</td>
+                      <td className={styles.td} data-label="Book">{loan.book_title}</td>
+                      <td className={`${styles.td} ${styles.dateVal}`} data-label="Issued">{formatDate(loan.issue_date)}</td>
+                      <td className={`${styles.td} ${styles.dateVal} ${isPastDue ? styles.dueWarning : ''}`} data-label="Due">
                         {formatDate(loan.due_date)}
                       </td>
                       {activeTab === 'overdue' && (
-                        <td className={`${styles.td} ${styles.daysOverdue}`}>
+                        <td className={`${styles.td} ${styles.daysOverdue}`} data-label="Overdue">
                           {loan.days_overdue} Day(s)
                         </td>
                       )}
-                      <td className={`${styles.td} ${styles.renewalsVal}`}>{loan.renewal_count} / 2</td>
-                      <td className={styles.td}>
+                      <td className={`${styles.td} ${styles.renewalsVal}`} data-label="Renewals">{loan.renewal_count} / 2</td>
+                      <td className={styles.td} data-label="Status">
                         <StatusBadge status={loan.status} />
                       </td>
-                      <td className={styles.td}>
+                      <td className={styles.td} data-label="Action">
                         <button
                           className={styles.btnReturn}
                           onClick={() => setSelectedLoanId(loan.loan_id)}

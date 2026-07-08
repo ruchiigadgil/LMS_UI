@@ -261,8 +261,10 @@
 }
 
 @media (max-width: 640px) {
+  /* Always exactly 3 books per row on phones */
   .grid {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 120px));
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--verso-space-3);
   }
 
   .formRow {

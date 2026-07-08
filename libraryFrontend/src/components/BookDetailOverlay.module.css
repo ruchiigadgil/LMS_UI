@@ -1030,10 +1030,13 @@
 
   .panel,
   .issuePanel,
-  .returnPanel {
+  .returnPanel,
+  .reservePanel,
+  .editPanel {
     max-width: none;
     max-height: 100vh;
     border-radius: 0;
+    overflow-x: hidden;
   }
 
   .body {
@@ -1048,11 +1051,21 @@
   }
 
   .issueBody,
-  .returnBody {
+  .returnBody,
+  .reserveBody,
+  .editBody {
     flex-direction: column;
     gap: var(--verso-space-6);
     padding: var(--verso-space-6);
     align-items: center;
+  }
+
+  .right {
+    width: 100%;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
   }
 
   .actionGrid {

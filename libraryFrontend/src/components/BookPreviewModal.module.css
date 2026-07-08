@@ -227,6 +227,18 @@
   color: #FDF8F3;
 }
 
+.previewBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-color: var(--verso-brown-400);
+  color: var(--verso-brown-400);
+}
+
+.previewBtn:disabled:hover {
+  background: transparent;
+  color: var(--verso-brown-400);
+}
+
 .payBtn {
   flex: 1;
   display: flex;
@@ -811,14 +823,48 @@
     padding: 24px 20px;
   }
 
-  .bookText {
-    font-size: 16px;
-    line-height: 1.8;
+  /* Fullscreen reader: shrink the huge desktop padding so the text
+     column gets the full phone width instead of ~110px */
+  .scrollableReader {
+    padding: 20px 12px;
   }
 
-  .chapterTitle {
-    font-size: 22px;
-    margin-bottom: 24px;
+  .pagesContainer {
+    gap: 20px;
+  }
+
+  .bookPage {
+    padding: 28px 22px;
+    min-height: auto;
+  }
+
+  .previewEndPage,
+  .endPage {
+    padding: 32px 24px;
+  }
+
+  .floatingBackBtn,
+  .floatingTocBtn {
+    top: 12px;
+  }
+
+  .floatingBackBtn {
+    left: 12px;
+  }
+
+  .floatingTocBtn {
+    right: 12px;
+  }
+
+  .bookText {
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .chapterTitle,
+  .contentsTitle {
+    font-size: 20px;
+    margin-bottom: 20px;
   }
 
   .chapterNav {
@@ -842,12 +888,22 @@
     padding: 20px 16px;
   }
 
-  .bookText {
-    font-size: 15px;
+  .scrollableReader {
+    padding: 16px 8px;
   }
 
-  .chapterTitle {
-    font-size: 20px;
+  .bookPage {
+    padding: 24px 16px;
+  }
+
+  .bookText {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .chapterTitle,
+  .contentsTitle {
+    font-size: 18px;
   }
 
   .chapterNav {
