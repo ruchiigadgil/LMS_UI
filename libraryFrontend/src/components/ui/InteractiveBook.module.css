@@ -1,0 +1,14 @@
+/* Subtle paper-grain texture layered under the cream page background —
+   easier to express as a repeating gradient here than as Tailwind utilities. */
+.paper {
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(93, 64, 55, 0.035) 0%, transparent 45%),
+    radial-gradient(circle at 80% 70%, rgba(93, 64, 55, 0.03) 0%, transparent 50%),
+    repeating-linear-gradient(
+      0deg,
+      rgba(93, 64, 55, 0.015) 0px,
+      rgba(93, 64, 55, 0.015) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+}

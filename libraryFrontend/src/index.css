@@ -158,10 +158,14 @@
    BASE RESET & DEFAULTS
    ═══════════════════════════════════════════ */
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* Layered so Tailwind utilities (a later layer) can override the reset;
+   unlayered rules still beat this by default, same as before. */
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 }
 
 html, body, #root {
@@ -200,11 +204,15 @@ input, button, select, textarea {
   font-size: inherit;
 }
 
-button {
-  cursor: pointer;
-  border: none;
-  background: none;
-  color: inherit;
+/* Layered for the same reason as the reset above: Tailwind button styles
+   (backgrounds, text color, cursor) must be able to override these defaults. */
+@layer base {
+  button {
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: inherit;
+  }
 }
 
 a {

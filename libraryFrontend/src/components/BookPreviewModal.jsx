@@ -1,8 +1,8 @@
 // src/components/BookPreviewModal.jsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Icon from './Icon';
-import { getAlsoRead, getReviews } from '../api/api';
-import { formatDate } from '../utils/formatDate';
+import InteractiveBook from './ui/interactive-book';
+import { getAlsoRead, getReviews, getRecommendations, getCurrentUser } from '../api/api';
 import styles from './BookPreviewModal.module.css';
 
 // Local book index - maps titles to Gutenberg IDs with descriptions
@@ -298,11 +298,12 @@ function getReadingProgress(bookId) {
   }
 }
 
-// Save reading progress to localStorage
-function saveReadingProgress(bookId, scrollPercent) {
+// Save reading progress (and the chapter the reader was on) to localStorage
+function saveReadingProgress(bookId, scrollPercent, chapterTitle) {
   try {
     const data = {
       scrollPercent,
+      chapterTitle: chapterTitle || null,
       timestamp: Date.now()
     };
     localStorage.setItem(`reading_progress_${bookId}`, JSON.stringify(data));
@@ -318,7 +319,6 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
   const [loadingDescription, setLoadingDescription] = useState(false);
   const [loadingContent, setLoadingContent] = useState(false);
   const [gutenbergId, setGutenbergId] = useState(null);
-  const [isFullBook, setIsFullBook] = useState(false);
   const [chapters, setChapters] = useState([]);
   const [pages, setPages] = useState([]);
   const [navOpen, setNavOpen] = useState(false);
@@ -327,9 +327,13 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
   const [hasEbook, setHasEbook] = useState(true);
   const [alsoRead, setAlsoRead] = useState([]);
   const [bookReviews, setBookReviews] = useState([]);
+  const [recommendations, setRecommendations] = useState([]);
+  const [savedProgress, setSavedProgress] = useState(null);
 
   const readerRef = useRef(null);
   const saveTimeoutRef = useRef(null);
+
+  const currentUser = getCurrentUser();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -345,19 +349,20 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
     setDescription('');
     setBookContent('');
     setGutenbergId(null);
-    setIsFullBook(false);
     setChapters([]);
     setPages([]);
     setNavOpen(false);
     setReadingProgress(0);
     setHasRestoredProgress(false);
     setHasEbook(true);
+    setSavedProgress(null);
     fetchBookDescription();
     findLocalBook();
 
-    // "Readers also read" recommendations + reviews for this book
+    // "Readers also read" / personalized recommendations + reviews for this book
     setAlsoRead([]);
     setBookReviews([]);
+    setRecommendations([]);
     if (book.id) {
       getAlsoRead(book.id)
         .then(data => setAlsoRead(data || []))
@@ -365,6 +370,11 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
       getReviews(book.id)
         .then(data => setBookReviews(data || []))
         .catch(() => setBookReviews([]));
+    }
+    if (currentUser) {
+      getRecommendations(currentUser.id)
+        .then(data => setRecommendations((data?.might_like || []).filter(b => b.id !== book.id)))
+        .catch(() => setRecommendations([]));
     }
   }, [isOpen, book]);
 
@@ -498,8 +508,6 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
     const normalize = (str) => str.toLowerCase().replace(/['']/g, "'").replace(/[^\w\s']/g, '').replace(/\s+/g, ' ').trim();
     const normalizedBookTitle = normalize(book.title);
 
-    console.log('Looking for book:', book.title, '| normalized:', normalizedBookTitle);
-
     const match = LOCAL_BOOKS_INDEX.find(b => {
       const normalizedLocalTitle = normalize(b.title);
       // Check various matching strategies
@@ -514,11 +522,10 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
     });
 
     if (match) {
-      console.log('Found local match:', match.title, 'with ID:', match.id);
       setGutenbergId(match.id);
       setHasEbook(true);
+      setSavedProgress(getReadingProgress(match.id));
     } else {
-      console.log('No local match found, searching Gutenberg online...');
       setHasEbook(false);
       searchGutenbergOnline();
     }
@@ -558,20 +565,15 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
     };
 
     const localPath = `/books/${gutenbergId}.txt`;
-    console.log('Fetching book from:', localPath);
 
     try {
       const localRes = await fetch(localPath);
-      console.log('Local fetch response:', localRes.status, localRes.ok);
       if (localRes.ok) {
         const text = await localRes.text();
-        console.log('Content preview:', text.substring(0, 100));
         if (!isHtmlContent(text)) {
           setBookContent(text);
           setLoadingContent(false);
           return;
-        } else {
-          console.log('Local file returned HTML, trying Gutenberg...');
         }
       }
     } catch (err) {
@@ -608,18 +610,15 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
     }
   }
 
-  function openFullBook() {
-    setIsFullBook(true);
+  function openReader() {
     setActiveTab('reading');
     if (!bookContent) {
       fetchBookContent();
     }
   }
 
-  // Get pages to display based on preview/full mode (preview shows first 15 pages)
-  const pagesToShow = isFullBook ? pages : pages.slice(0, Math.min(pages.length, 15));
-
-  // Handle scroll to track progress and save position
+  // Handle scroll to track progress and save position (+ the chapter the
+  // reader is currently in, so the Reading Progress spread can show it later)
   const handleScroll = useCallback(() => {
     if (!readerRef.current || !gutenbergId) return;
     const { scrollTop, scrollHeight, clientHeight } = readerRef.current;
@@ -629,9 +628,11 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
     // Debounce save
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
-      saveReadingProgress(gutenbergId, scrollPercent);
+      const chapterIdx = Math.min(pages.length - 1, Math.round((scrollPercent / 100) * (pages.length - 1)));
+      const chapterTitle = pages[chapterIdx]?.chapterTitle;
+      saveReadingProgress(gutenbergId, scrollPercent, chapterTitle);
     }, 500);
-  }, [gutenbergId]);
+  }, [gutenbergId, pages]);
 
   // Restore reading position when entering reading mode
   useEffect(() => {
@@ -664,13 +665,12 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
   function handleBackToDetails() {
     setActiveTab('details');
     setHasRestoredProgress(false);
+    if (gutenbergId) setSavedProgress(getReadingProgress(gutenbergId));
   }
 
   if (!isOpen || !book) return null;
 
   const coverUrl = book.cover_image_url || '/placeholder-cover.svg';
-
-  const isAvailable = book.available_copies > 0;
 
   // Rating: prefer the book object's aggregate; fall back to the fetched reviews
   const avgRating = book.avg_rating != null
@@ -679,10 +679,23 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
         ? Math.round((bookReviews.reduce((sum, r) => sum + r.rating, 0) / bookReviews.length) * 10) / 10
         : null);
   const ratingsCount = book.avg_rating != null ? book.ratings_count : bookReviews.length;
+  const ratingDistribution = bookReviews.reduce((acc, r) => {
+    acc[r.rating] = (acc[r.rating] || 0) + 1;
+    return acc;
+  }, {});
+  const ratings = { average: avgRating, count: ratingsCount, distribution: ratingDistribution };
+
+  const ebookAvailability = {
+    available: hasEbook,
+    progressPercent: savedProgress?.scrollPercent || 0,
+    lastChapterTitle: savedProgress?.chapterTitle || null,
+    onRead: openReader,
+    onContinue: openReader,
+  };
 
   return (
     <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className={styles.modal}>
+      <div className={`${styles.modal} ${activeTab === 'details' ? styles.modalNoChrome : ''}`}>
         <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
           <Icon name="close" />
         </button>
@@ -695,136 +708,20 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
         )}
 
         {activeTab === 'details' && (
-          <div className={styles.content}>
-            <div className={styles.leftPanel}>
-              <div className={styles.coverWrapper}>
-                <img
-                  src={coverUrl}
-                  alt={book.title}
-                  className={styles.cover}
-                  onError={(e) => e.target.src = '/placeholder-cover.svg'}
-                />
-              </div>
-              <div className={styles.bookDetails}>
-                <h2 className={styles.title}>{book.title}</h2>
-                <p className={styles.author}>by {book.author || 'Unknown'}</p>
-                <div className={styles.ratingRow}>
-                  {avgRating != null ? (
-                    <>
-                      <span className={styles.ratingStars}>
-                        {[1, 2, 3, 4, 5].map(i => (
-                          <Icon
-                            key={i}
-                            name="star"
-                            size={15}
-                            className={i <= Math.round(avgRating) ? styles.ratingStarFilled : styles.ratingStarEmpty}
-                          />
-                        ))}
-                      </span>
-                      <span className={styles.ratingText}>
-                        {avgRating} ({ratingsCount} rating{ratingsCount !== 1 ? 's' : ''})
-                      </span>
-                    </>
-                  ) : (
-                    <span className={styles.ratingText}>No ratings yet</span>
-                  )}
-                </div>
-                <div className={styles.tagsRow}>
-                  {book.genre && <span className={styles.genre}>{book.genre}</span>}
-                  {!hasEbook && <span className={styles.noEbookTag}>eBook not available</span>}
-                </div>
-                <div className={`${styles.stockIndicator} ${isAvailable ? styles.inStock : styles.outOfStock}`}>
-                  {isAvailable ? 'Available' : 'Not Available'}
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.rightPanel}>
-              <h3 className={styles.sectionTitle}>About This Book</h3>
-              {loadingDescription ? (
-                <div className={styles.loading}>
-                  <span className="spinner"></span>
-                  <span>Loading description...</span>
-                </div>
-              ) : (
-                <div
-                  className={styles.description}
-                  dangerouslySetInnerHTML={{ __html: description || 'No description available for this book.' }}
-                />
-              )}
-
-              <div className={styles.actions}>
-                <button
-                  className={styles.previewBtn}
-                  onClick={openFullBook}
-                  disabled={!gutenbergId}
-                >
-                  <Icon name="book" className={styles.btnIcon} />
-                  {gutenbergId ? 'Read the eBook' : 'eBook Not Available'}
-                </button>
-              </div>
-
-              <div className={styles.reviewsSection}>
-                <h4 className={styles.reviewsTitle}>
-                  Reviews ({bookReviews.length})
-                </h4>
-                {bookReviews.length === 0 ? (
-                  <p className={styles.noReviewsText}>
-                    No reviews yet. Be the first to review this book.
-                  </p>
-                ) : (
-                  <div className={styles.reviewsList}>
-                    {bookReviews.map(review => (
-                      <div key={review.id} className={styles.reviewItem}>
-                        <div className={styles.reviewItemHeader}>
-                          <span className={styles.reviewStars}>
-                            {[1, 2, 3, 4, 5].map(i => (
-                              <Icon
-                                key={i}
-                                name="star"
-                                size={13}
-                                className={i <= review.rating ? styles.ratingStarFilled : styles.ratingStarEmpty}
-                              />
-                            ))}
-                          </span>
-                          <span className={styles.reviewAuthor}>{review.user_name}</span>
-                          <span className={styles.reviewDate}>{formatDate(review.created_at)}</span>
-                        </div>
-                        {review.text && (
-                          <p className={styles.reviewItemText}>{review.text}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {alsoRead.length > 0 && (
-                <div className={styles.alsoRead}>
-                  <h4 className={styles.alsoReadTitle}>Readers of this book also read</h4>
-                  <div className={styles.alsoReadRow}>
-                    {alsoRead.map(b => (
-                      <div
-                        key={b.id}
-                        className={styles.alsoReadCard}
-                        title={`${b.title} by ${b.author}`}
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => onSelectBook && onSelectBook(b)}
-                      >
-                        <img
-                          src={b.cover_image_url || '/placeholder-cover.svg'}
-                          alt={b.title}
-                          className={styles.alsoReadCover}
-                          onError={(e) => e.target.src = '/placeholder-cover.svg'}
-                        />
-                        <span className={styles.alsoReadBookTitle}>{b.title}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+          <div className={styles.flipbookStage}>
+            <InteractiveBook
+              key={book.id}
+              book={book}
+              coverImage={coverUrl}
+              description={description}
+              loadingDescription={loadingDescription}
+              reviews={bookReviews}
+              ratings={ratings}
+              recommendations={recommendations}
+              similarBooks={alsoRead}
+              ebookAvailability={ebookAvailability}
+              onSelectBook={onSelectBook}
+            />
           </div>
         )}
 
@@ -869,8 +766,8 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
                     </div>
                   </div>
 
-                  {pagesToShow.length > 0 ? (
-                    pagesToShow.map((page, idx) => {
+                  {pages.length > 0 ? (
+                    pages.map((page, idx) => {
                       const isTitleOrContents = page.sectionType === 'titlePage' || page.sectionType === 'contents';
                       const formattedLines = isTitleOrContents
                         ? formatTocContent(page.content)
@@ -934,7 +831,7 @@ export default function BookPreviewModal({ book, isOpen, onClose, onSelectBook, 
                   )}
 
                   {/* End of book */}
-                  {isFullBook && (
+                  {pages.length > 0 && (
                     <div className={styles.endPage}>
                       <p className={styles.bookEnd}>— The End —</p>
                     </div>

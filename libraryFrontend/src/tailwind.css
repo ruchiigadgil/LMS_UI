@@ -1,0 +1,5 @@
+/* Utilities-only Tailwind entry point — Preflight is intentionally skipped so
+   it doesn't override the app's existing global reset/typography in index.css. */
+@layer base, theme, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
