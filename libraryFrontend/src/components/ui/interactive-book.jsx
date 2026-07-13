@@ -229,8 +229,7 @@ function BookGridPage({ title, books, emptyText, onSelectBook }) {
     <div className="h-full flex flex-col min-h-0">
       <h3 className="font-serif text-sm text-[var(--verso-brown-900)] mb-3 leading-snug">{title}</h3>
       {books.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center gap-2 px-4">
-          <Icon name="book" size={22} className="text-[var(--verso-brown-300)]" />
+        <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
           <p className="text-[11px] text-[var(--verso-brown-400)] leading-relaxed">{emptyText}</p>
         </div>
       ) : (
@@ -530,10 +529,16 @@ export default function InteractiveBook({
         <div className="flex items-center gap-4">
           <button
             type="button"
-            onClick={() => setCurrentPageIndex((p) => Math.max(-1, p - 1))}
-            disabled={currentPageIndex <= -1}
-            className="p-2 rounded-full bg-[var(--verso-cream-200)] hover:bg-[var(--verso-cream-100)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            aria-label="Previous"
+            onClick={() => {
+              if (currentPageIndex <= -1) {
+                // Already on the first spread: flip the cover closed.
+                setIsOpen(false);
+              } else {
+                setCurrentPageIndex((p) => Math.max(-1, p - 1));
+              }
+            }}
+            className="p-2 rounded-full bg-[var(--verso-cream-200)] hover:bg-[var(--verso-cream-100)] transition-colors"
+            aria-label={currentPageIndex <= -1 ? 'Close the book' : 'Previous'}
           >
             <Icon name="chevronLeft" size={16} className="text-[var(--verso-brown-700)]" />
           </button>
