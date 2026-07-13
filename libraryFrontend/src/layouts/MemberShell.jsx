@@ -62,7 +62,6 @@ export default function MemberShell() {
                 `${styles.navLink} ${isActive ? styles.activeLink : ""}`
               }
             >
-              <Icon name="books" className={styles.navIcon} />
               <span>Browse Books</span>
             </NavLink>
             <NavLink
@@ -71,7 +70,6 @@ export default function MemberShell() {
                 `${styles.navLink} ${isActive ? styles.activeLink : ""}`
               }
             >
-              <Icon name="clipboardList" className={styles.navIcon} />
               <span>My Loans</span>
             </NavLink>
             <NavLink
@@ -80,7 +78,6 @@ export default function MemberShell() {
                 `${styles.navLink} ${isActive ? styles.activeLink : ""}`
               }
             >
-              <Icon name="receipt" className={styles.navIcon} />
               <span>My Fines</span>
             </NavLink>
             <NavLink
@@ -89,7 +86,6 @@ export default function MemberShell() {
                 `${styles.navLink} ${isActive ? styles.activeLink : ""}`
               }
             >
-              <Icon name="receipt" className={styles.navIcon} />
               <span>Reservations</span>
             </NavLink>
             <NavLink
@@ -98,7 +94,6 @@ export default function MemberShell() {
                 `${styles.navLink} ${isActive ? styles.activeLink : ""}`
               }
             >
-              <Icon name="star" className={styles.navIcon} />
               <span>Reviews</span>
             </NavLink>
           </nav>

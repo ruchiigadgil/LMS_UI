@@ -48,35 +48,30 @@ export default function AdminShell() {
               to="/admin/books" 
               className={({ isActive }) => `${styles.navLink} ${isActive ? styles.activeLink : ''}`}
             >
-              <Icon name="books" className={styles.navIcon} />
               <span>Books</span>
             </NavLink>
             <NavLink 
               to="/admin/members" 
               className={({ isActive }) => `${styles.navLink} ${isActive ? styles.activeLink : ''}`}
             >
-              <Icon name="users" className={styles.navIcon} />
               <span>Members</span>
             </NavLink>
             <NavLink 
               to="/admin/loans" 
               className={({ isActive }) => `${styles.navLink} ${isActive ? styles.activeLink : ''}`}
             >
-              <Icon name="clipboardList" className={styles.navIcon} />
               <span>Loans</span>
             </NavLink>
             <NavLink 
               to="/admin/waitlist" 
               className={({ isActive }) => `${styles.navLink} ${isActive ? styles.activeLink : ''}`}
             >
-              <Icon name="bookmark" className={styles.navIcon} />
               <span>Waitlist</span>
             </NavLink>
             <NavLink 
               to="/admin/fines" 
               className={({ isActive }) => `${styles.navLink} ${isActive ? styles.activeLink : ''}`}
             >
-              <Icon name="receipt" className={styles.navIcon} />
               <span>Fines</span>
             </NavLink>
           </nav>

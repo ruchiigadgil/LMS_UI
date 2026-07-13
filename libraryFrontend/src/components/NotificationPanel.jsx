@@ -145,7 +145,7 @@ export default function NotificationPanel() {
     <div className={styles.panel}>
       <div className={styles.header}>
         <div className={styles.headerLeft}>
-          <Icon name="bell" className={styles.headerIcon} />
+          {notifications.length > 0 && <Icon name="bell" className={styles.headerIcon} />}
           <h3 className={styles.title}>Notifications</h3>
         </div>
         {notifications.length > 0 && (
@@ -161,7 +161,6 @@ export default function NotificationPanel() {
           </div>
         ) : notifications.length === 0 ? (
           <div className={styles.emptyState}>
-            <Icon name="book" className={styles.emptyIcon} />
             <p>No notifications</p>
           </div>
         ) : (
