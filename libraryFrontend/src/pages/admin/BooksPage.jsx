@@ -18,6 +18,10 @@ export default function BooksPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  // Show only stocked-out books — preselected via ?stock=out (e.g. from the Stats page)
+  const [stockedOutOnly, setStockedOutOnly] = useState(() =>
+    new URLSearchParams(window.location.search).get('stock') === 'out'
+  );
 
   // Drawers / Modals open state
   const [selectedBook, setSelectedBook] = useState(null);
@@ -66,6 +70,9 @@ export default function BooksPage() {
 
   // Client-side search filter
   const filteredBooks = (books || []).filter(book => {
+    if (stockedOutOnly && !(book.total_copies > 0 && book.available_copies === 0)) {
+      return false;
+    }
     const q = searchQuery.toLowerCase();
     return (
       book.title.toLowerCase().includes(q) ||
@@ -175,6 +182,16 @@ export default function BooksPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
+        {stockedOutOnly && (
+          <button
+            type="button"
+            className={styles.stockFilterChip}
+            onClick={() => setStockedOutOnly(false)}
+            title="Clear filter"
+          >
+            Stocked out only &times;
+          </button>
+        )}
         <button className={styles.addBtn} onClick={() => setIsAddModalOpen(true)}>
           <Icon name="plus" className={styles.btnIcon} /> Add Book
         </button>

@@ -116,3 +116,13 @@
   font-weight: 400;
   text-align: center;
 }
+
+/* Menu flipped above the field when there's no room below */
+.dropdownUp {
+  top: auto;
+  bottom: calc(100% + 4px);
+}
+
+.chevronUp {
+  transform: translateY(-50%) rotate(180deg);
+}

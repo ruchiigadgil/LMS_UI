@@ -13,9 +13,13 @@ export default function LoansPage() {
   const setHeader = useAdminHeader();
   const toast = useToast();
 
-  const [activeTab, setActiveTab] = useState('active'); // 'active' | 'overdue'
+  // 'active' | 'overdue' — can be preselected via ?tab= (e.g. from the Stats page)
+  const [activeTab, setActiveTab] = useState(() =>
+    new URLSearchParams(window.location.search).get('tab') === 'overdue' ? 'overdue' : 'active'
+  );
   const [activeLoans, setActiveLoans] = useState(null);
   const [overdueLoans, setOverdueLoans] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -63,24 +67,49 @@ export default function LoansPage() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const currentList = activeTab === 'active' ? activeLoans : overdueLoans;
+  const fullList = activeTab === 'active' ? activeLoans : overdueLoans;
+  const currentList = (fullList || []).filter(loan => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      loan.user_name.toLowerCase().includes(q) ||
+      loan.book_title.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className={styles.container}>
-      {/* Tabs */}
-      <div className={styles.tabs}>
-        <button
-          className={`${styles.tab} ${activeTab === 'active' ? styles.activeTab : ''}`}
-          onClick={() => setActiveTab('active')}
-        >
-          Active Loans
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'overdue' ? styles.activeTab : ''}`}
-          onClick={() => setActiveTab('overdue')}
-        >
-          Overdue Loans
-        </button>
+      {/* Tabs + search */}
+      <div className={styles.topRow}>
+        <div className={styles.tabs}>
+          <button
+            className={`${styles.tab} ${activeTab === 'active' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('active')}
+          >
+            Active Loans
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'overdue' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('overdue')}
+          >
+            Overdue Loans
+          </button>
+        </div>
+
+        <div className={styles.searchWrapper}>
+          <input
+            type="text"
+            className={styles.searchInput}
+            placeholder="Search by member or book..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button className={styles.clearSearchBtn} onClick={() => setSearchQuery('')}>
+              &times;
+            </button>
+          )}
+        </div>
       </div>
 
       {loading ? (
@@ -105,7 +134,9 @@ export default function LoansPage() {
       ) : !currentList || currentList.length === 0 ? (
         <div className={styles.tableCard}>
           <div className={styles.noResults}>
-            No {activeTab} loans found.
+            {searchQuery
+              ? `No ${activeTab} loans found matching "${searchQuery}"`
+              : `No ${activeTab} loans found.`}
           </div>
         </div>
       ) : (

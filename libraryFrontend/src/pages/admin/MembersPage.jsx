@@ -1,5 +1,6 @@
 // src/pages/admin/MembersPage.jsx
 import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAdminHeader } from '../../layouts/AdminShell';
 import { MembersContext } from '../../components/MembersContext';
 import { addMember, editMember, deleteMember } from '../../api/api';
@@ -7,12 +8,12 @@ import { useToast } from '../../components/Toast';
 import StatusBadge from '../../components/StatusBadge';
 import Modal from '../../components/Modal';
 import ConfirmDialog from '../../components/ConfirmDialog';
-import MemberDetailModal from '../../components/MemberDetailModal';
 import Icon from '../../components/Icon';
 import styles from './MembersPage.module.css';
 
 export default function MembersPage() {
   const setHeader = useAdminHeader();
+  const navigate = useNavigate();
   const toast = useToast();
   const { members, setMembers, load: loadMembers, loading, error } = useContext(MembersContext);
 
@@ -20,7 +21,6 @@ export default function MembersPage() {
 
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [viewingMember, setViewingMember] = useState(null);
   const [editingMember, setEditingMember] = useState(null);
   const [deletingMember, setDeletingMember] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -199,7 +199,7 @@ export default function MembersPage() {
                   <tr
                     key={member.id}
                     className={`${styles.tr} ${styles.clickableRow}`}
-                    onClick={() => setViewingMember(member)}
+                    onClick={() => navigate(`/admin/members/${member.id}`)}
                   >
                     <td className={`${styles.td} ${styles.idVal}`} data-label="ID">{member.id}</td>
                     <td className={`${styles.td} ${styles.nameCell}`} data-label="Name">{member.name}</td>
@@ -354,12 +354,6 @@ export default function MembersPage() {
         message={deletingMember ? `Are you sure you want to permanently delete the member account for "${deletingMember.name}"?` : ''}
       />
 
-      {/* Member Detail Modal */}
-      <MemberDetailModal
-        member={viewingMember}
-        isOpen={viewingMember !== null}
-        onClose={() => setViewingMember(null)}
-      />
     </div>
   );
 }

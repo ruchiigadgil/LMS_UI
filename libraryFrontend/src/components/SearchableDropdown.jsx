@@ -5,9 +5,20 @@ import styles from './SearchableDropdown.module.css';
 
 export default function SearchableDropdown({ options = [], onSelect, placeholder = 'Search...', initialSelectedId = null }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [openUp, setOpenUp] = useState(false);
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(null);
   const containerRef = useRef(null);
+
+  // Open the menu, flipping it upward when there isn't room below.
+  function openDropdown() {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      setOpenUp(spaceBelow < 280 && rect.top > spaceBelow);
+    }
+    setIsOpen(true);
+  }
 
   // Synchronize initial selection
   useEffect(() => {
@@ -70,10 +81,15 @@ export default function SearchableDropdown({ options = [], onSelect, placeholder
           className={styles.input}
           placeholder={placeholder}
           value={query}
-          onFocus={() => setIsOpen(true)}
+          onFocus={openDropdown}
+          onMouseDown={() => {
+            // Clicking the field (or its arrow) toggles the menu
+            if (isOpen) setIsOpen(false);
+            else openDropdown();
+          }}
           onChange={(e) => {
             setQuery(e.target.value);
-            setIsOpen(true);
+            openDropdown();
           }}
         />
         {selected ? (
@@ -81,12 +97,15 @@ export default function SearchableDropdown({ options = [], onSelect, placeholder
             &times;
           </button>
         ) : (
-          <Icon name="chevronDown" className={styles.chevronIcon} />
+          <Icon
+            name="chevronDown"
+            className={`${styles.chevronIcon} ${isOpen && openUp ? styles.chevronUp : ''}`}
+          />
         )}
       </div>
 
       {isOpen && (
-        <div className={styles.dropdown}>
+        <div className={`${styles.dropdown} ${openUp ? styles.dropdownUp : ''}`}>
           {filteredOptions.length > 0 ? (
             filteredOptions.map(opt => {
               const label = opt.name || opt.title || `Item #${opt.id}`;

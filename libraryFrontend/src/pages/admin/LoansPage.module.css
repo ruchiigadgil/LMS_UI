@@ -212,3 +212,45 @@
     text-align: left;
   }
 }
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--verso-space-3);
+  flex-wrap: wrap;
+}
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 220px;
+  max-width: 340px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: var(--verso-space-2) var(--verso-space-6) var(--verso-space-2) var(--verso-space-3);
+  border: 1px solid var(--verso-border-medium);
+  border-radius: var(--verso-radius-full);
+  background: var(--verso-bg-card);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  color: var(--verso-text-primary);
+  outline: none;
+}
+
+.searchInput:focus {
+  border-color: var(--verso-brown-500);
+}
+
+.clearSearchBtn {
+  position: absolute;
+  right: var(--verso-space-2);
+  padding: 0 var(--verso-space-1);
+  font-size: 16px;
+  color: var(--verso-text-muted);
+  cursor: pointer;
+}

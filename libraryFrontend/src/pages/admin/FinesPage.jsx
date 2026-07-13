@@ -13,7 +13,11 @@ export default function FinesPage() {
   const toast = useToast();
 
   const [fines, setFines] = useState(null);
-  const [filter, setFilter] = useState('all'); // 'all' | 'unpaid' | 'paid'
+  // 'all' | 'unpaid' | 'paid' — can be preselected via ?filter= (e.g. from the Stats page)
+  const [filter, setFilter] = useState(() => {
+    const param = new URLSearchParams(window.location.search).get('filter');
+    return ['all', 'unpaid', 'paid'].includes(param) ? param : 'all';
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [submittingId, setSubmittingId] = useState(null);

@@ -74,6 +74,18 @@ export default function AdminShell() {
             >
               <span>Fines</span>
             </NavLink>
+            <NavLink
+              to="/admin/insights"
+              className={({ isActive }) => `${styles.navLink} ${isActive ? styles.activeLink : ''}`}
+            >
+              <span>Insights</span>
+            </NavLink>
+            <NavLink
+              to="/admin/logs"
+              className={({ isActive }) => `${styles.navLink} ${isActive ? styles.activeLink : ''}`}
+            >
+              <span>Logs</span>
+            </NavLink>
           </nav>
         </aside>
 

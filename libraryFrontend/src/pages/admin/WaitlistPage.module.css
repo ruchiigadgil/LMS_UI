@@ -222,3 +222,34 @@
     text-align: left;
   }
 }
+
+.statusChips {
+  display: inline-flex;
+  background: var(--verso-bg-card);
+  border: 1px solid var(--verso-border-light);
+  padding: var(--verso-space-1);
+  border-radius: var(--verso-radius-full);
+  flex-shrink: 0;
+}
+
+.statusChip {
+  padding: var(--verso-space-2) var(--verso-space-4);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  font-weight: 500;
+  border-radius: var(--verso-radius-full);
+  color: var(--verso-text-muted);
+  cursor: pointer;
+  transition: all var(--verso-transition-fast);
+  white-space: nowrap;
+}
+
+.statusChip:hover {
+  color: var(--verso-brown-700);
+}
+
+.statusChipActive {
+  background: var(--verso-cream-200);
+  color: var(--verso-brown-700);
+}
+

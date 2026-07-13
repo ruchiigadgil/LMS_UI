@@ -373,6 +373,15 @@ def issue_loan():
         renewal_count=0
     )
     db.session.add(loan)
+    db.session.flush()
+
+    db.session.add(BookInventoryTransaction(
+        book_id=book_id,
+        change_type=ChangeType.issue,
+        quantity_delta=-1,
+        note=f"Issued to {user.name} (loan #{loan.id})",
+        created_at=datetime.now()  # local clock, matching fine payments
+    ))
 
     reservation = Reservation.query.filter_by(
     user_id=user_id,
@@ -405,6 +414,14 @@ def return_loan(loan_id):
 
     today = date.today()
     loan.return_date = today
+
+    db.session.add(BookInventoryTransaction(
+        book_id=loan.book_id,
+        change_type=ChangeType.return_,
+        quantity_delta=1,
+        note=f"Returned by {loan.user.name} (loan #{loan.id})",
+        created_at=datetime.now()  # local clock, matching fine payments
+    ))
 
     fine_amount = calculate_fine(loan, today)
 
@@ -750,3 +767,268 @@ def mark_fine_paid(fine_id):
         "message": "Fine marked as paid",
         "fine_id": fine.id
     }), 200
+
+@admin_bp.route("/stats", methods=["GET"])
+def get_stats():
+    """Aggregate library statistics for the admin Stats tab."""
+    from sqlalchemy import func
+
+    today = date.today()
+
+    issued = Loan.query.filter(Loan.status.in_(("active", "overdue"))).count()
+    # Count as overdue anything past due, even if the status job hasn't flipped it yet
+    overdue = Loan.query.filter(
+        Loan.status.in_(("active", "overdue")),
+        Loan.due_date < today
+    ).count()
+    requested = Loan.query.filter_by(status="requested").count()
+    borrowers = db.session.query(func.count(func.distinct(Loan.user_id))).filter(
+        Loan.status.in_(("active", "overdue"))
+    ).scalar()
+
+    waiting = Reservation.query.filter_by(status="waiting").count()
+    ready = Reservation.query.filter_by(status="ready").count()
+
+    members = User.query.filter_by(role="member").count()
+
+    unpaid_q = db.session.query(
+        func.count(Fine.id), func.coalesce(func.sum(Fine.amount), 0)
+    ).filter(Fine.paid.is_(False)).one()
+    unpaid_count, unpaid_total = unpaid_q[0], float(unpaid_q[1])
+
+    books = Book.query.all()
+    total_copies = sum(b.total_copies for b in books)
+    stocked_out = [
+        {"id": b.id, "title": b.title, "total_copies": b.total_copies}
+        for b in books
+        if b.total_copies > 0 and b.available_copies == 0
+    ]
+
+    # Top books by waiting-queue length
+    top_rows = db.session.query(
+        Reservation.book_id, func.count(Reservation.id).label("cnt")
+    ).filter_by(status="waiting").group_by(Reservation.book_id) \
+     .order_by(func.count(Reservation.id).desc()).limit(5).all()
+    books_by_id = {b.id: b for b in books}
+    most_waited = [
+        {"id": bid, "title": books_by_id[bid].title, "waiting": cnt}
+        for bid, cnt in top_rows if bid in books_by_id
+    ]
+
+    # --- Rule-based recommendations ---
+    waiting_by_book = {
+        bid: cnt for bid, cnt in db.session.query(
+            Reservation.book_id, func.count(Reservation.id)
+        ).filter_by(status="waiting").group_by(Reservation.book_id).all()
+    }
+    recommendations = []
+    for b in books:
+        w = waiting_by_book.get(b.id, 0)
+        out = b.total_copies > 0 and b.available_copies == 0
+        if out and w > 0:
+            recommendations.append({
+                "priority": "high",
+                "message": (
+                    f'Buy more copies of "{b.title}" — all {b.total_copies} '
+                    f'{"copies are" if b.total_copies != 1 else "copy is"} out '
+                    f'and {w} member{"s are" if w != 1 else " is"} waiting.'
+                ),
+                "link": f"/admin/waitlist?book_id={b.id}",
+            })
+        elif w >= 2:
+            recommendations.append({
+                "priority": "medium",
+                "message": (
+                    f'Demand for "{b.title}" is outpacing supply — '
+                    f'{w} members are in the queue. Consider adding copies.'
+                ),
+                "link": f"/admin/waitlist?book_id={b.id}",
+            })
+    if overdue > 0:
+        recommendations.append({
+            "priority": "medium",
+            "message": f'Follow up on {overdue} overdue loan{"s" if overdue != 1 else ""}.',
+            "link": "/admin/loans?tab=overdue",
+        })
+    if unpaid_count > 0:
+        recommendations.append({
+            "priority": "low",
+            "message": (
+                f'${unpaid_total:.2f} in unpaid fines '
+                f'({unpaid_count} fine{"s" if unpaid_count != 1 else ""}) awaiting collection.'
+            ),
+            "link": "/admin/fines?filter=unpaid",
+        })
+    order = {"high": 0, "medium": 1, "low": 2}
+    recommendations.sort(key=lambda r: order[r["priority"]])
+
+    return jsonify({
+        "recommendations": recommendations,
+        "books": {
+            "titles": len(books),
+            "total_copies": total_copies,
+            "stocked_out_count": len(stocked_out),
+            "stocked_out": stocked_out,
+        },
+        "loans": {
+            "issued": issued,
+            "overdue": overdue,
+            "pending_requests": requested,
+            "borrowers": borrowers,
+        },
+        "reservations": {
+            "waiting": waiting,
+            "ready_for_pickup": ready,
+            "most_waited": most_waited,
+        },
+        "members": {"total": members},
+        "fines": {"unpaid_count": unpaid_count, "unpaid_total": unpaid_total},
+    }), 200
+
+
+@admin_bp.route("/reservations", methods=["GET"])
+def get_all_reservations():
+    """All active reservations across books, optionally filtered by status
+    (?status=waiting|ready). Queue positions are computed within each
+    book's full queue, matching the per-book endpoint."""
+    status = request.args.get("status")
+
+    all_rows = Reservation.query.filter(
+        Reservation.status.in_(["waiting", "ready"])
+    ).order_by(Reservation.requested_at.asc()).all()
+
+    positions, counters = {}, {}
+    for r in all_rows:
+        counters[r.book_id] = counters.get(r.book_id, 0) + 1
+        positions[r.id] = counters[r.book_id]
+
+    rows = [
+        r for r in all_rows
+        if status not in ("waiting", "ready") or r.status == status
+    ]
+
+    return jsonify([
+        {
+            "reservation_id": r.id,
+            "book_id": r.book_id,
+            "book_title": r.book.title,
+            "user_id": r.user_id,
+            "member_name": r.user.name,
+            "email": r.user.email,
+            "status": r.status,
+            "requested_at": r.requested_at.isoformat(),
+            "queue_position": positions[r.id],
+        }
+        for r in rows
+    ]), 200
+
+
+@admin_bp.route("/logs", methods=["GET"])
+def get_logs():
+    """Activity log synthesized from existing records: loans issued/returned,
+    waitlist joins, fine payments, and inventory changes (add/remove/lost/
+    damaged, with their notes)."""
+    import re
+    logs = []
+
+    # Issue/return ledger rows carry a real clock time; loans created since
+    # this ledger existed are logged from here and skipped below.
+    covered = set()
+    for t in BookInventoryTransaction.query.filter(
+        BookInventoryTransaction.change_type.in_([ChangeType.issue, ChangeType.return_])
+    ).all():
+        m = re.match(r"(Issued to|Returned by) (.+) \(loan #(\d+)\)", t.note or "")
+        if not m:
+            continue
+        verb, member, loan_id = m.group(1), m.group(2), int(m.group(3))
+        kind = "issue" if verb == "Issued to" else "return"
+        covered.add((loan_id, kind))
+        book = t.book.title if t.book else f"book #{t.book_id}"
+        logs.append({
+            "id": f"inv-{t.id}",
+            "type": kind,
+            "message": f'Issued "{book}" to {member}' if kind == "issue"
+                       else f'"{book}" returned by {member}',
+            "timestamp": t.created_at.isoformat() if t.created_at else "",
+        })
+
+    for l in Loan.query.all():
+        book = l.book.title if l.book else f"book #{l.book_id}"
+        member = l.user.name if l.user else f"member #{l.user_id}"
+        if l.issue_date and (l.id, "issue") not in covered:
+            logs.append({
+                "id": f"loan-{l.id}-issue",
+                "type": "issue",
+                "message": f'Issued "{book}" to {member}',
+                "timestamp": str(l.issue_date),
+                "_seq": l.id,
+            })
+        if l.return_date and (l.id, "return") not in covered:
+            logs.append({
+                "id": f"loan-{l.id}-return",
+                "type": "return",
+                "message": f'"{book}" returned by {member}',
+                "timestamp": str(l.return_date),
+                "_seq": l.id + 0.5,  # a same-day return ranks above its issue
+            })
+
+    for r in Reservation.query.all():
+        book = r.book.title if r.book else f"book #{r.book_id}"
+        member = r.user.name if r.user else f"member #{r.user_id}"
+        logs.append({
+            "id": f"res-{r.id}",
+            "type": "waitlist",
+            "message": f'{member} joined the waitlist for "{book}" ({r.status})',
+            "timestamp": r.requested_at.isoformat(),
+        })
+
+    for f in Fine.query.filter(Fine.paid.is_(True)).all():
+        if f.paid_at:
+            member = f.user.name if f.user else f"member #{f.user_id}"
+            logs.append({
+                "id": f"fine-{f.id}",
+                "type": "fine",
+                "message": f'{member} paid a ${float(f.amount):.2f} fine',
+                "timestamp": f.paid_at.isoformat(),
+            })
+
+    verbs = {
+        "acquisition": "Added",
+        "decommission": "Removed",
+        "lost": "Marked lost",
+        "damaged": "Marked damaged",
+    }
+    for t in BookInventoryTransaction.query.all():
+        ct = t.change_type.value
+        if ct in ("issue", "return"):
+            continue  # covered by the loan events above, with member names
+        book = t.book.title if t.book else f"book #{t.book_id}"
+        msg = f'{verbs.get(ct, ct.capitalize())} "{book}" ({t.quantity_delta:+d} {"copies" if abs(t.quantity_delta) != 1 else "copy"})'
+        if t.note:
+            msg += f' — {t.note}'
+        logs.append({
+            "id": f"inv-{t.id}",
+            "type": "inventory",
+            "message": msg,
+            "timestamp": t.created_at.isoformat() if t.created_at else "",
+        })
+
+    # Date-only events (old loans stored no time) sort as end-of-day within
+    # historic days, but a date-only event from *today* predates the timed
+    # ledger, so it sinks to start-of-day. Among equal timestamps the newer
+    # record (higher id) wins.
+    today_str = str(date.today())
+    def sort_key(x):
+        ts = x["timestamp"]
+        if len(ts) > 10:
+            key = ts
+        elif ts == today_str:
+            key = ts + "T00:00:00"
+        else:
+            key = ts + "T23:59:59.999999"
+        return (key, x.get("_seq", 0))
+
+    logs.sort(key=sort_key, reverse=True)
+    for x in logs:
+        x.pop("_seq", None)
+    return jsonify(logs), 200

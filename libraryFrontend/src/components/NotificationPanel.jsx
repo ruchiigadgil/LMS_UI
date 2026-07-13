@@ -5,6 +5,24 @@ import { getMemberLoans, getMemberReservations, getMemberFines, getCurrentUser }
 import Icon from './Icon';
 import styles from './NotificationPanel.module.css';
 
+// Dismissed notifications persist across reloads, keyed per user.
+// Stale ids are pruned so the list doesn't grow forever.
+function dismissedKey(userId) {
+  return `verso_dismissed_notifs_${userId}`;
+}
+
+function getDismissed(userId) {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(dismissedKey(userId)) || '[]'));
+  } catch {
+    return new Set();
+  }
+}
+
+function saveDismissed(userId, ids) {
+  localStorage.setItem(dismissedKey(userId), JSON.stringify([...ids]));
+}
+
 export default function NotificationPanel() {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
@@ -96,7 +114,9 @@ export default function NotificationPanel() {
           });
         } else if (res.status === 'waiting' && res.queue_position) {
           notifs.push({
-            id: `queue-${res.reservation_id}`,
+            // Position is part of the id so a queue change re-notifies
+            // even if an earlier position update was dismissed.
+            id: `queue-${res.reservation_id}-p${res.queue_position}`,
             type: 'info',
             icon: 'clipboardList',
             message: `Your position in queue for "${res.book_title}" is #${res.queue_position}`,
@@ -117,7 +137,8 @@ export default function NotificationPanel() {
       if (unpaidFines.length > 0) {
         const totalFine = unpaidFines.reduce((sum, f) => sum + (f.amount || 0), 0);
         notifs.push({
-          id: 'unpaid-fines',
+          // Total is part of the id so new fines re-notify after a dismissal.
+          id: `unpaid-fines-${totalFine.toFixed(2)}`,
           type: 'warning',
           icon: 'creditCard',
           message: `You have $${totalFine.toFixed(2)} in unpaid fines`,
@@ -129,15 +150,28 @@ export default function NotificationPanel() {
       console.error('Failed to fetch fines for notifications:', err);
     }
 
+    // Drop notifications the user already dismissed, and prune stored ids
+    // that no longer correspond to a live notification.
+    const dismissed = getDismissed(user.id);
+    const currentIds = new Set(notifs.map(n => n.id));
+    saveDismissed(user.id, [...dismissed].filter(id => currentIds.has(id)));
+    const visible = notifs.filter(n => !dismissed.has(n.id));
+
     // Sort: error first, then warnings, then success, then info
     const priority = { error: 0, warning: 1, success: 2, info: 3 };
-    notifs.sort((a, b) => priority[a.type] - priority[b.type]);
+    visible.sort((a, b) => priority[a.type] - priority[b.type]);
 
-    setNotifications(notifs);
+    setNotifications(visible);
     setLoading(false);
   }
 
   function dismissNotification(id) {
+    const user = getCurrentUser();
+    if (user) {
+      const dismissed = getDismissed(user.id);
+      dismissed.add(id);
+      saveDismissed(user.id, dismissed);
+    }
     setNotifications(prev => prev.filter(n => n.id !== id));
   }
 

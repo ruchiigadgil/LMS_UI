@@ -221,6 +221,17 @@
   transition: all var(--verso-transition-fast);
 }
 
+/* Native select arrow replaced with a theme-colored chevron */
+.select {
+  padding-right: calc(var(--verso-space-3) + 22px);
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--verso-bg-card)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%235D4037' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")
+    no-repeat right var(--verso-space-3) center;
+  cursor: pointer;
+}
+
 .input:focus,
 .select:focus {
   border-color: var(--verso-brown-500);

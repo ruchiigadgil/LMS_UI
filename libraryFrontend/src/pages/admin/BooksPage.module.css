@@ -271,3 +271,19 @@
     grid-template-columns: 1fr;
   }
 }
+
+.stockFilterChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--verso-space-1);
+  padding: var(--verso-space-2) var(--verso-space-3);
+  border-radius: var(--verso-radius-full);
+  background: var(--verso-danger-light);
+  color: var(--verso-danger);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-xs);
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}

@@ -713,3 +713,27 @@ export async function getAlsoRead(bookId) {
   });
   return handleResponse(res);
 }
+
+export async function getAdminStats() {
+  const res = await fetch(`${BASE_URL}/admin/stats`, {
+    method: 'GET',
+    headers: getHeaders()
+  });
+  return handleResponse(res);
+}
+
+export async function getAllReservations() {
+  const res = await fetch(`${BASE_URL}/admin/reservations`, {
+    method: 'GET',
+    headers: getHeaders()
+  });
+  return handleResponse(res);
+}
+
+export async function getAdminLogs() {
+  const res = await fetch(`${BASE_URL}/admin/logs`, {
+    method: 'GET',
+    headers: getHeaders()
+  });
+  return handleResponse(res);
+}

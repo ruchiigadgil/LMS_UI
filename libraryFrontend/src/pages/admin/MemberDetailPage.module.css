@@ -1,0 +1,347 @@
+/* src/pages/admin/MemberDetailPage.module.css */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--verso-space-4);
+}
+
+.backLink {
+  align-self: flex-start;
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  color: var(--verso-brown-600);
+  cursor: pointer;
+  padding: 0;
+  transition: color var(--verso-transition-fast);
+}
+
+.backLink:hover {
+  color: var(--verso-brown-800);
+}
+
+/* ─── Header ─── */
+
+.headerCard {
+  background: var(--verso-bg-card);
+  border: 1px solid var(--verso-border-light);
+  border-radius: var(--verso-radius-lg);
+  padding: var(--verso-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--verso-space-4);
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--verso-space-3);
+}
+
+.memberName {
+  font-family: var(--verso-font-serif);
+  font-size: var(--verso-text-2xl);
+  color: var(--verso-text-primary);
+  margin: 0;
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--verso-space-3);
+}
+
+@media (max-width: 1100px) {
+  .metaGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .metaGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metaLabel {
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--verso-text-muted);
+}
+
+.metaValue {
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  color: var(--verso-text-primary);
+  overflow-wrap: anywhere;
+}
+
+/* ─── Cards ─── */
+
+.twoCol {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--verso-space-4);
+  align-items: stretch;
+}
+
+.card {
+  background: var(--verso-bg-card);
+  border: 1px solid var(--verso-border-light);
+  border-radius: var(--verso-radius-lg);
+  padding: var(--verso-space-4) var(--verso-space-5);
+}
+
+/* Cards sharing a row stretch to the same height so the layout
+   has no ragged gaps between sections */
+.twoCol .card {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardTitle {
+  font-family: var(--verso-font-serif);
+  font-size: var(--verso-text-md);
+  color: var(--verso-text-primary);
+  margin: 0 0 var(--verso-space-3);
+}
+
+.cardTitleSpaced {
+  margin-top: var(--verso-space-5);
+}
+
+/* ─── Form ─── */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--verso-space-3);
+}
+
+/* Full-width edit form: fields sit inline on one row, save button at the end */
+.inlineForm {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) auto;
+  gap: var(--verso-space-3);
+  align-items: end;
+}
+
+.formBtn {
+  align-self: end;
+  height: fit-content;
+}
+
+@media (max-width: 1100px) {
+  .inlineForm {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .inlineForm {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--verso-space-1);
+}
+
+.label {
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-xs);
+  font-weight: 600;
+  color: var(--verso-brown-600);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.input,
+.select {
+  padding: var(--verso-space-2) var(--verso-space-3);
+  border: 1px solid var(--verso-border-medium);
+  border-radius: var(--verso-radius-md);
+  background: var(--verso-bg-card);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  color: var(--verso-text-primary);
+  outline: none;
+  transition: all var(--verso-transition-fast);
+}
+
+.input:focus,
+.select:focus {
+  border-color: var(--verso-brown-500);
+  box-shadow: 0 0 0 3px rgba(141, 110, 99, 0.12);
+}
+
+.select {
+  padding-right: calc(var(--verso-space-3) + 22px);
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--verso-bg-card)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235D4037' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")
+    no-repeat right var(--verso-space-3) center;
+  cursor: pointer;
+}
+
+/* ─── Buttons ─── */
+
+.primaryBtn {
+  align-self: flex-start;
+  padding: var(--verso-space-2) var(--verso-space-4);
+  background: var(--verso-brown-700);
+  color: #FFFFFF;
+  border-radius: var(--verso-radius-md);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--verso-transition-fast);
+}
+
+.primaryBtn:hover:not(:disabled) {
+  background: var(--verso-brown-800);
+}
+
+.primaryBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secondaryBtn {
+  padding: var(--verso-space-1) var(--verso-space-3);
+  background: var(--verso-cream-200);
+  color: var(--verso-brown-700);
+  border-radius: var(--verso-radius-md);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-xs);
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--verso-transition-fast);
+}
+
+.secondaryBtn:hover:not(:disabled) {
+  background: var(--verso-brown-100);
+}
+
+.secondaryBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Action rows (issue / reserve) ─── */
+
+.actionRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--verso-space-3);
+}
+
+.dropdownWrap {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Equal button widths keep the two dropdowns identically sized */
+.actionRow .primaryBtn {
+  min-width: 116px;
+  justify-content: center;
+  text-align: center;
+}
+
+.hintText {
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-xs);
+  color: var(--verso-warning);
+  margin: var(--verso-space-2) 0 0;
+}
+
+/* ─── Loans table ─── */
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.th {
+  padding: var(--verso-space-2) var(--verso-space-3);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--verso-text-muted);
+  border-bottom: 1px solid var(--verso-border-light);
+}
+
+.td {
+  padding: var(--verso-space-2) var(--verso-space-3);
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  color: var(--verso-text-primary);
+  border-bottom: 1px solid var(--verso-border-light);
+}
+
+.tr:last-child .td {
+  border-bottom: none;
+}
+
+.tdAction {
+  text-align: right;
+}
+
+.dateVal {
+  color: var(--verso-text-muted);
+  white-space: nowrap;
+}
+
+.dueWarning {
+  color: var(--verso-danger);
+  font-weight: 600;
+}
+
+.rowMuted {
+  opacity: 0.6;
+}
+
+.fineAmount {
+  font-family: var(--verso-font-serif);
+  color: var(--verso-danger);
+  white-space: nowrap;
+}
+
+.emptyText {
+  font-family: var(--verso-font-body);
+  font-size: var(--verso-text-sm);
+  color: var(--verso-text-muted);
+  font-style: italic;
+  margin: 0;
+}
+
+.stateMsg {
+  display: flex;
+  align-items: center;
+  gap: var(--verso-space-2);
+  padding: var(--verso-space-6);
+  font-family: var(--verso-font-body);
+  color: var(--verso-text-muted);
+}

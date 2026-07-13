@@ -16,6 +16,9 @@ import MembersPage from './pages/admin/MembersPage';
 import LoansPage from './pages/admin/LoansPage';
 import WaitlistPage from './pages/admin/WaitlistPage';
 import FinesPage from './pages/admin/FinesPage';
+import StatsPage from './pages/admin/StatsPage';
+import LogsPage from './pages/admin/LogsPage';
+import MemberDetailPage from './pages/admin/MemberDetailPage';
 
 // Member Pages
 import BrowseBooksPage from './pages/member/BrowseBooksPage';
@@ -40,9 +43,12 @@ export default function App() {
           <Route index element={<Navigate to="/admin/books" replace />} />
           <Route path="books" element={<BooksPage />} />
           <Route path="members" element={<MembersPage />} />
+          <Route path="members/:memberId" element={<MemberDetailPage />} />
           <Route path="loans" element={<LoansPage />} />
           <Route path="waitlist" element={<WaitlistPage />} />
           <Route path="fines" element={<FinesPage />} />
+          <Route path="insights" element={<StatsPage />} />
+          <Route path="logs" element={<LogsPage />} />
         </Route>
 
         {/* Member portal */}
